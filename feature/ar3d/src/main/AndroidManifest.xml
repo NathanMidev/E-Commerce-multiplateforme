@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.CAMERA" />
+    <application>
+        <activity
+            android:name=".ui.ArViewerActivity"
+            android:exported="false"
+            android:label="Visualiseur Réalité Augmentée 3D" />
+        <activity
+            android:name=".ui.Model3dPreviewActivity"
+            android:exported="false"
+            android:label="Aperçu 3D" />
+    </application>
+</manifest>

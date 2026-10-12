@@ -1,0 +1,17 @@
+R_DEF: Internal format may change without notice
+local
+id btn_capture_frame
+id btn_finish_and_process
+id btn_view_in_ar
+id progress_bar_sam
+id tv_frames_count
+id tv_scan_title
+id tv_status_detail
+id tv_status_header
+layout activity_sam_processing_status
+layout activity_scan_capture
+string btn_capture_frame
+string btn_finish_and_process
+string btn_view_in_ar
+string scan_instructions
+string scanner_title

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.marketplace.feature.auth" >
+
+    <uses-sdk android:minSdkVersion="21" />
+
+    <application>
+        <activity
+            android:name="com.marketplace.feature.auth.ui.LoginActivity"
+            android:exported="false"
+            android:label="Connexion" />
+        <activity
+            android:name="com.marketplace.feature.auth.ui.RegisterActivity"
+            android:exported="false"
+            android:label="Inscription" />
+        <activity
+            android:name="com.marketplace.feature.auth.ui.UserProfileActivity"
+            android:exported="false"
+            android:label="Profil Utilisateur" />
+    </application>
+
+</manifest>

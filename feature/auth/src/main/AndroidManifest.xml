@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <activity
+            android:name=".ui.LoginActivity"
+            android:exported="false"
+            android:label="Connexion" />
+        <activity
+            android:name=".ui.RegisterActivity"
+            android:exported="false"
+            android:label="Inscription" />
+        <activity
+            android:name=".ui.UserProfileActivity"
+            android:exported="false"
+            android:label="Profil Utilisateur" />
+    </application>
+</manifest>

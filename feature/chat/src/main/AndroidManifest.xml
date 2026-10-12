@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <activity
+            android:name=".ui.ChatConversationActivity"
+            android:exported="false"
+            android:label="Discussion avec le vendeur" />
+        <activity
+            android:name=".ui.ChatListActivity"
+            android:exported="false"
+            android:label="Mes Messages" />
+    </application>
+</manifest>

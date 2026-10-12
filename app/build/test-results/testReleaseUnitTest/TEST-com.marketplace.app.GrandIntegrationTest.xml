@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.marketplace.app.GrandIntegrationTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-12T13:51:01" hostname="DESKTOP-LTB6QG5" time="0.023">
+  <properties/>
+  <testcase name="testGrandIntegration_AllModuleRoutersRegistered" classname="com.marketplace.app.GrandIntegrationTest" time="0.01"/>
+  <testcase name="testGrandIntegration_CatalogToArAndChatFlow" classname="com.marketplace.app.GrandIntegrationTest" time="0.004"/>
+  <testcase name="testGrandIntegration_ScannerSamToFirebaseToChatPipeline" classname="com.marketplace.app.GrandIntegrationTest" time="0.004"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

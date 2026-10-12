@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Marketplace 3D AR</string>
+    <string name="main_title">Plateforme E-Commerce 3D</string>
+    <string name="main_subtitle">Architecture Monolithe Modulaire</string>
+    <string name="btn_nav_catalog">Explorer le Catalogue &amp; Filtres</string>
+    <string name="btn_nav_scanner">Scanner un produit (IA Meta SAM)</string>
+    <string name="btn_nav_chat">Messagerie Vendeurs</string>
+    <string name="btn_nav_auth">Connexion / Profil</string>
+</resources>

@@ -1,0 +1,20 @@
+R_DEF: Internal format may change without notice
+local
+id btn_login
+id btn_register
+id edit_email
+id edit_name
+id edit_password
+id tv_empty_state
+id tv_title
+id tv_user_id
+layout activity_login
+layout activity_register
+layout activity_user_profile
+string auth_app_name
+string btn_login
+string btn_register
+string email_hint
+string login_title
+string name_hint
+string password_hint

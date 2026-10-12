@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.marketplace.feature.auth.AuthUnitTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-12T13:51:11" hostname="DESKTOP-LTB6QG5" time="0.008">
+  <properties/>
+  <testcase name="testAuthRouterInstance" classname="com.marketplace.feature.auth.AuthUnitTest" time="0.008"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

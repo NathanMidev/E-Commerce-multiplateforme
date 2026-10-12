@@ -1,0 +1,27 @@
+R_DEF: Internal format may change without notice
+local
+id btn_ar_badge
+id btn_chat_seller
+id btn_scan_3d
+id btn_view_ar
+id cb_ar_only
+id layout_empty_state
+id progress_bar
+id rv_products
+id spinner_categories
+id tv_detail_description
+id tv_detail_price
+id tv_detail_seller
+id tv_detail_title
+id tv_empty_message
+id tv_product_price
+id tv_product_seller
+id tv_product_title
+layout activity_product_catalog
+layout activity_product_detail
+layout item_product_card
+string btn_chat_seller
+string btn_scan_3d
+string btn_view_ar
+string filter_ar_only
+string products_catalog_title

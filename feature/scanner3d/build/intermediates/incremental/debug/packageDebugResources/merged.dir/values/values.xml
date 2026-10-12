@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="btn_capture_frame">Capturer un angle</string>
+    <string name="btn_finish_and_process">Envoyer au traitement SAM (Meta)</string>
+    <string name="btn_view_in_ar">Tester le modèle généré en AR</string>
+    <string name="scan_instructions">Tournez lentement autour de l\'objet en maintenant l\'appareil stable. Prenez des photos sous plusieurs angles pour la segmentation SAM.</string>
+    <string name="scanner_title">Scanner 3D Produit</string>
+</resources>

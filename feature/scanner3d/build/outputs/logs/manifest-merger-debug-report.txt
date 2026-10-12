@@ -1,0 +1,42 @@
+-- Merging decision tree log ---
+manifest
+ADDED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:2:1-15:12
+INJECTED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:2:1-15:12
+	package
+		INJECTED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml
+	xmlns:android
+		ADDED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:2:11-69
+uses-permission#android.permission.CAMERA
+ADDED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:3:5-65
+	android:name
+		ADDED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:3:22-62
+uses-permission#android.permission.INTERNET
+ADDED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:4:5-67
+	android:name
+		ADDED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:4:22-64
+application
+ADDED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:5:5-14:19
+activity#com.marketplace.feature.scanner3d.ui.ScanCaptureActivity
+ADDED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:6:9-9:50
+	android:label
+		ADDED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:9:13-47
+	android:exported
+		ADDED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:8:13-37
+	android:name
+		ADDED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:7:13-51
+activity#com.marketplace.feature.scanner3d.ui.SamProcessingStatusActivity
+ADDED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:10:9-13:56
+	android:label
+		ADDED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:13:13-53
+	android:exported
+		ADDED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:12:13-37
+	android:name
+		ADDED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:11:13-59
+uses-sdk
+INJECTED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml
+INJECTED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml

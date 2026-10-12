@@ -1,0 +1,17 @@
+R_DEF: Internal format may change without notice
+local
+id btn_send_message
+id edit_message_input
+id layout_empty_chat
+id rv_messages
+id tv_bubble_content
+id tv_bubble_sender
+id tv_chat_list_empty
+id tv_product_header
+id tv_seller_header
+layout activity_chat_conversation
+layout activity_chat_list
+layout item_chat_bubble
+string btn_send
+string chat_empty_hint
+string chat_title

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.marketplace.feature.products" >
+
+    <uses-sdk android:minSdkVersion="21" />
+
+    <application>
+        <activity
+            android:name="com.marketplace.feature.products.ui.ProductCatalogActivity"
+            android:exported="false"
+            android:label="Catalogue Produits" />
+        <activity
+            android:name="com.marketplace.feature.products.ui.ProductDetailActivity"
+            android:exported="false"
+            android:label="Fiche Produit" />
+    </application>
+
+</manifest>

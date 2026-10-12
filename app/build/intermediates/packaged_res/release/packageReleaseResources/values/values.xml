@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="accent">#00897B</color>
+    <color name="background">#F5F5F5</color>
+    <color name="primary">#1976D2</color>
+    <color name="primary_dark">#1565C0</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <string name="app_name">Marketplace 3D AR</string>
+    <string name="btn_nav_auth">Connexion / Profil</string>
+    <string name="btn_nav_catalog">Explorer le Catalogue &amp; Filtres</string>
+    <string name="btn_nav_chat">Messagerie Vendeurs</string>
+    <string name="btn_nav_scanner">Scanner un produit (IA Meta SAM)</string>
+    <string name="main_subtitle">Architecture Monolithe Modulaire</string>
+    <string name="main_title">Plateforme E-Commerce 3D</string>
+    <style name="Theme.Marketplace" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="colorSecondary">@color/accent</item>
+        <item name="android:statusBarColor">@color/primary_dark</item>
+    </style>
+</resources>

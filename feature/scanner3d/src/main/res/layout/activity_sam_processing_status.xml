@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center"
+    android:background="#FAFAFA">
+
+    <TextView
+        android:id="@+id/tv_status_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Traitement IA SAM..."
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="#212121"
+        android:gravity="center"
+        android:layout_marginBottom="12dp" />
+
+    <TextView
+        android:id="@+id/tv_status_detail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Synchronisation avec le serveur GPU Meta SAM..."
+        android:textSize="15sp"
+        android:textColor="#757575"
+        android:gravity="center"
+        android:layout_marginBottom="24dp" />
+
+    <ProgressBar
+        android:id="@+id/progress_bar_sam"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="12dp"
+        android:max="100"
+        android:progress="0"
+        android:layout_marginBottom="32dp" />
+
+    <Button
+        android:id="@+id/btn_view_in_ar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_view_in_ar"
+        android:backgroundTint="#00897B"
+        android:textColor="#FFFFFF"
+        android:visibility="gone" />
+
+</LinearLayout>

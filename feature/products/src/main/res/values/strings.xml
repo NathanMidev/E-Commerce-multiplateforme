@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="products_catalog_title">Marketplace 3D</string>
+    <string name="filter_ar_only">Objets 3D AR seulement</string>
+    <string name="btn_view_ar">Essayer en 3D dans votre pièce (AR)</string>
+    <string name="btn_chat_seller">Discuter avec le vendeur</string>
+    <string name="btn_scan_3d">Scanner le produit en 3D (IA SAM)</string>
+</resources>

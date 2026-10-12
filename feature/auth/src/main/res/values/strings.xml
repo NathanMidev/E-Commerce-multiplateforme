@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="auth_app_name">Authentification</string>
+    <string name="login_title">Connexion à la Marketplace</string>
+    <string name="email_hint">Adresse email</string>
+    <string name="password_hint">Mot de passe</string>
+    <string name="name_hint">Nom complet / Nom de la boutique</string>
+    <string name="btn_login">Se connecter</string>
+    <string name="btn_register">Créer un compte</string>
+</resources>

@@ -1,0 +1,34 @@
+-- Merging decision tree log ---
+manifest
+ADDED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\chat\src\main\AndroidManifest.xml:2:1-13:12
+INJECTED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\chat\src\main\AndroidManifest.xml:2:1-13:12
+	package
+		INJECTED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\chat\src\main\AndroidManifest.xml
+	xmlns:android
+		ADDED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\chat\src\main\AndroidManifest.xml:2:11-69
+application
+ADDED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\chat\src\main\AndroidManifest.xml:3:5-12:19
+activity#com.marketplace.feature.chat.ui.ChatConversationActivity
+ADDED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\chat\src\main\AndroidManifest.xml:4:9-7:58
+	android:label
+		ADDED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\chat\src\main\AndroidManifest.xml:7:13-55
+	android:exported
+		ADDED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\chat\src\main\AndroidManifest.xml:6:13-37
+	android:name
+		ADDED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\chat\src\main\AndroidManifest.xml:5:13-56
+activity#com.marketplace.feature.chat.ui.ChatListActivity
+ADDED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\chat\src\main\AndroidManifest.xml:8:9-11:44
+	android:label
+		ADDED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\chat\src\main\AndroidManifest.xml:11:13-41
+	android:exported
+		ADDED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\chat\src\main\AndroidManifest.xml:10:13-37
+	android:name
+		ADDED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\chat\src\main\AndroidManifest.xml:9:13-48
+uses-sdk
+INJECTED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\chat\src\main\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\chat\src\main\AndroidManifest.xml
+INJECTED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\chat\src\main\AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\chat\src\main\AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\chat\src\main\AndroidManifest.xml

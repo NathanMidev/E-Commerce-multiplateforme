@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.marketplace.feature.products.ProductUnitTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-12T13:51:16" hostname="DESKTOP-LTB6QG5" time="0.018">
+  <properties/>
+  <testcase name="testCrossModuleRouterDoesNotInvokeOtherFeatureCode" classname="com.marketplace.feature.products.ProductUnitTest" time="0.011"/>
+  <testcase name="testProductModuleRouterIsolated" classname="com.marketplace.feature.products.ProductUnitTest" time="0.0"/>
+  <testcase name="testCategoryFilteringIsolated" classname="com.marketplace.feature.products.ProductUnitTest" time="0.005"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

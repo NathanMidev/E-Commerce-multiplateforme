@@ -1,0 +1,35 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.marketplace.feature.auth" >
+4
+5    <uses-sdk android:minSdkVersion="21" />
+6
+7    <application>
+7-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\auth\src\main\AndroidManifest.xml:3:5-16:19
+8        <activity
+8-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\auth\src\main\AndroidManifest.xml:4:9-7:41
+9            android:name="com.marketplace.feature.auth.ui.LoginActivity"
+9-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\auth\src\main\AndroidManifest.xml:5:13-45
+10            android:exported="false"
+10-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\auth\src\main\AndroidManifest.xml:6:13-37
+11            android:label="Connexion" />
+11-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\auth\src\main\AndroidManifest.xml:7:13-38
+12        <activity
+12-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\auth\src\main\AndroidManifest.xml:8:9-11:43
+13            android:name="com.marketplace.feature.auth.ui.RegisterActivity"
+13-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\auth\src\main\AndroidManifest.xml:9:13-48
+14            android:exported="false"
+14-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\auth\src\main\AndroidManifest.xml:10:13-37
+15            android:label="Inscription" />
+15-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\auth\src\main\AndroidManifest.xml:11:13-40
+16        <activity
+16-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\auth\src\main\AndroidManifest.xml:12:9-15:50
+17            android:name="com.marketplace.feature.auth.ui.UserProfileActivity"
+17-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\auth\src\main\AndroidManifest.xml:13:13-51
+18            android:exported="false"
+18-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\auth\src\main\AndroidManifest.xml:14:13-37
+19            android:label="Profil Utilisateur" />
+19-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\auth\src\main\AndroidManifest.xml:15:13-47
+20    </application>
+21
+22</manifest>

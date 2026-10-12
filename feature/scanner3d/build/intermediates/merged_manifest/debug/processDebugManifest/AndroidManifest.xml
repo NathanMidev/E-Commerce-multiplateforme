@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.marketplace.feature.scanner3d" >
+
+    <uses-sdk android:minSdkVersion="21" />
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application>
+        <activity
+            android:name="com.marketplace.feature.scanner3d.ui.ScanCaptureActivity"
+            android:exported="false"
+            android:label="Scanner 3D Produit" />
+        <activity
+            android:name="com.marketplace.feature.scanner3d.ui.SamProcessingStatusActivity"
+            android:exported="false"
+            android:label="Statut Traitement IA SAM" />
+    </application>
+
+</manifest>

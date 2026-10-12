@@ -1,0 +1,15 @@
+com.marketplace.feature.ar3d
+id ar_surface_placeholder
+id btn_place_object
+id btn_reset_ar
+id layout_bottom_bar
+id layout_top_bar
+id tv_3d_preview_info
+id tv_ar_model_status
+id tv_ar_product_name
+layout activity_ar_viewer
+layout activity_model3d_preview
+string ar_app_name
+string ar_instructions
+string btn_place_object
+string btn_reset_ar

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <application>
+        <activity
+            android:name=".ui.ScanCaptureActivity"
+            android:exported="false"
+            android:label="Scanner 3D Produit" />
+        <activity
+            android:name=".ui.SamProcessingStatusActivity"
+            android:exported="false"
+            android:label="Statut Traitement IA SAM" />
+    </application>
+</manifest>

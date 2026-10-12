@@ -1,0 +1,22 @@
+R_DEF: Internal format may change without notice
+local
+color accent
+color background
+color primary
+color primary_dark
+color surface
+color text_primary
+color text_secondary
+id btn_nav_auth
+id btn_nav_catalog
+id btn_nav_chat
+id btn_nav_scanner
+layout activity_main
+string app_name
+string btn_nav_auth
+string btn_nav_catalog
+string btn_nav_chat
+string btn_nav_scanner
+string main_subtitle
+string main_title
+style Theme.Marketplace

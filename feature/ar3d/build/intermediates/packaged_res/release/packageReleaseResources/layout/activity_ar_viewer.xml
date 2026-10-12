@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#121212">
+
+    <!-- AR Surface Placeholder (Caméra + Moteur AR/Sceneview/Filament) -->
+    <FrameLayout
+        android:id="@+id/ar_surface_placeholder"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#212121"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Vue Caméra Réalité Augmentée\n(ARCore / Sceneview Surface)"
+            android:textColor="#B0BEC5"
+            android:textSize="18sp"
+            android:gravity="center" />
+    </FrameLayout>
+
+    <!-- Top Overlay : Nom du produit et statut 3D -->
+    <LinearLayout
+        android:id="@+id/layout_top_bar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="#80000000"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/tv_ar_product_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Produit 3D"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_ar_model_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Chargement du maillage..."
+            android:textColor="#80D8FF"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <!-- Bottom Overlay : Instructions et boutons de manipulation -->
+    <LinearLayout
+        android:id="@+id/layout_bottom_bar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="#80000000"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ar_instructions"
+            android:textColor="#ECEFF1"
+            android:textSize="13sp"
+            android:layout_marginBottom="12dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_place_object"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/btn_place_object"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/btn_reset_ar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/btn_reset_ar"
+                android:backgroundTint="#455A64" />
+        </LinearLayout>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

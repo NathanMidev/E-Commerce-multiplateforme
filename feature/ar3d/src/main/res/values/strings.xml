@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ar_app_name">Visualiseur AR 3D</string>
+    <string name="btn_place_object">Placer dans la pièce</string>
+    <string name="btn_reset_ar">Réinitialiser l\'ancrage</string>
+    <string name="ar_instructions">Pointez la caméra vers une surface plane (sol ou table) pour visualiser l\'objet à échelle réelle.</string>
+</resources>

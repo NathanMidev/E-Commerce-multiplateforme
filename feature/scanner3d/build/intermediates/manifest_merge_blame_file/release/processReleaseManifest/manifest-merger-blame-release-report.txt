@@ -1,0 +1,34 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.marketplace.feature.scanner3d" >
+4
+5    <uses-sdk android:minSdkVersion="21" />
+6
+7    <uses-permission android:name="android.permission.CAMERA" />
+7-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:3:5-65
+7-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:3:22-62
+8    <uses-permission android:name="android.permission.INTERNET" />
+8-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:4:5-67
+8-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:4:22-64
+9
+10    <application>
+10-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:5:5-14:19
+11        <activity
+11-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:6:9-9:50
+12            android:name="com.marketplace.feature.scanner3d.ui.ScanCaptureActivity"
+12-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:7:13-51
+13            android:exported="false"
+13-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:8:13-37
+14            android:label="Scanner 3D Produit" />
+14-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:9:13-47
+15        <activity
+15-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:10:9-13:56
+16            android:name="com.marketplace.feature.scanner3d.ui.SamProcessingStatusActivity"
+16-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:11:13-59
+17            android:exported="false"
+17-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:12:13-37
+18            android:label="Statut Traitement IA SAM" />
+18-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:13:13-53
+19    </application>
+20
+21</manifest>

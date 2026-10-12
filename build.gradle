@@ -1,0 +1,10 @@
+// Fichier Gradle racine (Top-level build file)
+plugins {
+    id 'com.android.application' version '8.7.3' apply false
+    id 'com.android.library' version '8.7.3' apply false
+}
+
+// Configuration globale pour tous les sous-projets
+subprojects {
+    // Les configurations spécifiques sont déléguées à chaque module
+}

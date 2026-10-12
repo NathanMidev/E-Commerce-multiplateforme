@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat_title">Messagerie Vendeur</string>
+    <string name="chat_empty_hint">Posez vos questions sur l\'objet, la livraison ou demandez un scan 3D personnalisé.</string>
+    <string name="btn_send">Envoyer</string>
+</resources>

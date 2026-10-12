@@ -1,0 +1,224 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.marketplace.app"
+4    android:versionCode="1"
+5    android:versionName="1.0.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="21"
+9        android:targetSdkVersion="35" />
+10
+11    <uses-permission android:name="android.permission.INTERNET" />
+11-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\app\src\main\AndroidManifest.xml:4:5-67
+11-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\app\src\main\AndroidManifest.xml:4:22-64
+12    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+12-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\app\src\main\AndroidManifest.xml:5:5-79
+12-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\app\src\main\AndroidManifest.xml:5:22-76
+13    <uses-permission android:name="android.permission.CAMERA" />
+13-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\app\src\main\AndroidManifest.xml:6:5-65
+13-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\app\src\main\AndroidManifest.xml:6:22-62
+14
+15    <permission
+15-->[androidx.core:core:1.13.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\61e3a354427e3e7b38320ad5f8c1bd2b\transformed\core-1.13.0\AndroidManifest.xml:22:5-24:47
+16        android:name="com.marketplace.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+16-->[androidx.core:core:1.13.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\61e3a354427e3e7b38320ad5f8c1bd2b\transformed\core-1.13.0\AndroidManifest.xml:23:9-81
+17        android:protectionLevel="signature" />
+17-->[androidx.core:core:1.13.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\61e3a354427e3e7b38320ad5f8c1bd2b\transformed\core-1.13.0\AndroidManifest.xml:24:9-44
+18
+19    <uses-permission android:name="com.marketplace.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+19-->[androidx.core:core:1.13.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\61e3a354427e3e7b38320ad5f8c1bd2b\transformed\core-1.13.0\AndroidManifest.xml:26:5-97
+19-->[androidx.core:core:1.13.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\61e3a354427e3e7b38320ad5f8c1bd2b\transformed\core-1.13.0\AndroidManifest.xml:26:22-94
+20
+21    <application
+21-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\app\src\main\AndroidManifest.xml:8:5-26:19
+22        android:name="com.marketplace.app.MarketplaceApp"
+22-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\app\src\main\AndroidManifest.xml:9:9-39
+23        android:allowBackup="true"
+23-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\app\src\main\AndroidManifest.xml:10:9-35
+24        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+24-->[androidx.core:core:1.13.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\61e3a354427e3e7b38320ad5f8c1bd2b\transformed\core-1.13.0\AndroidManifest.xml:28:18-86
+25        android:extractNativeLibs="true"
+26        android:icon="@android:drawable/sym_def_app_icon"
+26-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\app\src\main\AndroidManifest.xml:11:9-58
+27        android:label="@string/app_name"
+27-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\app\src\main\AndroidManifest.xml:12:9-41
+28        android:roundIcon="@android:drawable/sym_def_app_icon"
+28-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\app\src\main\AndroidManifest.xml:13:9-63
+29        android:supportsRtl="true"
+29-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\app\src\main\AndroidManifest.xml:14:9-35
+30        android:theme="@style/Theme.Marketplace" >
+30-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\app\src\main\AndroidManifest.xml:15:9-49
+31        <activity
+31-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\app\src\main\AndroidManifest.xml:17:9-24:20
+32            android:name="com.marketplace.app.MainActivity"
+32-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\app\src\main\AndroidManifest.xml:18:13-41
+33            android:exported="true" >
+33-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\app\src\main\AndroidManifest.xml:19:13-36
+34            <intent-filter>
+34-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\app\src\main\AndroidManifest.xml:20:13-23:29
+35                <action android:name="android.intent.action.MAIN" />
+35-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\app\src\main\AndroidManifest.xml:21:17-69
+35-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\app\src\main\AndroidManifest.xml:21:25-66
+36
+37                <category android:name="android.intent.category.LAUNCHER" />
+37-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\app\src\main\AndroidManifest.xml:22:17-77
+37-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\app\src\main\AndroidManifest.xml:22:27-74
+38            </intent-filter>
+39        </activity>
+40        <activity
+40-->[:feature:auth] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\auth\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:8:9-11:41
+41            android:name="com.marketplace.feature.auth.ui.LoginActivity"
+41-->[:feature:auth] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\auth\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:9:13-73
+42            android:exported="false"
+42-->[:feature:auth] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\auth\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:10:13-37
+43            android:label="Connexion" />
+43-->[:feature:auth] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\auth\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:11:13-38
+44        <activity
+44-->[:feature:auth] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\auth\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:12:9-15:43
+45            android:name="com.marketplace.feature.auth.ui.RegisterActivity"
+45-->[:feature:auth] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\auth\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:13:13-76
+46            android:exported="false"
+46-->[:feature:auth] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\auth\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:14:13-37
+47            android:label="Inscription" />
+47-->[:feature:auth] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\auth\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:15:13-40
+48        <activity
+48-->[:feature:auth] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\auth\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:16:9-19:50
+49            android:name="com.marketplace.feature.auth.ui.UserProfileActivity"
+49-->[:feature:auth] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\auth\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:17:13-79
+50            android:exported="false"
+50-->[:feature:auth] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\auth\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:18:13-37
+51            android:label="Profil Utilisateur" />
+51-->[:feature:auth] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\auth\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:19:13-47
+52        <activity
+52-->[:feature:products] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\products\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:8:9-11:50
+53            android:name="com.marketplace.feature.products.ui.ProductCatalogActivity"
+53-->[:feature:products] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\products\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:9:13-86
+54            android:exported="false"
+54-->[:feature:products] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\products\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:10:13-37
+55            android:label="Catalogue Produits" />
+55-->[:feature:products] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\products\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:11:13-47
+56        <activity
+56-->[:feature:products] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\products\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:12:9-15:45
+57            android:name="com.marketplace.feature.products.ui.ProductDetailActivity"
+57-->[:feature:products] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\products\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:13:13-85
+58            android:exported="false"
+58-->[:feature:products] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\products\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:14:13-37
+59            android:label="Fiche Produit" />
+59-->[:feature:products] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\products\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:15:13-42
+60        <activity
+60-->[:feature:ar3d] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\ar3d\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:10:9-13:64
+61            android:name="com.marketplace.feature.ar3d.ui.ArViewerActivity"
+61-->[:feature:ar3d] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\ar3d\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:11:13-76
+62            android:exported="false"
+62-->[:feature:ar3d] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\ar3d\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:12:13-37
+63            android:label="Visualiseur Réalité Augmentée 3D" />
+63-->[:feature:ar3d] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\ar3d\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:13:13-61
+64        <activity
+64-->[:feature:ar3d] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\ar3d\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:14:9-17:41
+65            android:name="com.marketplace.feature.ar3d.ui.Model3dPreviewActivity"
+65-->[:feature:ar3d] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\ar3d\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:15:13-82
+66            android:exported="false"
+66-->[:feature:ar3d] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\ar3d\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:16:13-37
+67            android:label="Aperçu 3D" />
+67-->[:feature:ar3d] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\ar3d\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:17:13-38
+68        <activity
+68-->[:feature:scanner3d] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:11:9-14:50
+69            android:name="com.marketplace.feature.scanner3d.ui.ScanCaptureActivity"
+69-->[:feature:scanner3d] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:12:13-84
+70            android:exported="false"
+70-->[:feature:scanner3d] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:13:13-37
+71            android:label="Scanner 3D Produit" />
+71-->[:feature:scanner3d] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:14:13-47
+72        <activity
+72-->[:feature:scanner3d] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:15:9-18:56
+73            android:name="com.marketplace.feature.scanner3d.ui.SamProcessingStatusActivity"
+73-->[:feature:scanner3d] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:16:13-92
+74            android:exported="false"
+74-->[:feature:scanner3d] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:17:13-37
+75            android:label="Statut Traitement IA SAM" />
+75-->[:feature:scanner3d] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:18:13-53
+76        <activity
+76-->[:feature:chat] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\chat\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:8:9-11:58
+77            android:name="com.marketplace.feature.chat.ui.ChatConversationActivity"
+77-->[:feature:chat] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\chat\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:9:13-84
+78            android:exported="false"
+78-->[:feature:chat] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\chat\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:10:13-37
+79            android:label="Discussion avec le vendeur" />
+79-->[:feature:chat] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\chat\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:11:13-55
+80        <activity
+80-->[:feature:chat] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\chat\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:12:9-15:44
+81            android:name="com.marketplace.feature.chat.ui.ChatListActivity"
+81-->[:feature:chat] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\chat\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:13:13-76
+82            android:exported="false"
+82-->[:feature:chat] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\chat\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:14:13-37
+83            android:label="Mes Messages" />
+83-->[:feature:chat] C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\chat\build\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml:15:13-41
+84
+85        <provider
+85-->[androidx.emoji2:emoji2:1.3.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\86d0aabca0c386271a79c8991a71e26d\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:24:9-32:20
+86            android:name="androidx.startup.InitializationProvider"
+86-->[androidx.emoji2:emoji2:1.3.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\86d0aabca0c386271a79c8991a71e26d\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:25:13-67
+87            android:authorities="com.marketplace.app.androidx-startup"
+87-->[androidx.emoji2:emoji2:1.3.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\86d0aabca0c386271a79c8991a71e26d\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:26:13-68
+88            android:exported="false" >
+88-->[androidx.emoji2:emoji2:1.3.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\86d0aabca0c386271a79c8991a71e26d\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:27:13-37
+89            <meta-data
+89-->[androidx.emoji2:emoji2:1.3.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\86d0aabca0c386271a79c8991a71e26d\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:29:13-31:52
+90                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+90-->[androidx.emoji2:emoji2:1.3.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\86d0aabca0c386271a79c8991a71e26d\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:30:17-75
+91                android:value="androidx.startup" />
+91-->[androidx.emoji2:emoji2:1.3.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\86d0aabca0c386271a79c8991a71e26d\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:31:17-49
+92            <meta-data
+92-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\63a2efaa73fed8a2692e56253428a5b2\transformed\jetified-lifecycle-process-2.6.2\AndroidManifest.xml:29:13-31:52
+93                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+93-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\63a2efaa73fed8a2692e56253428a5b2\transformed\jetified-lifecycle-process-2.6.2\AndroidManifest.xml:30:17-78
+94                android:value="androidx.startup" />
+94-->[androidx.lifecycle:lifecycle-process:2.6.2] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\63a2efaa73fed8a2692e56253428a5b2\transformed\jetified-lifecycle-process-2.6.2\AndroidManifest.xml:31:17-49
+95            <meta-data
+95-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\395c3a250d1460be00efe528fac54f74\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:29:13-31:52
+96                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+96-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\395c3a250d1460be00efe528fac54f74\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:30:17-85
+97                android:value="androidx.startup" />
+97-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\395c3a250d1460be00efe528fac54f74\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:31:17-49
+98        </provider>
+99
+100        <receiver
+100-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\395c3a250d1460be00efe528fac54f74\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:34:9-52:20
+101            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+101-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\395c3a250d1460be00efe528fac54f74\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:35:13-76
+102            android:directBootAware="false"
+102-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\395c3a250d1460be00efe528fac54f74\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:36:13-44
+103            android:enabled="true"
+103-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\395c3a250d1460be00efe528fac54f74\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:37:13-35
+104            android:exported="true"
+104-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\395c3a250d1460be00efe528fac54f74\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:38:13-36
+105            android:permission="android.permission.DUMP" >
+105-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\395c3a250d1460be00efe528fac54f74\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:39:13-57
+106            <intent-filter>
+106-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\395c3a250d1460be00efe528fac54f74\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:40:13-42:29
+107                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+107-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\395c3a250d1460be00efe528fac54f74\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:41:17-91
+107-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\395c3a250d1460be00efe528fac54f74\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:41:25-88
+108            </intent-filter>
+109            <intent-filter>
+109-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\395c3a250d1460be00efe528fac54f74\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:43:13-45:29
+110                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+110-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\395c3a250d1460be00efe528fac54f74\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:44:17-85
+110-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\395c3a250d1460be00efe528fac54f74\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:44:25-82
+111            </intent-filter>
+112            <intent-filter>
+112-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\395c3a250d1460be00efe528fac54f74\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:46:13-48:29
+113                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+113-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\395c3a250d1460be00efe528fac54f74\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:47:17-88
+113-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\395c3a250d1460be00efe528fac54f74\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:47:25-85
+114            </intent-filter>
+115            <intent-filter>
+115-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\395c3a250d1460be00efe528fac54f74\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:49:13-51:29
+116                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+116-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\395c3a250d1460be00efe528fac54f74\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:50:17-95
+116-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\ASUS\.gradle\caches\8.10.2\transforms\395c3a250d1460be00efe528fac54f74\transformed\jetified-profileinstaller-1.4.0\AndroidManifest.xml:50:25-92
+117            </intent-filter>
+118        </receiver>
+119    </application>
+120
+121</manifest>

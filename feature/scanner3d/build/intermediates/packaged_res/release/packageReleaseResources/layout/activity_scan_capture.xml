@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#212121">
+
+    <!-- Cadre de visée de la caméra -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#121212">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Visée Caméra Scanner 3D\n(Placez l'objet au centre)"
+            android:textColor="#9E9E9E"
+            android:textSize="16sp"
+            android:gravity="center" />
+    </FrameLayout>
+
+    <!-- Contrôles et guidage -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:background="#2E2E2E">
+
+        <TextView
+            android:id="@+id/tv_scan_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/scanner_title"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="6dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/scan_instructions"
+            android:textColor="#BDBDBD"
+            android:textSize="13sp"
+            android:layout_marginBottom="12dp" />
+
+        <TextView
+            android:id="@+id/tv_frames_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Clichés capturés : 0 / 30"
+            android:textColor="#64B5F6"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp" />
+
+        <Button
+            android:id="@+id/btn_capture_frame"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_capture_frame"
+            android:backgroundTint="#1976D2"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/btn_finish_and_process"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_finish_and_process"
+            android:backgroundTint="#388E3C"
+            android:enabled="false" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.marketplace.feature.ar3d" >
+
+    <uses-sdk android:minSdkVersion="21" />
+
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <application>
+        <activity
+            android:name="com.marketplace.feature.ar3d.ui.ArViewerActivity"
+            android:exported="false"
+            android:label="Visualiseur Réalité Augmentée 3D" />
+        <activity
+            android:name="com.marketplace.feature.ar3d.ui.Model3dPreviewActivity"
+            android:exported="false"
+            android:label="Aperçu 3D" />
+    </application>
+
+</manifest>

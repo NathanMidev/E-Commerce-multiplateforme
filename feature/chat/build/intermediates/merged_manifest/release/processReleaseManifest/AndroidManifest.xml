@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.marketplace.feature.chat" >
+
+    <uses-sdk android:minSdkVersion="21" />
+
+    <application>
+        <activity
+            android:name="com.marketplace.feature.chat.ui.ChatConversationActivity"
+            android:exported="false"
+            android:label="Discussion avec le vendeur" />
+        <activity
+            android:name="com.marketplace.feature.chat.ui.ChatListActivity"
+            android:exported="false"
+            android:label="Mes Messages" />
+    </application>
+
+</manifest>

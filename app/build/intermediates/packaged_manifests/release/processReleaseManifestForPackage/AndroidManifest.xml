@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.marketplace.app"
+    android:versionCode="1"
+    android:versionName="1.0.0" >
+
+    <uses-sdk
+        android:minSdkVersion="21"
+        android:targetSdkVersion="35" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <permission
+        android:name="com.marketplace.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="com.marketplace.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+
+    <application
+        android:name="com.marketplace.app.MarketplaceApp"
+        android:allowBackup="true"
+        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+        android:extractNativeLibs="true"
+        android:icon="@android:drawable/sym_def_app_icon"
+        android:label="@string/app_name"
+        android:roundIcon="@android:drawable/sym_def_app_icon"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Marketplace" >
+        <activity
+            android:name="com.marketplace.app.MainActivity"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.marketplace.feature.auth.ui.LoginActivity"
+            android:exported="false"
+            android:label="Connexion" />
+        <activity
+            android:name="com.marketplace.feature.auth.ui.RegisterActivity"
+            android:exported="false"
+            android:label="Inscription" />
+        <activity
+            android:name="com.marketplace.feature.auth.ui.UserProfileActivity"
+            android:exported="false"
+            android:label="Profil Utilisateur" />
+        <activity
+            android:name="com.marketplace.feature.products.ui.ProductCatalogActivity"
+            android:exported="false"
+            android:label="Catalogue Produits" />
+        <activity
+            android:name="com.marketplace.feature.products.ui.ProductDetailActivity"
+            android:exported="false"
+            android:label="Fiche Produit" />
+        <activity
+            android:name="com.marketplace.feature.ar3d.ui.ArViewerActivity"
+            android:exported="false"
+            android:label="Visualiseur Réalité Augmentée 3D" />
+        <activity
+            android:name="com.marketplace.feature.ar3d.ui.Model3dPreviewActivity"
+            android:exported="false"
+            android:label="Aperçu 3D" />
+        <activity
+            android:name="com.marketplace.feature.scanner3d.ui.ScanCaptureActivity"
+            android:exported="false"
+            android:label="Scanner 3D Produit" />
+        <activity
+            android:name="com.marketplace.feature.scanner3d.ui.SamProcessingStatusActivity"
+            android:exported="false"
+            android:label="Statut Traitement IA SAM" />
+        <activity
+            android:name="com.marketplace.feature.chat.ui.ChatConversationActivity"
+            android:exported="false"
+            android:label="Discussion avec le vendeur" />
+        <activity
+            android:name="com.marketplace.feature.chat.ui.ChatListActivity"
+            android:exported="false"
+            android:label="Mes Messages" />
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="com.marketplace.app.androidx-startup"
+            android:exported="false" >
+            <meta-data
+                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+                android:value="androidx.startup" />
+            <meta-data
+                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+                android:value="androidx.startup" />
+            <meta-data
+                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+                android:value="androidx.startup" />
+        </provider>
+
+        <receiver
+            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+            android:directBootAware="false"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.DUMP" >
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>
