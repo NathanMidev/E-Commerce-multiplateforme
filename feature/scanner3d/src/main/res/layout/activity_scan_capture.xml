@@ -1,79 +1,158 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#212121">
+    android:background="#121212">
 
-    <!-- Cadre de visée de la caméra -->
+    <!-- 1. Viseur de Caméra / ARCore Background -->
     <FrameLayout
+        android:id="@+id/camera_preview_container"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="#121212">
+        android:layout_height="match_parent"
+        android:background="#1E1E1E">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <!-- Grille / Repères de surface plane ARCore -->
+        <View
+            android:id="@+id/view_surface_grid"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0.3"
+            android:background="@android:drawable/dialog_holo_dark_frame" />
+
+        <!-- Overlay Bounding Box YOLO (dynamique au-dessus de l'objet) -->
+        <FrameLayout
+            android:id="@+id/yolo_bounding_box"
+            android:layout_width="260dp"
+            android:layout_height="260dp"
             android:layout_gravity="center"
-            android:text="Visée Caméra Scanner 3D\n(Placez l'objet au centre)"
-            android:textColor="#9E9E9E"
-            android:textSize="16sp"
-            android:gravity="center" />
+            android:background="@android:drawable/editbox_background">
+
+            <TextView
+                android:id="@+id/tv_yolo_tag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|start"
+                android:background="#D32F2F"
+                android:paddingStart="8dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="4dp"
+                android:text="YOLO : Analyse en cours..."
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </FrameLayout>
     </FrameLayout>
 
-    <!-- Contrôles et guidage -->
+    <!-- 2. Barre d'état supérieure (Statut ARCore & Catégorie) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:background="#B3000000"
         android:orientation="vertical"
-        android:padding="20dp"
-        android:background="#2E2E2E">
+        android:padding="16dp">
 
         <TextView
-            android:id="@+id/tv_scan_title"
+            android:id="@+id/tv_scan_step_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/scanner_title"
+            android:text="1. Détection de surface plane ARCore..."
+            android:textColor="#FFEB3B"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_expected_category"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Catégorie attendue : Mobilier &amp; Déco"
+            android:textColor="#E0E0E0"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <!-- 3. Panneau de contrôle inférieur (Guidage capture & Boutons) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="#D9212121"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- Compteur d'angles 360° -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_frames_count"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Clichés capturés : 0 / 20"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <ProgressBar
+                android:id="@+id/progress_capture"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="120dp"
+                android:layout_height="10dp"
+                android:max="20"
+                android:progress="0"
+                android:progressTint="#00E676" />
+        </LinearLayout>
+
+        <!-- Message d'instruction dynamique -->
+        <TextView
+            android:id="@+id/tv_guide_instruction"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="Pointez la caméra vers une table ou un sol pour détecter une surface."
+            android:textColor="#B0BEC5"
+            android:textSize="13sp" />
+
+        <!-- Bouton de simulation de détection de surface & étiquetage YOLO -->
+        <Button
+            android:id="@+id/btn_simulate_ai_check"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="#0288D1"
+            android:text="Détecter la surface &amp; Analyser avec YOLO"
             android:textColor="#FFFFFF"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="6dp" />
+            android:textSize="13sp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/scan_instructions"
-            android:textColor="#BDBDBD"
-            android:textSize="13sp"
-            android:layout_marginBottom="12dp" />
-
-        <TextView
-            android:id="@+id/tv_frames_count"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Clichés capturés : 0 / 30"
-            android:textColor="#64B5F6"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="16dp" />
-
+        <!-- Bouton de capture d'angle -->
         <Button
             android:id="@+id/btn_capture_frame"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/btn_capture_frame"
-            android:backgroundTint="#1976D2"
-            android:layout_marginBottom="8dp" />
+            android:layout_height="52dp"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="#43A047"
+            android:enabled="false"
+            android:text="Capturer un angle multi-angles (360°)"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp" />
 
+        <!-- Bouton final : envoi vers Firebase pour SAM & COLMAP -->
         <Button
             android:id="@+id/btn_finish_and_process"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/btn_finish_and_process"
-            android:backgroundTint="#388E3C"
-            android:enabled="false" />
-
+            android:layout_height="52dp"
+            android:backgroundTint="#6200EA"
+            android:enabled="false"
+            android:text="Envoyer vers PC (Meta SAM + COLMAP)"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp" />
     </LinearLayout>
 
-</LinearLayout>
+</FrameLayout>

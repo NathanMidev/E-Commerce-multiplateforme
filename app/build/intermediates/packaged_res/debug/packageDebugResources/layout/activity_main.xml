@@ -95,16 +95,6 @@
                 android:backgroundTint="#5E35B1"
                 android:layout_marginBottom="12dp" />
 
-            <!-- Bouton Messagerie Vendeurs -->
-            <Button
-                android:id="@+id/btn_nav_chat"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:text="@string/btn_nav_chat"
-                android:textSize="15sp"
-                android:backgroundTint="#00897B"
-                android:layout_marginBottom="12dp" />
-
             <!-- Bouton Authentification & Profil -->
             <Button
                 android:id="@+id/btn_nav_auth"

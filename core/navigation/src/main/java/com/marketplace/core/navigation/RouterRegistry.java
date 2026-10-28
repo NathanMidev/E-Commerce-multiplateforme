@@ -20,7 +20,6 @@ public final class RouterRegistry {
     private ProductRouter productRouter;
     private ArRouter arRouter;
     private ScannerRouter scannerRouter;
-    private ChatRouter chatRouter;
     private AuthRouter authRouter;
 
     private RouterRegistry() {
@@ -51,10 +50,6 @@ public final class RouterRegistry {
         this.scannerRouter = router != null ? router : createNoOpScannerRouter();
     }
 
-    public void registerChatRouter(ChatRouter router) {
-        this.chatRouter = router != null ? router : createNoOpChatRouter();
-    }
-
     public void registerAuthRouter(AuthRouter router) {
         this.authRouter = router != null ? router : createNoOpAuthRouter();
     }
@@ -62,14 +57,12 @@ public final class RouterRegistry {
     public ProductRouter getProductRouter() { return productRouter; }
     public ArRouter getArRouter() { return arRouter; }
     public ScannerRouter getScannerRouter() { return scannerRouter; }
-    public ChatRouter getChatRouter() { return chatRouter; }
     public AuthRouter getAuthRouter() { return authRouter; }
 
     public void resetToNoOp() {
         this.productRouter = createNoOpProductRouter();
         this.arRouter = createNoOpArRouter();
         this.scannerRouter = createNoOpScannerRouter();
-        this.chatRouter = createNoOpChatRouter();
         this.authRouter = createNoOpAuthRouter();
     }
 
@@ -111,17 +104,6 @@ public final class RouterRegistry {
             }
             @Override public void openSamJobStatus(Context context, String jobId) {
                 logSafe("[NoOp] openSamJobStatus: " + jobId);
-            }
-        };
-    }
-
-    private ChatRouter createNoOpChatRouter() {
-        return new ChatRouter() {
-            @Override public void openChatWithSeller(Context context, String sellerId, String sellerName, String productId, String productTitle) {
-                logSafe("[NoOp] openChatWithSeller: " + sellerId);
-            }
-            @Override public void openConversationsList(Context context) {
-                logSafe("[NoOp] openConversationsList");
             }
         };
     }

@@ -7,81 +7,168 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tv_detail_title"
+        <!-- En-tête / Bannière produit -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:background="#ECEFF1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🖼️ Galerie Photos &amp; Modèle 3D"
+                android:textColor="#78909C"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tv_detail_3d_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="#00897B"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
+                android:text="Modèle 3D Disponible (COLMAP + SAM)"
+                android:textColor="#FFFFFF"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <!-- Corps de la fiche produit en LinearLayout -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="#212121"
-            android:layout_marginBottom="8dp" />
+            android:orientation="vertical"
+            android:padding="20dp">
 
-        <TextView
-            android:id="@+id/tv_detail_price"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:textColor="#2E7D32"
-            android:layout_marginBottom="8dp" />
+            <!-- Titre et Statut -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/tv_detail_seller"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textColor="#757575"
-            android:layout_marginBottom="16dp" />
+                <TextView
+                    android:id="@+id/tv_detail_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Titre du Produit"
+                    android:textColor="#212121"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
 
-        <!-- Bouton AR 3D -->
-        <Button
-            android:id="@+id/btn_view_ar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/btn_view_ar"
-            android:backgroundTint="#00897B"
-            android:textColor="#FFFFFF"
-            android:layout_marginBottom="12dp" />
+                <TextView
+                    android:id="@+id/tv_detail_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="#E8F5E9"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="4dp"
+                    android:text="DISPONIBLE"
+                    android:textColor="#2E7D32"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
-        <!-- Bouton Chat Vendeur -->
-        <Button
-            android:id="@+id/btn_chat_seller"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/btn_chat_seller"
-            android:backgroundTint="#1976D2"
-            android:textColor="#FFFFFF"
-            android:layout_marginBottom="12dp" />
+            <!-- Prix et Stock -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-        <!-- Bouton Scanner 3D Vendeur -->
-        <Button
-            android:id="@+id/btn_scan_3d"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/btn_scan_3d"
-            android:backgroundTint="#5E35B1"
-            android:textColor="#FFFFFF"
-            android:layout_marginBottom="24dp" />
+                <TextView
+                    android:id="@+id/tv_detail_price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0.00 €"
+                    android:textColor="#1B5E20"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Description du produit :"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="6dp" />
+                <TextView
+                    android:id="@+id/tv_detail_stock"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="Stock local : 5 unités"
+                    android:textColor="#757575"
+                    android:textSize="14sp" />
+            </LinearLayout>
 
-        <TextView
-            android:id="@+id/tv_detail_description"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="15sp"
-            android:lineSpacingExtra="4dp"
-            android:textColor="#424242" />
+            <!-- Info Vendeur Local -->
+            <TextView
+                android:id="@+id/tv_detail_seller"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Boutique locale : Vendeur"
+                android:textColor="#616161"
+                android:textSize="14sp" />
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="16dp"
+                android:background="#E0E0E0" />
+
+            <!-- Actions Marketplace Local (AR & Scan) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Bouton AR 3D -->
+                <Button
+                    android:id="@+id/btn_view_ar"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginBottom="10dp"
+                    android:backgroundTint="#00897B"
+                    android:text="Tester dans mon espace (ARCore 3D) 🥽"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <!-- Bouton Scanner 3D Vendeur -->
+                <Button
+                    android:id="@+id/btn_scan_3d"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="16dp"
+                    android:backgroundTint="#5E35B1"
+                    android:text="Scanner / Mettre à jour en 3D (SAM + COLMAP) 📷"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <!-- Description -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp"
+                android:text="Description de l'article :"
+                android:textColor="#212121"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_detail_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:lineSpacingExtra="4dp"
+                android:text="Description détaillée..."
+                android:textColor="#424242"
+                android:textSize="14sp" />
+
+        </LinearLayout>
     </LinearLayout>
 
 </ScrollView>

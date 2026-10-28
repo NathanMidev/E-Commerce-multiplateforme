@@ -1,5 +1,6 @@
 package com.marketplace.feature.products.ui;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -21,8 +22,10 @@ public class ProductDetailActivity extends AppCompatActivity {
     private TextView tvPrice;
     private TextView tvDescription;
     private TextView tvSeller;
+    private TextView tvStock;
+    private TextView tvStatus;
+    private TextView tv3dBadge;
     private Button btnViewAr;
-    private Button btnChatSeller;
     private Button btnScan3d;
 
     private PostgresBackendApi backendApi;
@@ -39,8 +42,10 @@ public class ProductDetailActivity extends AppCompatActivity {
         tvPrice = findViewById(R.id.tv_detail_price);
         tvDescription = findViewById(R.id.tv_detail_description);
         tvSeller = findViewById(R.id.tv_detail_seller);
+        tvStock = findViewById(R.id.tv_detail_stock);
+        tvStatus = findViewById(R.id.tv_detail_status);
+        tv3dBadge = findViewById(R.id.tv_detail_3d_badge);
         btnViewAr = findViewById(R.id.btn_view_ar);
-        btnChatSeller = findViewById(R.id.btn_chat_seller);
         btnScan3d = findViewById(R.id.btn_scan_3d);
 
         String productId = getIntent().getStringExtra(EXTRA_PRODUCT_ID);
@@ -58,12 +63,38 @@ public class ProductDetailActivity extends AppCompatActivity {
                 tvTitle.setText(product.getTitle());
                 tvPrice.setText(String.format("%.2f €", product.getPrice()));
                 tvDescription.setText(product.getDescription());
-                tvSeller.setText("Vendeur : " + product.getSellerName());
+                tvSeller.setText("Boutique locale : " + product.getSellerName());
+                tvStock.setText("Stock local : " + product.getStock() + " unités");
 
-                if (product.isArSupported() && product.getModel3dUrl() != null && !product.getModel3dUrl().isEmpty()) {
+                if (product.getStatus() != null) {
+                    tvStatus.setText(product.getStatus().name());
+                    switch (product.getStatus()) {
+                        case NOUVEAU:
+                            tvStatus.setBackgroundColor(Color.parseColor("#E3F2FD"));
+                            tvStatus.setTextColor(Color.parseColor("#1565C0"));
+                            break;
+                        case DISPONIBLE:
+                            tvStatus.setBackgroundColor(Color.parseColor("#E8F5E9"));
+                            tvStatus.setTextColor(Color.parseColor("#2E7D32"));
+                            break;
+                        case EPUISE:
+                            tvStatus.setBackgroundColor(Color.parseColor("#FFEBEE"));
+                            tvStatus.setTextColor(Color.parseColor("#C62828"));
+                            break;
+                        case A_VENDRE:
+                            tvStatus.setBackgroundColor(Color.parseColor("#FFF3E0"));
+                            tvStatus.setTextColor(Color.parseColor("#E65100"));
+                            break;
+                    }
+                }
+
+                // Affichage du modèle 3D
+                if (product.hasModele3d() && product.getModel3dUrl() != null && !product.getModel3dUrl().isEmpty()) {
                     btnViewAr.setVisibility(View.VISIBLE);
+                    tv3dBadge.setVisibility(View.VISIBLE);
                 } else {
                     btnViewAr.setVisibility(View.GONE);
+                    tv3dBadge.setVisibility(View.GONE);
                 }
             }
 
@@ -75,7 +106,7 @@ public class ProductDetailActivity extends AppCompatActivity {
     }
 
     private void setupActions() {
-        // 1. Bouton AR : Appel au module :feature:ar3d via le Routeur (découplage total)
+        // Bouton AR : Visualisation dans l'environnement de l'acheteur
         btnViewAr.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -90,23 +121,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             }
         });
 
-        // 2. Bouton Chat : Appel au module :feature:chat via le Routeur (découplage total)
-        btnChatSeller.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (currentProduct != null) {
-                    RouterRegistry.getInstance().getChatRouter().openChatWithSeller(
-                            ProductDetailActivity.this,
-                            currentProduct.getSellerId(),
-                            currentProduct.getSellerName(),
-                            currentProduct.getId(),
-                            currentProduct.getTitle()
-                    );
-                }
-            }
-        });
-
-        // 3. Bouton Scanner 3D : Appel au module :feature:scanner3d (scan SAM Meta)
+        // Bouton Scanner 3D : Numérisation par le vendeur local (SAM + COLMAP)
         btnScan3d.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

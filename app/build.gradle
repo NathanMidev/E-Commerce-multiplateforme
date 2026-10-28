@@ -1,5 +1,9 @@
 plugins {
     id 'com.android.application'
+    // Add the Google services Gradle plugin
+
+    id 'com.google.gms.google-services'
+
 }
 
 android {
@@ -8,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId "com.marketplace.app"
-        minSdk 21
+        minSdk 24
         targetSdk 35
         versionCode 1
         versionName "1.0.0"
@@ -46,7 +50,6 @@ dependencies {
     implementation project(':feature:products')
     implementation project(':feature:ar3d')
     implementation project(':feature:scanner3d')
-    implementation project(':feature:chat')
 
     // AndroidX & Material Design
     implementation 'androidx.appcompat:appcompat:1.7.0'
@@ -57,4 +60,20 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+    // Import the Firebase BoM
+
+    implementation platform('com.google.firebase:firebase-bom:35.0.0')
+
+
+    // TODO: Add the dependencies for Firebase products you want to use
+
+    // When using the BoM, don't specify versions in Firebase dependencies
+
+    implementation 'com.google.firebase:firebase-analytics'
+
+
+    // Add the dependencies for any other desired Firebase products
+
+    // https://firebase.google.com/docs/android/setup#available-libraries
+
 }

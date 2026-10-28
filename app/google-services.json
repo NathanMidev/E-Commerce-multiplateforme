@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "675810642349",
+    "project_id": "bizinevo-3d",
+    "storage_bucket": "bizinevo-3d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:675810642349:android:6bef5451ef8c8b155c3924",
+        "android_client_info": {
+          "package_name": "com.marketplace.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBbVVHlVebqgogXEpy6zzdqgDuzXcYIcf8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

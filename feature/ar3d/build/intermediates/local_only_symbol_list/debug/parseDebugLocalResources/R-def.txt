@@ -1,13 +1,18 @@
 R_DEF: Internal format may change without notice
 local
-id ar_surface_placeholder
+id ar_camera_surface
+id btn_buy_from_ar
 id btn_place_object
 id btn_reset_ar
-id layout_bottom_bar
-id layout_top_bar
+id iv_ar_reticle
+id layout_anchored_3d_object
 id tv_3d_preview_info
-id tv_ar_model_status
+id tv_anchored_object_label
+id tv_ar_badge
+id tv_ar_interaction_hint
+id tv_ar_plane_status
 id tv_ar_product_name
+id view_detected_plane
 layout activity_ar_viewer
 layout activity_model3d_preview
 string ar_app_name

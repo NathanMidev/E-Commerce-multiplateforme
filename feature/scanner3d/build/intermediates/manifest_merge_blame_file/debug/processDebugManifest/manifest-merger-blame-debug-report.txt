@@ -2,7 +2,7 @@
 2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
 3    package="com.marketplace.feature.scanner3d" >
 4
-5    <uses-sdk android:minSdkVersion="21" />
+5    <uses-sdk android:minSdkVersion="24" />
 6
 7    <uses-permission android:name="android.permission.CAMERA" />
 7-->C:\Users\ASUS\StudioProjects\E-Commerce-multiplateforme\feature\scanner3d\src\main\AndroidManifest.xml:3:5-65

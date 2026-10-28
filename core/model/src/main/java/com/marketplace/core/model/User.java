@@ -6,19 +6,41 @@ public class User implements Serializable {
     private String id;
     private String name;
     private String email;
-    private boolean isSeller;
+    private UserRole role;
     private String avatarUrl;
     private String shopName;
 
-    public User() {}
+    public User() {
+        this.role = UserRole.GUEST;
+    }
 
-    public User(String id, String name, String email, boolean isSeller, String avatarUrl, String shopName) {
+    public User(String id, String name, String email, UserRole role, String avatarUrl, String shopName) {
         this.id = id;
         this.name = name;
         this.email = email;
-        this.isSeller = isSeller;
+        this.role = role != null ? role : UserRole.GUEST;
         this.avatarUrl = avatarUrl;
         this.shopName = shopName;
+    }
+
+    public static User createGuest() {
+        return new User(null, "Invité", null, UserRole.GUEST, null, null);
+    }
+
+    public boolean canAccessAr() {
+        return role == UserRole.BUYER || role == UserRole.SELLER;
+    }
+
+    public boolean canBuy() {
+        return role == UserRole.BUYER || role == UserRole.SELLER;
+    }
+
+    public boolean canSell() {
+        return role == UserRole.SELLER;
+    }
+
+    public boolean isGuest() {
+        return role == UserRole.GUEST;
     }
 
     public String getId() { return id; }
@@ -30,8 +52,8 @@ public class User implements Serializable {
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
-    public boolean isSeller() { return isSeller; }
-    public void setSeller(boolean seller) { isSeller = seller; }
+    public UserRole getRole() { return role; }
+    public void setRole(UserRole role) { this.role = role; }
 
     public String getAvatarUrl() { return avatarUrl; }
     public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }

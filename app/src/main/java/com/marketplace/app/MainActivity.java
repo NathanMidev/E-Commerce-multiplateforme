@@ -16,7 +16,6 @@ public class MainActivity extends AppCompatActivity {
 
         Button btnNavCatalog = findViewById(R.id.btn_nav_catalog);
         Button btnNavScanner = findViewById(R.id.btn_nav_scanner);
-        Button btnNavChat = findViewById(R.id.btn_nav_chat);
         Button btnNavAuth = findViewById(R.id.btn_nav_auth);
 
         // 1. Ouvrir le catalogue & filtres (module :feature:products)
@@ -27,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // 2. Ouvrir le scanner 3D / Meta SAM (module :feature:scanner3d)
+        // 2. Ouvrir le scanner 3D / Meta SAM + COLMAP (module :feature:scanner3d)
         btnNavScanner.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -35,15 +34,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // 3. Ouvrir la messagerie (module :feature:chat)
-        btnNavChat.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                RouterRegistry.getInstance().getChatRouter().openConversationsList(MainActivity.this);
-            }
-        });
-
-        // 4. Ouvrir la connexion / profil (module :feature:auth)
+        // 3. Ouvrir la connexion / profil (module :feature:auth)
         btnNavAuth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

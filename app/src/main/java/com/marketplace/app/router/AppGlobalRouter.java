@@ -3,7 +3,6 @@ package com.marketplace.app.router;
 import com.marketplace.core.navigation.RouterRegistry;
 import com.marketplace.feature.auth.router.AuthModuleRouter;
 import com.marketplace.feature.ar3d.router.ArModuleRouter;
-import com.marketplace.feature.chat.router.ChatModuleRouter;
 import com.marketplace.feature.products.router.ProductModuleRouter;
 import com.marketplace.feature.scanner3d.router.ScannerModuleRouter;
 
@@ -27,7 +26,6 @@ public final class AppGlobalRouter {
         registry.registerProductRouter(new ProductModuleRouter());
         registry.registerArRouter(new ArModuleRouter());
         registry.registerScannerRouter(new ScannerModuleRouter());
-        registry.registerChatRouter(new ChatModuleRouter());
         registry.registerAuthRouter(new AuthModuleRouter());
     }
 }

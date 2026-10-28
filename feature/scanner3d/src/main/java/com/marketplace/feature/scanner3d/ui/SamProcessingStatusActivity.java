@@ -8,14 +8,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import com.marketplace.core.firebase.FirebaseSamBridgeService;
-import com.marketplace.core.model.SamScanJob;
+import com.marketplace.core.firebase.FirebaseScan3dBridgeService;
+import com.marketplace.core.model.Scan3dJob;
 import com.marketplace.core.navigation.RouterRegistry;
 import com.marketplace.feature.scanner3d.R;
 
 import java.io.File;
 import java.util.ArrayList;
 
+/**
+ * Écran de suivi du traitement en temps réel :
+ * Mobile -> Firebase Storage -> PC (Meta SAM + COLMAP) -> Fichier .glb -> Visualisation AR.
+ */
 public class SamProcessingStatusActivity extends AppCompatActivity {
 
     public static final String EXTRA_JOB_ID = "EXTRA_JOB_ID";
@@ -25,7 +29,7 @@ public class SamProcessingStatusActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private Button btnViewInAr;
 
-    private final FirebaseSamBridgeService samService = new FirebaseSamBridgeService();
+    private final FirebaseScan3dBridgeService bridgeService = new FirebaseScan3dBridgeService();
     private String generatedModelUrl;
 
     @Override
@@ -34,14 +38,14 @@ public class SamProcessingStatusActivity extends AppCompatActivity {
         setContentView(R.layout.activity_sam_processing_status);
 
         String jobId = getIntent().getStringExtra(EXTRA_JOB_ID);
-        if (jobId == null) jobId = "sam_demo_job";
+        if (jobId == null) jobId = "scan_demo_job";
 
         tvStatusHeader = findViewById(R.id.tv_status_header);
         tvStatusDetail = findViewById(R.id.tv_status_detail);
         progressBar = findViewById(R.id.progress_bar_sam);
         btnViewInAr = findViewById(R.id.btn_view_in_ar);
 
-        startTrackingSamProcessing(jobId);
+        startTrackingProcessing(jobId);
 
         btnViewInAr.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,32 +62,32 @@ public class SamProcessingStatusActivity extends AppCompatActivity {
         });
     }
 
-    private void startTrackingSamProcessing(String jobId) {
-        tvStatusHeader.setText("Démarrage du traitement SAM (Meta)...");
+    private void startTrackingProcessing(String jobId) {
+        tvStatusHeader.setText("Démarrage du traitement SAM (Meta) & COLMAP...");
         tvStatusDetail.setText("Synchronisation via Firebase avec l'ordinateur...");
-        progressBar.setProgress(10);
+        progressBar.setProgress(15);
 
-        // Simulation / Déclenchement du flux via le service Firebase SAM
-        samService.submitScanForSamProcessing(jobId, new ArrayList<File>(), new FirebaseSamBridgeService.SamStatusListener() {
+        // Déclenchement / Écoute du pipeline via FirebaseScan3dBridgeService
+        bridgeService.submitScanForSamAndColmapProcessing(jobId, new ArrayList<File>(), new FirebaseScan3dBridgeService.ScanStatusListener() {
             @Override
-            public void onProgress(SamScanJob job) {
+            public void onProgress(Scan3dJob job) {
                 progressBar.setProgress(job.getProgressPercentage());
                 switch (job.getStatus()) {
-                    case UPLOADING_IMAGES:
-                        tvStatusHeader.setText("Étape 1/3 : Envoi des photos");
-                        tvStatusDetail.setText("Téléversement sécurisé vers Firebase Storage...");
+                    case UPLOADING_TO_FIREBASE:
+                        tvStatusHeader.setText("Étape 1/3 : Envoi vers Firebase");
+                        tvStatusDetail.setText("Téléversement sécurisé des photos de capture multi-angles...");
                         break;
-                    case SAM_PROCESSING:
-                        tvStatusHeader.setText("Étape 2/3 : Traitement IA Meta SAM");
-                        tvStatusDetail.setText("L'ordinateur exécute la segmentation automatique du produit...");
+                    case SAM_SEGMENTING:
+                        tvStatusHeader.setText("Étape 2/3 : Segmentation Meta SAM (PC)");
+                        tvStatusDetail.setText("L'ordinateur supprime l'arrière-plan et isole précisément l'objet...");
                         break;
-                    case RECONSTRUCTING_3D:
-                        tvStatusHeader.setText("Étape 3/3 : Reconstruction 3D");
-                        tvStatusDetail.setText("Génération du maillage polygonal et des textures (.glb)...");
+                    case COLMAP_RECONSTRUCTING:
+                        tvStatusHeader.setText("Étape 3/3 : Reconstruction 3D COLMAP (PC)");
+                        tvStatusDetail.setText("Calcul photogrammétrique SfM/MVS et génération du fichier .glb...");
                         break;
                     case COMPLETED:
                         tvStatusHeader.setText("Modèle 3D prêt !");
-                        tvStatusDetail.setText("Traitement SAM terminé avec succès.");
+                        tvStatusDetail.setText("Reconstruction COLMAP et SAM terminée avec succès.");
                         break;
                     default:
                         break;
@@ -95,7 +99,7 @@ public class SamProcessingStatusActivity extends AppCompatActivity {
                 generatedModelUrl = model3dUrl;
                 progressBar.setProgress(100);
                 btnViewInAr.setVisibility(View.VISIBLE);
-                Toast.makeText(SamProcessingStatusActivity.this, "Scan 3D finalisé !", Toast.LENGTH_LONG).show();
+                Toast.makeText(SamProcessingStatusActivity.this, "Scan 3D finalisé avec succès !", Toast.LENGTH_LONG).show();
             }
 
             @Override

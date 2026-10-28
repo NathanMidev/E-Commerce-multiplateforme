@@ -68,9 +68,9 @@ public class ProductUnitTest {
     @Test
     public void testCrossModuleRouterDoesNotInvokeOtherFeatureCode() {
         // Dans ce test unitaire, RouterRegistry est à l'état No-Op par défaut.
-        // Même si un produit appelle le bouton AR ou le bouton Chat, aucun code de :feature:ar3d ou :feature:chat n'est exécuté !
+        // Même si un produit appelle le bouton AR ou le Scanner, aucun crash et découplage total garanti !
         RouterRegistry.getInstance().getArRouter().openArViewer(null, "p1", "Fauteuil", "https://url.glb");
-        RouterRegistry.getInstance().getChatRouter().openChatWithSeller(null, "s1", "Vendeur", "p1", "Fauteuil");
+        RouterRegistry.getInstance().getScannerRouter().openScanner(null, "p1");
         assertTrue("Les appels croisés sont isolés via les contrats d'interface", true);
     }
 }

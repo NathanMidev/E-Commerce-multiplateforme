@@ -12,8 +12,14 @@
     <string name="btn_nav_catalog">Explorer le Catalogue &amp; Filtres</string>
     <string name="btn_nav_chat">Messagerie Vendeurs</string>
     <string name="btn_nav_scanner">Scanner un produit (IA Meta SAM)</string>
+    <string name="gcm_defaultSenderId" translatable="false">675810642349</string>
+    <string name="google_api_key" translatable="false">AIzaSyBbVVHlVebqgogXEpy6zzdqgDuzXcYIcf8</string>
+    <string name="google_app_id" translatable="false">1:675810642349:android:6bef5451ef8c8b155c3924</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyBbVVHlVebqgogXEpy6zzdqgDuzXcYIcf8</string>
+    <string name="google_storage_bucket" translatable="false">bizinevo-3d.firebasestorage.app</string>
     <string name="main_subtitle">Architecture Monolithe Modulaire</string>
     <string name="main_title">Plateforme E-Commerce 3D</string>
+    <string name="project_id" translatable="false">bizinevo-3d</string>
     <style name="Theme.Marketplace" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryVariant">@color/primary_dark</item>

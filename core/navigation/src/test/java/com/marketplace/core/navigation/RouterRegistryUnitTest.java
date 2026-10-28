@@ -16,7 +16,6 @@ public class RouterRegistryUnitTest {
         assertNotNull("ProductRouter ne doit pas être null par défaut", RouterRegistry.getInstance().getProductRouter());
         assertNotNull("ArRouter ne doit pas être null par défaut", RouterRegistry.getInstance().getArRouter());
         assertNotNull("ScannerRouter ne doit pas être null par défaut", RouterRegistry.getInstance().getScannerRouter());
-        assertNotNull("ChatRouter ne doit pas être null par défaut", RouterRegistry.getInstance().getChatRouter());
         assertNotNull("AuthRouter ne doit pas être null par défaut", RouterRegistry.getInstance().getAuthRouter());
     }
 

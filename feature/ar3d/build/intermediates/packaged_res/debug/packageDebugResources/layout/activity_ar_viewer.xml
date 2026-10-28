@@ -1,102 +1,176 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#121212">
 
-    <!-- AR Surface Placeholder (Caméra + Moteur AR/Sceneview/Filament) -->
+    <!-- 1. Vue Caméra AR / Espace Réel (SurfaceView ARCore) -->
     <FrameLayout
-        android:id="@+id/ar_surface_placeholder"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="#212121"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:id="@+id/ar_camera_surface"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#1A1A1A">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <!-- Simulation du maillage de surface détectée (ARCore Plane Mesh) -->
+        <View
+            android:id="@+id/view_detected_plane"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:alpha="0.25"
+            android:background="@android:drawable/dialog_holo_dark_frame" />
+
+        <!-- Réticule d'alignement pour poser l'objet au sol -->
+        <ImageView
+            android:id="@+id/iv_ar_reticle"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:layout_gravity="center"
-            android:text="Vue Caméra Réalité Augmentée\n(ARCore / Sceneview Surface)"
-            android:textColor="#B0BEC5"
-            android:textSize="18sp"
-            android:gravity="center" />
+            android:alpha="0.7"
+            android:src="@android:drawable/ic_menu_crop"
+            app:tint="#00E676" />
+
+        <!-- Simulation de l'objet 3D ancré une fois placé -->
+        <LinearLayout
+            android:id="@+id/layout_anchored_3d_object"
+            android:layout_width="220dp"
+            android:layout_height="220dp"
+            android:layout_gravity="center"
+            android:background="@android:drawable/toast_frame"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tv_anchored_object_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📦 Modèle 3D Ancré"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Échelle réelle : 100%\nGlissez pour pivoter à 360°"
+                android:textColor="#B0BEC5"
+                android:textSize="12sp"
+                android:gravity="center" />
+        </LinearLayout>
     </FrameLayout>
 
-    <!-- Top Overlay : Nom du produit et statut 3D -->
+    <!-- 2. Barre d'en-tête (Nom du produit & Statut ARCore) -->
     <LinearLayout
-        android:id="@+id/layout_top_bar"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:background="#CC000000"
         android:orientation="vertical"
-        android:padding="16dp"
-        android:background="#80000000"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <TextView
-            android:id="@+id/tv_ar_product_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Produit 3D"
-            android:textColor="#FFFFFF"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tv_ar_model_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Chargement du maillage..."
-            android:textColor="#80D8FF"
-            android:textSize="13sp" />
-    </LinearLayout>
-
-    <!-- Bottom Overlay : Instructions et boutons de manipulation -->
-    <LinearLayout
-        android:id="@+id/layout_bottom_bar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:background="#80000000"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/ar_instructions"
-            android:textColor="#ECEFF1"
-            android:textSize="13sp"
-            android:layout_marginBottom="12dp" />
+        android:padding="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_ar_product_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Nom du Produit"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_ar_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#00897B"
+                android:paddingStart="8dp"
+                android:paddingTop="3dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="3dp"
+                android:text="ARCore 3D"
+                android:textColor="#FFFFFF"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_ar_plane_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Scannez votre sol ou table pour détecter une surface..."
+            android:textColor="#80D8FF"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <!-- 3. Panneau inférieur d'actions (Placement, Échelle, Achat direct) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="#E6212121"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Informations d'interaction tactile -->
+        <TextView
+            android:id="@+id/tv_ar_interaction_hint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:text="Pointez le réticule vers une surface plane puis appuyez sur 'Placer l'objet'."
+            android:textColor="#CFD8DC"
+            android:textSize="13sp" />
+
+        <!-- Ligne des boutons de contrôle AR -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
             android:orientation="horizontal">
 
             <Button
                 android:id="@+id/btn_place_object"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
                 android:layout_weight="1"
-                android:text="@string/btn_place_object"
-                android:layout_marginEnd="8dp" />
+                android:layout_marginEnd="6dp"
+                android:backgroundTint="#00897B"
+                android:text="Placer l'objet"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
 
             <Button
                 android:id="@+id/btn_reset_ar"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
                 android:layout_weight="1"
-                android:text="@string/btn_reset_ar"
-                android:backgroundTint="#455A64" />
+                android:layout_marginStart="6dp"
+                android:backgroundTint="#546E7A"
+                android:enabled="false"
+                android:text="Repositionner"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
         </LinearLayout>
+
+        <!-- Bouton direct pour passer commande après essayage virtuel -->
+        <Button
+            android:id="@+id/btn_buy_from_ar"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:backgroundTint="#2E7D32"
+            android:text="Ce produit me plaît : Commander !"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold" />
     </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

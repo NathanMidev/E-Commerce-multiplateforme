@@ -1,14 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera.ar" android:required="true" />
+
     <application>
+        <!-- Déclaration ARCore pour Google Play Services for AR -->
+        <meta-data
+            android:name="com.google.ar.core"
+            android:value="optional" />
+
         <activity
             android:name=".ui.ArViewerActivity"
+            android:configChanges="orientation|screenSize"
             android:exported="false"
-            android:label="Visualiseur Réalité Augmentée 3D" />
+            android:label="Visualiseur Réalité Augmentée ARCore"
+            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar" />
+
         <activity
             android:name=".ui.Model3dPreviewActivity"
             android:exported="false"
-            android:label="Aperçu 3D" />
+            android:label="Aperçu 3D Tactile" />
     </application>
+
 </manifest>

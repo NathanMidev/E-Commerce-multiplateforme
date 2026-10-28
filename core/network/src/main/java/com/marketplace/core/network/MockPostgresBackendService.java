@@ -3,7 +3,9 @@ package com.marketplace.core.network;
 import com.marketplace.core.model.Category;
 import com.marketplace.core.model.FilterCriteria;
 import com.marketplace.core.model.Product;
+import com.marketplace.core.model.ProductStatus;
 import com.marketplace.core.model.User;
+import com.marketplace.core.model.UserRole;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,11 +31,13 @@ public class MockPostgresBackendService implements PostgresBackendApi {
                 "Fauteuil Scandinave Velours",
                 "Fauteuil confortable avec structure bois massif. Modèle 3D reconstruit par IA Meta SAM.",
                 189.99,
+                ProductStatus.DISPONIBLE,
                 "cat_furniture",
                 "seller_101",
                 "Atelier Nordique",
-                "https://modelviewer.dev/shared-assets/models/Astronaut.glb", // Modèle de test AR GLB
+                "https://via.placeholder.com/400x300.png?text=Fauteuil+Nordique",
                 true,
+                "https://modelviewer.dev/shared-assets/models/Astronaut.glb", // Modèle de test AR GLB
                 Arrays.asList("https://via.placeholder.com/400x300.png?text=Fauteuil+Nordique"),
                 5,
                 System.currentTimeMillis() - 86400000
@@ -44,11 +48,13 @@ public class MockPostgresBackendService implements PostgresBackendApi {
                 "Lampe Design Industrielle",
                 "Lampe à poser en acier brossé. Scannez et placez la lampe directement sur votre table en AR.",
                 59.00,
+                ProductStatus.NOUVEAU,
                 "cat_furniture",
                 "seller_102",
                 "Luminaires & Co",
-                "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/BoomBox/glTF-Binary/BoomBox.glb",
+                "https://via.placeholder.com/400x300.png?text=Lampe+Design",
                 true,
+                "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/BoomBox/glTF-Binary/BoomBox.glb",
                 Arrays.asList("https://via.placeholder.com/400x300.png?text=Lampe+Design"),
                 12,
                 System.currentTimeMillis() - 43200000
@@ -59,11 +65,13 @@ public class MockPostgresBackendService implements PostgresBackendApi {
                 "Sneakers Édition Limitée",
                 "Paire de sneakers exclusives. Reconstitution 3D photoréaliste via Meta SAM.",
                 220.00,
+                ProductStatus.A_VENDRE,
                 "cat_fashion",
                 "seller_103",
                 "SneakersHub",
-                "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF-Binary/Duck.glb",
+                "https://via.placeholder.com/400x300.png?text=Sneakers+3D",
                 true,
+                "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF-Binary/Duck.glb",
                 Arrays.asList("https://via.placeholder.com/400x300.png?text=Sneakers+3D"),
                 2,
                 System.currentTimeMillis() - 20000000
@@ -119,7 +127,6 @@ public class MockPostgresBackendService implements PostgresBackendApi {
         for (Product p : products) {
             if (p.getId().equals(productId)) {
                 p.setModel3dUrl(model3dUrl);
-                p.setArSupported(true);
                 callback.onSuccess(true);
                 return;
             }
@@ -129,7 +136,7 @@ public class MockPostgresBackendService implements PostgresBackendApi {
 
     @Override
     public void getUserProfile(String userId, ApiCallback<User> callback) {
-        User user = new User(userId, "Utilisateur Marketplace", "contact@marketplace.com", true, "", "Boutique Officielle");
+        User user = new User(userId, "Utilisateur Marketplace", "contact@marketplace.com", UserRole.SELLER, "", "Boutique Officielle");
         callback.onSuccess(user);
     }
 }
