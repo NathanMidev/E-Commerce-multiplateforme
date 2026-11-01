@@ -2,9 +2,33 @@
 <resources>
     <string name="app_name">Marketplace 3D AR</string>
     <string name="main_title">Plateforme E-Commerce 3D</string>
-    <string name="main_subtitle">Architecture Monolithe Modulaire</string>
+    <string name="main_subtitle">Architecture Monolithe Commerciale</string>
     <string name="btn_nav_catalog">Explorer le Catalogue &amp; Filtres</string>
     <string name="btn_nav_scanner">Scanner un produit (IA Meta SAM)</string>
-    <string name="btn_nav_chat">Messagerie Vendeurs</string>
+    <string name="btn_nav_chat">Discuter avec le vendeur</string>
     <string name="btn_nav_auth">Connexion / Profil</string>
+
+    <!-- Authentification -->
+    <string name="auth_app_name">Authentification</string>
+    <string name="login_title">Connexion à la Marketplace</string>
+    <string name="email_hint">Adresse email</string>
+    <string name="password_hint">Mot de passe</string>
+    <string name="name_hint">Nom complet / Nom de la boutique</string>
+    <string name="btn_login">Se connecter</string>
+    <string name="btn_register">Créer un compte</string>
+    <string name="default_web_client_id">675810642349-6baueqq2f2f7rpala88mrotvlefpaqae.apps.googleusercontent.com</string>
+    <string name="btn_google">Continuer avec Google</string>
+
+    <!-- Navigation & Commerce -->
+    <string name="nav_home">Accueil</string>
+    <string name="nav_categories">Catégories</string>
+    <string name="nav_cart">Panier</string>
+    <string name="nav_account">Mon compte</string>
+    <string name="btn_checkout">Commander</string>
+    <string name="btn_add_to_cart">Ajouter au panier</string>
+    <string name="btn_chat_seller">Discuter</string>
+    <string name="currency_symbol">Ar</string>
+
+    <!-- Scanner 3D & AR -->
+    <string name="btn_view_in_ar">Voir le Modèle 3D en Réalité Augmentée</string>
 </resources>

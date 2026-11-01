@@ -2,14 +2,14 @@ package com.marketplace.app;
 
 import android.app.Application;
 
-import com.marketplace.app.router.AppGlobalRouter;
-import com.marketplace.core.network.AuthSession;
-import com.marketplace.core.network.BackendProvider;
-import com.marketplace.feature.auth.session.FirebaseAuthSession;
+import com.marketplace.app.backend.ApiClient;
+import com.marketplace.app.backend.mock.MockBackendService;
+import com.marketplace.app.feature.auth.FirebaseAuthSession;
 
 /**
- * Classe Application principale.
- * Point d'entrée global orchestrant le monolithe modulaire.
+ * Rôle : Classe Application principale du projet monolithe unifié.
+ * Entrée : Démarrage du processus Android.
+ * Sortie : Initialisation de l'API REST, de la session Firebase et configuration du mock.
  */
 public class MarketplaceApp extends Application {
 
@@ -17,13 +17,15 @@ public class MarketplaceApp extends Application {
     public void onCreate() {
         super.onCreate();
 
-        // Backend : le serveur PostgreSQL partagé avec la version web, ou le mock hors ligne.
-        AuthSession session = new FirebaseAuthSession();
+        // 1. Initialisation de l'API Retrofit (URL configurable)
+        ApiClient.init(BuildConfig.API_BASE_URL);
 
-        // On utilise le Mock par défaut pour supprimer la dépendance à BuildConfig
-        BackendProvider.useMock(session);
+        // 2. Synchronisation de la session Firebase Auth
+        FirebaseAuthSession.initialize();
 
-        // Initialiser l'ensemble des routeurs de chaque module
-        AppGlobalRouter.initializeRouters();
+        // 3. Préparation des données en mémoire si mode démo activé
+        if (BuildConfig.USE_MOCK_BACKEND) {
+            MockBackendService.getInstance().resetData();
+        }
     }
 }

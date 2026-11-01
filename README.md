@@ -1,175 +1,119 @@
-# Marketplace Mobile 3D AR - Architecture Monolithe Modulaire (Android Java)
+# Marketplace Mobile 3D AR - Application Android & API
 
-Application mobile Android de marketplace en ligne avec affichage de produits multi-vendeurs, essayage virtuel en **Réalité Augmentée (AR 3D)**, numérisation 3D via le modèle **Meta SAM (Segment Anything Model)**, filtrage multicritères par catégorie, et messagerie instantanée intégrée.
-
----
-
-## 🛠️ Spécifications & Technologies
-
-- **Langage** : Java (compatible Java 17 & Java 21)
-- **Outil de build** : Gradle 8.10.2 & Android Gradle Plugin 8.7.3
-- **Compatibilité Android** : `minSdkVersion 21` (Android 5.0 Lollipop) jusqu'à `compileSdkVersion 35` / `targetSdkVersion 35` (Android 15)
-- **UI & Vues** : Android Views modernes avec modèle d'états vides (*Empty Views pattern*), Material Design 3, RecyclerView, CardView
-- **Base de données backend** : PostgreSQL (modèles relationnels, DAO, client d'API REST)
-- **Passerelle IA & Temps réel** : Firebase (Cloud Storage & Firestore / Realtime DB) servant de pont de synchronisation avec l'ordinateur exécutant le modèle **Meta SAM**
-- **Moteur AR 3D** : Visualisation en réalité augmentée à échelle réelle dans l'environnement physique de l'acheteur (format standard 3D `.glb` / `.gltf`)
+Application mobile Android de marketplace moderne multi-vendeurs avec visualisation en **Réalité Augmentée (AR 3D)**, numérisation d'objets via **Meta SAM**, gestion des paniers, commandes, paiements locaux (Ariary, MVola, Orange Money, Airtel Money) et contact direct vendeur (WhatsApp, Messenger, Appel téléphonique).
 
 ---
 
-## 🏛️ Architecture : Monolithe Modulaire Découplé
+## 🛠️ Stack Technique
 
-L'architecture est organisée selon les principes du **Monolithe Modulaire** :
-1. **Isolation stricte des modules de fonctionnalités (`feature`)** :
-   - `:feature:products` ne dépend **PAS** de `:feature:chat` ni de `:feature:ar3d`.
-   - Lors de l'exécution des **tests unitaires d'un module**, aucun autre module n'est appelé.
-2. **Contrats de navigation découplés (`:core:navigation`)** :
-   - Chaque module expose ou consomme des interfaces (`ProductRouter`, `ArRouter`, `ScannerRouter`, `ChatRouter`, `AuthRouter`).
-   - Un registre central (`RouterRegistry`) fournit des implémentations *No-Op* par défaut lors des tests unitaires, évitant les crashs ou dépendances circulaires.
-3. **Module Intégrateur (`:app`) & Le Grand Test** :
-   - Le module principal `:app` est le point d'assemblage du monolithe.
-   - `AppGlobalRouter` enregistre les routeurs concrets de tous les sous-modules.
-   - Le **Grand Test d'Intégration** (`GrandIntegrationTest.java`) vérifie le fonctionnement de bout en bout : du catalogue filtré, au déclenchement du scan SAM, jusqu'à la discussion vendeur et l'essayage 3D AR.
+- **Plateforme** : Android (Java 17 / Java 21)
+- **Architecture** : Module unique `app` (Package `com.marketplace.app`), patron Clean Architecture découplé
+- **Build System** : Gradle 8.10.2 & Android Gradle Plugin 8.7.3
+- **Compatibilité** : `minSdkVersion 24` (Android 7.0), `compileSdkVersion 35` (Android 15)
+- **Réseau & API** : Retrofit 2.9.0, Gson 2.10.1, OkHttp 4.12.0
+- **Authentification & Passerelle 3D** : Firebase Auth (Email/MDP + Google Sign-In), Firebase Storage & Firestore
+- **Réalité Augmentée** : Google ARCore (`com.google.ar:core:1.46.0`) & Scene Viewer Google (format standard `.glb` / `.gltf`)
+- **Chargement d'images** : Glide 4.16.0
+- **UI / Design** : Material Design 3, palette commerciale inspirée de 1688 (Orange dynamique `#FF6A00`, fond `#F8F9FA`, cartes blanches arrondies, devises en Ariary `Ar`)
 
 ---
 
-## 📂 Organisation des Dossiers et Fichiers
+## 🏛️ Structure du Projet
 
 ```text
 E-Commerce-multiplateforme/
+├── app/                                 --> Module Android unique
+│   ├── src/main/java/com/marketplace/app/
+│   │   ├── base/                        --> Classes abstraites (BaseModel, BaseActivity, BaseRepository, BaseAdapter)
+│   │   ├── model/                       --> Modèles POJO (User, Product, Cart, Order, Payment, ContactRequest...)
+│   │   ├── backend/
+│   │   │   ├── api/                     --> Retrofit MarketplaceApi, ApiClient
+│   │   │   ├── repository/              --> ProductRepository, CartRepository, OrderRepository...
+│   │   │   └── mock/                    --> MockBackendService (Démonstration hors-ligne complète)
+│   │   ├── navigation/                  --> Router (Navigation centralisée statique)
+│   │   ├── transaction/                 --> Panier, Checkout, Commandes, Paiement simulé
+│   │   ├── feature/
+│   │   │   ├── auth/                    --> Connexion, Inscription, Profil, FirebaseAuthSession
+│   │   │   ├── catalogue/               --> Grille produits, filtres, fiche détaillée, publication
+│   │   │   ├── boutique/                --> Vitrine vendeur
+│   │   │   ├── contact/                 --> ContactBottomSheet, liens WhatsApp / Messenger / Appel
+│   │   │   ├── scan3d/                  --> Capture photo 360°, suivi IA Meta SAM, pont Firebase
+│   │   │   └── ar/                      --> ArLauncher, visualiseur ARCore / Scene Viewer
+│   │   ├── ui/                          --> PriceFormatter, PriceView, SellerBadge, QuantityStepper
+│   │   ├── MarketplaceApp.java          --> Classe Application (Initialisation session et backend)
+│   │   └── MainActivity.java            --> Accueil / Dashboard
+│   ├── src/test/                        --> Tests unitaires JVM (CommerceMockTest, AuthUnitTest...)
+│   └── google-services.json.example     --> Modèle de configuration Firebase
 │
-├── gradlew, gradlew.bat, gradle/     --> Gradle Wrapper (8.10.2)
-├── settings.gradle                   --> Déclaration des modules du monolithe
-├── build.gradle                      --> Configuration racine des plugins AGP 8.7.3
-├── gradle.properties                 --> JVM & configuration AndroidX / Java 21
+├── backend/                             --> API REST commune protégée (PostgreSQL / Express / Spring)
+│   ├── README.md                        --> Documentation des routes de l'API commune
+│   └── ...
 │
-├── app/                              --> [MODULE PRINCIPAL & GRAND TEST]
-│   ├── build.gradle                  --> Dépend de tous les modules core & features
-│   └── src/
-│       ├── main/java/com/marketplace/app/
-│       │   ├── MarketplaceApp.java       --> Application (Initialisation globale des routeurs)
-│       │   ├── MainActivity.java         --> Dashboard principal avec Empty Views
-│       │   └── router/
-│       │       └── AppGlobalRouter.java  --> Fichier principal liant tous les routeurs
-│       ├── main/res/                     --> Layouts (activity_main.xml), thèmes, couleurs
-│       └── test/java/com/marketplace/app/
-│           └── GrandIntegrationTest.java --> LE GRAND TEST D'INTÉGRATION
-│
-├── core/                             --> [MODULES CORE DU MONOLITHE]
-│   ├── model/                        --> Modèles de données partagés
-│   │   ├── Product.java              --> Produit, prix, vendeur, URL 3D GLB, statut AR
-│   │   ├── Category.java             --> Catégorie de produits
-│   │   ├── FilterCriteria.java       --> Logique de filtre par catégorie, prix et AR
-│   │   ├── SamScanJob.java           --> Job de scan et progression IA SAM (Meta)
-│   │   ├── ChatMessage.java          --> Message entre acheteur et vendeur
-│   │   └── User.java                 --> Profil utilisateur / vendeur
-│   │
-│   ├── navigation/                   --> Contrats de routage & Registry
-│   │   ├── RouterRegistry.java       --> Registre singleton (No-Op par défaut en tests)
-│   │   ├── ProductRouter.java        --> Contrat de routage Catalogue & Détail
-│   │   ├── ArRouter.java             --> Contrat de routage Visualiseur AR 3D
-│   │   ├── ScannerRouter.java        --> Contrat de routage Scanner & Statut SAM
-│   │   ├── ChatRouter.java           --> Contrat de routage Messagerie Vendeur
-│   │   └── AuthRouter.java           --> Contrat de routage Connexion & Profil
-│   │
-│   ├── network/                      --> Couche Réseau PostgreSQL Backend
-│   │   ├── PostgresBackendApi.java   --> Interface des endpoints REST/SQL
-│   │   ├── MockPostgresBackendService.java --> Jeu de données marketplace (3D & AR prêts)
-│   │   └── ApiResponse.java          --> Wrapper générique de réponse
-│   │
-│   ├── database/                     --> Cache local & persistence
-│   │   └── LocalProductCache.java    --> Cache mémoire / favoris hors-ligne
-│   │
-│   └── firebase/                     --> Passerelle Firebase SAM (Meta) & Chat
-│       ├── FirebaseSamBridgeService.java --> Synchronisation du scan vers le PC (IA SAM)
-│       └── FirebaseChatService.java  --> Messagerie temps réel acheteur-vendeur
-│
-└── feature/                          --> [MODULES FONCTIONNALITÉS DÉCOUPLÉS]
-    │
-    ├── products/                     --> Catalogue, recherche et filtres catégories
-    │   ├── router/ProductModuleRouter.java
-    │   ├── ui/
-    │   │   ├── ProductCatalogActivity.java  --> Liste avec filtres & Empty View
-    │   │   ├── ProductDetailActivity.java   --> Fiche avec boutons AR, Chat & Scan
-    │   │   └── ProductAdapter.java          --> Carte produit avec badge 3D AR
-    │   └── src/test/.../ProductUnitTest.java--> Tests unitaires isolés (sans Chat ni AR)
-    │
-    ├── ar3d/                         --> Réalité Augmentée 3D (Essayage environnement)
-    │   ├── router/ArModuleRouter.java
-    │   ├── ui/
-    │   │   ├── ArViewerActivity.java        --> Surface AR, ancrage sol & manipulation
-    │   │   └── Model3dPreviewActivity.java  --> Aperçu 3D interactif
-    │   └── src/test/.../ArUnitTest.java     --> Tests unitaires isolés
-    │
-    ├── scanner3d/                    --> Numérisation 3D multi-angles (Pipeline SAM)
-    │   ├── router/ScannerModuleRouter.java
-    │   ├── ui/
-    │   │   ├── ScanCaptureActivity.java        --> Capture de clichés sous différents angles
-    │   │   └── SamProcessingStatusActivity.java--> Progression SAM en direct (Firebase)
-    │   └── src/test/.../ScannerUnitTest.java   --> Tests unitaires isolés
-    │
-    ├── chat/                         --> Messagerie instantanée acheteur / vendeur
-    │   ├── router/ChatModuleRouter.java
-    │   ├── ui/
-    │   │   ├── ChatConversationActivity.java  --> Écran de discussion avec Empty State
-    │   │   └── ChatListActivity.java          --> Liste des conversations
-    │   └── src/test/.../ChatUnitTest.java     --> Tests unitaires isolés
-    │
-    └── auth/                         --> Authentification & Profil
-        ├── router/AuthModuleRouter.java
-        ├── ui/LoginActivity.java, RegisterActivity.java, UserProfileActivity.java
-        └── src/test/.../AuthUnitTest.java     --> Tests unitaires isolés
+└── docs/
+    ├── ARCHITECTURE.md                  --> Documentation détaillée de l'architecture
+    └── MODIFIER.md                      --> Guide des modifications en direct pour la soutenance
 ```
 
 ---
 
-## 🔄 Fonctionnement du Pipeline IA Meta SAM & 3D AR
+## 🚀 Démarrage Rapide
 
+### 1. Configuration Firebase
+
+1. Rendez-vous sur la console [Firebase](https://console.firebase.google.com/).
+2. Créez un projet ou utilisez un projet existant avec le package **`com.marketplace.app`**.
+3. Téléchargez le fichier `google-services.json` et déposez-le dans le dossier `app/` (remplacez ou configurez selon `app/google-services.json.example`).
+4. Activez les fournisseurs **Email/Mot de passe** et **Google** dans *Authentication*.
+5. Activez **Cloud Storage** et **Cloud Firestore** si vous testez le pont de scan SAM réel.
+
+### 2. Configuration de l'API / Mode Hors-Ligne (Mock)
+
+Dans [`MarketplaceApp.java`](file:///C:/Users/ASUS/StudioProjects/E-Commerce-multiplateforme/app/src/main/java/com/marketplace/app/MarketplaceApp.java) :
+
+```java
+// Pour une démonstration 100% autonome sans serveur (recommandé pour la soutenance) :
+ApiClient.setUseMock(true);
+
+// Pour se connecter à votre serveur local ou distant :
+ApiClient.setUseMock(false);
+ApiClient.setBaseUrl("http://10.0.2.2:3000/"); // 10.0.2.2 pour l'émulateur Android vers localhost
 ```
-[Vendeur Mobile (:feature:scanner3d)]
-    │  (1. Capture multi-angles de l'objet)
-    ▼
-[Firebase Storage & Firestore (:core:firebase)]
-    │  (2. Notification de nouveau Job SAM)
-    ▼
-[PC / Serveur GPU avec Meta SAM]
-    │  (3. Détection de contour & segmentation SAM)
-    │  (4. Reconstruction 3D -> fichier .glb)
-    ▼
-[Firebase & Base PostgreSQL (:core:network)]
-    │  (5. Mise à jour de l'URL du modèle 3D)
-    ▼
-[Acheteur Mobile (:feature:ar3d)]
-    │  (6. Visualisation AR à l'échelle dans sa pièce)
-    ▼
-[Discussion & Achat (:feature:chat)]
-```
 
----
+### 3. Compilation et Tests
 
-## 🧪 Exécution des Tests
+Exécutez dans un terminal à la racine :
 
-### 1. Tests Unitaires Isolés par Module
-Chaque module s'exécute de façon totalement autonome sans instancier ni appeler les autres :
 ```bash
-# Test uniquement du catalogue et des filtres
-./gradlew :feature:products:testDebugUnitTest
+# Lancer tous les tests unitaires
+./gradlew testDebugUnitTest
 
-# Test uniquement de la messagerie
-./gradlew :feature:chat:testDebugUnitTest
-
-# Test uniquement du scanner SAM
-./gradlew :feature:scanner3d:testDebugUnitTest
+# Compiler l'application et générer l'APK de débogage
+./gradlew assembleDebug
 ```
 
-### 2. Le Grand Test d'Intégration
-Vérifie la liaison de tous les modules via le routeur principal et le bon flux de données :
-```bash
-./gradlew :app:testDebugUnitTest --tests "com.marketplace.app.GrandIntegrationTest"
-```
+L'APK généré se trouvera dans :
+`app/build/outputs/apk/debug/app-debug.apk`
 
 ---
 
-## Backend PostgreSQL (données partagées avec la version web)
+## 🥽 Réalité Augmentée & Modèles 3D
 
-L'application dialogue avec une API REST adossée à PostgreSQL (dossier `backend/`), la même que celle de la version web.
-Elle gère aussi le **panier** et les **commandes**. Démarrage, configuration de l'app et référence de l'API : voir [`backend/README.md`](backend/README.md).
+L'application prend en charge les modèles 3D au format `.glb` / `.gltf` :
+- **Sur appareil physique compatible ARCore** : Scene Viewer de Google s'ouvre automatiquement en réalité augmentée à l'échelle réelle dans la pièce.
+- **Sur émulateur ou appareil sans ARCore** : Un visualiseur 3D alternatif ou le mode 3D interactif est utilisé sans faire planter l'application.
+
+---
+
+## 🧪 Tests Unitaires Intégrés
+
+1. **`CommerceMockTest`** : Vérifie l'ensemble du cycle commercial (ajout au panier, atomicité des stocks, découpage des commandes par vendeur, cycle de vie et restockage lors d'une annulation, conversion QueryMap).
+2. **`AuthUnitTest`** : Vérifie les règles de permissions métier (accès AR restreint aux utilisateurs connectés, exigences pour devenir vendeur, transitions de rôles).
+3. **`ContactLinksTest`** : Vérifie la normalisation des numéros de téléphone malgaches (`+261`) et la génération des liens d'encodage WhatsApp et Messenger.
+4. **`ModelUnitTest`** : Vérifie la validation stricte de tous les modèles POJO (`Product`, `Cart`, `Order`, `User`).
+
+---
+
+## 📚 Documentation Additionnelle
+
+- Consultez [`docs/ARCHITECTURE.md`](file:///C:/Users/ASUS/StudioProjects/E-Commerce-multiplateforme/docs/ARCHITECTURE.md) pour les diagrammes et détails techniques complets.
+- Consultez [`docs/MODIFIER.md`](file:///C:/Users/ASUS/StudioProjects/E-Commerce-multiplateforme/docs/MODIFIER.md) pour les pas-à-pas de modification en temps réel devant le jury de soutenance.

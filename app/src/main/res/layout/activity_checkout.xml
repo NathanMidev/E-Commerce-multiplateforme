@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Passage en caisse"
+            android:textColor="@color/text_primary"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="16dp"
+            android:text="Une commande distincte est créée pour chaque vendeur."
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp" />
+
+        <!-- Adresse de livraison -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Adresse de livraison *"
+            android:textColor="@color/text_primary"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/et_checkout_address"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="12dp"
+            android:background="#FFFFFF"
+            android:hint="Ex: Lot IVG 35 Ankorondrano"
+            android:paddingHorizontal="12dp"
+            android:textSize="14sp" />
+
+        <!-- Téléphone -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Téléphone de contact / livraison *"
+            android:textColor="@color/text_primary"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/et_checkout_phone"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="12dp"
+            android:background="#FFFFFF"
+            android:hint="Ex: +261 34 00 000 00"
+            android:inputType="phone"
+            android:paddingHorizontal="12dp"
+            android:textSize="14sp" />
+
+        <!-- Mode de paiement -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mode de règlement (déclaratif) :"
+            android:textColor="@color/text_primary"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/rg_payment_method"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="12dp">
+
+            <RadioButton
+                android:id="@+id/rb_livraison"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="Paiement à la livraison (Espèces)" />
+
+            <RadioButton
+                android:id="@+id/rb_mvola"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MVola (Mobile Money)" />
+
+            <RadioButton
+                android:id="@+id/rb_orange_money"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Orange Money" />
+
+            <RadioButton
+                android:id="@+id/rb_airtel_money"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Airtel Money" />
+        </RadioGroup>
+
+        <!-- Note optionnelle -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Instructions / Note pour la livraison (facultatif) :"
+            android:textColor="@color/text_primary"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/et_checkout_note"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="24dp"
+            android:background="#FFFFFF"
+            android:gravity="top|start"
+            android:hint="Ex: Appeler avant d'arriver..."
+            android:padding="12dp"
+            android:textSize="13sp" />
+
+        <Button
+            android:id="@+id/btn_confirm_checkout"
+            style="@style/Widget.Marketplace.Button.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Valider la commande" />
+
+    </LinearLayout>
+
+</ScrollView>

@@ -21,18 +21,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "MarketplaceApp"
 
-// Module Principal (Monolithe d'assemblage & Grand Test)
+// Projet Android à module unique : app
 include ':app'
-
-// Modules Core (Modèles partagés, Contrats de routage, Réseau PostgreSQL, Firebase SAM Bridge)
-include ':core:model'
-include ':core:navigation'
-include ':core:network'
-include ':core:database'
-include ':core:firebase'
-
-// Modules Fonctionnalités (Découplés, testables unitairement de manière autonome)
-include ':feature:auth'
-include ':feature:products'
-include ':feature:ar3d'
-include ':feature:scanner3d'

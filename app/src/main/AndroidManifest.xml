@@ -5,6 +5,9 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CAMERA" />
 
+    <!-- Déclaration facultative ARCore -->
+    <uses-feature android:name="android.hardware.camera.ar" android:required="false" />
+
     <application
         android:name=".MarketplaceApp"
         android:allowBackup="true"
@@ -22,6 +25,26 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Authentification & Profil -->
+        <activity android:name=".feature.auth.LoginActivity" android:exported="false" />
+        <activity android:name=".feature.auth.RegisterActivity" android:exported="false" />
+        <activity android:name=".feature.auth.ProfileActivity" android:exported="false" />
+
+        <!-- Catalogue & Boutique -->
+        <activity android:name=".feature.catalogue.CatalogueActivity" android:exported="false" />
+        <activity android:name=".feature.catalogue.ProductDetailActivity" android:exported="false" />
+        <activity android:name=".feature.boutique.BoutiqueActivity" android:exported="false" />
+
+        <!-- Transactions : Panier, Caisse, Commandes -->
+        <activity android:name=".transaction.panier.CartActivity" android:exported="false" />
+        <activity android:name=".transaction.commande.CheckoutActivity" android:exported="false" />
+        <activity android:name=".transaction.commande.OrdersActivity" android:exported="false" />
+
+        <!-- Scanner 3D & AR -->
+        <activity android:name=".feature.scan3d.ScanCaptureActivity" android:exported="false" />
+        <activity android:name=".feature.scan3d.ScanStatusActivity" android:exported="false" />
+        <activity android:name=".feature.ar.ArViewerActivity" android:exported="false" />
 
     </application>
 

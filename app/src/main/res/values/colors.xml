@@ -1,10 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#1976D2</color>
-    <color name="primary_dark">#1565C0</color>
-    <color name="accent">#00897B</color>
-    <color name="background">#F5F5F5</color>
-    <color name="surface">#FFFFFF</color>
-    <color name="text_primary">#212121</color>
-    <color name="text_secondary">#757575</color>
+    <!-- Palette Commerciale Moderne (style 1688 / E-Commerce dynamique) -->
+    <color name="primary">#FF6000</color>           <!-- Orange vif commercial -->
+    <color name="primary_dark">#E05300</color>      <!-- Orange sombre -->
+    <color name="primary_light">#FFF0E6</color>     <!-- Fond teinté orange -->
+    <color name="accent">#FF7A00</color>            <!-- Accent bouton secondaire -->
+
+    <color name="price_color">#FF4400</color>       <!-- Prix mis en valeur -->
+    <color name="badge_3d_bg">#E6F7FF</color>       <!-- Pastille 3D bleue -->
+    <color name="badge_3d_text">#0070BA</color>     <!-- Texte 3D -->
+    <color name="badge_pro_bg">#FFF8E6</color>      <!-- Badge PRO doré -->
+    <color name="badge_pro_text">#B87400</color>
+
+    <color name="background">#F7F7F7</color>        <!-- Fond gris très clair -->
+    <color name="surface">#FFFFFF</color>           <!-- Cartes blanches -->
+    <color name="card_border">#EAEAEA</color>       <!-- Bordure fine -->
+
+    <color name="text_primary">#1A1A1A</color>      <!-- Texte principal sombre -->
+    <color name="text_secondary">#757575</color>    <!-- Texte secondaire -->
+    <color name="text_hint">#9E9E9E</color>
+
+    <color name="status_green">#00A854</color>
+    <color name="status_red">#F04134</color>
+    <color name="divider">#ECECEC</color>
 </resources>

@@ -1,47 +1,52 @@
 package com.marketplace.app;
 
-import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+import com.marketplace.app.base.BaseActivity;
+import com.marketplace.app.navigation.Router;
 
-import com.marketplace.core.navigation.RouterRegistry;
-
-public class MainActivity extends AppCompatActivity {
+/**
+ * Rôle : Écran d'accueil principal (Dashboard commercial avec navigation basse et accès rapide).
+ * Entrée : Destinations Accueil, Catalogue, Panier, Commandes, Scanner 3D, Profil.
+ * Sortie : Routage unifié vers les différentes fonctionnalités.
+ */
+public class MainActivity extends BaseActivity {
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        Button btnNavCatalog = findViewById(R.id.btn_nav_catalog);
-        Button btnNavScanner = findViewById(R.id.btn_nav_scanner);
-        Button btnNavAuth = findViewById(R.id.btn_nav_auth);
-
-        // 1. Ouvrir le catalogue & filtres (module :feature:products)
-        btnNavCatalog.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                RouterRegistry.getInstance().getProductRouter().openCatalog(MainActivity.this);
-            }
-        });
-
-        // 2. Ouvrir le scanner 3D / Meta SAM + COLMAP (module :feature:scanner3d)
-        btnNavScanner.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                RouterRegistry.getInstance().getScannerRouter().openScanner(MainActivity.this, "prod_demo");
-            }
-        });
-
-        // 3. Ouvrir la connexion / profil (module :feature:auth)
-        btnNavAuth.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                RouterRegistry.getInstance().getAuthRouter().openLogin(MainActivity.this);
-            }
-        });
+    protected int getLayoutId() {
+        return R.layout.activity_main;
     }
+
+    @Override
+    protected void bindViews() {
+        Button btnNavCatalog = findViewById(R.id.btn_nav_catalog);
+        Button btnNavCart = findViewById(R.id.btn_nav_cart);
+        Button btnNavOrders = findViewById(R.id.btn_nav_orders);
+        Button btnNavAuth = findViewById(R.id.btn_nav_auth);
+        Button btnScanCenter = findViewById(R.id.btn_scan_center);
+
+        Button btnBottomHome = findViewById(R.id.btn_bottom_home);
+        Button btnBottomCatalog = findViewById(R.id.btn_bottom_catalog);
+        Button btnBottomCart = findViewById(R.id.btn_bottom_cart);
+        Button btnBottomProfile = findViewById(R.id.btn_bottom_profile);
+
+        btnNavCatalog.setOnClickListener(v -> Router.openCatalogue(this));
+        btnBottomCatalog.setOnClickListener(v -> Router.openCatalogue(this));
+
+        btnNavCart.setOnClickListener(v -> Router.openCart(this));
+        btnBottomCart.setOnClickListener(v -> Router.openCart(this));
+
+        btnNavOrders.setOnClickListener(v -> Router.openOrders(this));
+
+        btnNavAuth.setOnClickListener(v -> requireLogin(() -> Router.openProfile(this)));
+        btnBottomProfile.setOnClickListener(v -> requireLogin(() -> Router.openProfile(this)));
+
+        btnScanCenter.setOnClickListener(v -> requireLogin(() -> Router.openScanner(this, "prod_new", "cat_furniture")));
+    }
+
+    @Override
+    protected void loadData() {}
+
+    @Override
+    protected void render(Object data) {}
 }

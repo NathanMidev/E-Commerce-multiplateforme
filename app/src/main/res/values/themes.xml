@@ -1,9 +1,36 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Marketplace" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <!-- Thème principal clair inspiré de la présentation commerciale 1688 -->
+    <style name="Theme.Marketplace" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryVariant">@color/primary_dark</item>
-        <item name="colorSecondary">@color/accent</item>
-        <item name="android:statusBarColor">@color/primary_dark</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:colorBackground">@color/background</item>
+    </style>
+
+    <!-- Cartes produits blanches avec coins arrondis et ombre subtile -->
+    <style name="Widget.Marketplace.Card" parent="Widget.MaterialComponents.CardView">
+        <item name="cardCornerRadius">@dimen/card_corner_radius</item>
+        <item name="cardElevation">1dp</item>
+        <item name="cardBackgroundColor">@color/surface</item>
+        <item name="strokeColor">@color/card_border</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+    <!-- Bouton d'action principal commercial (Orange arrondi) -->
+    <style name="Widget.Marketplace.Button.Primary" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/primary</item>
+        <item name="android:textColor">@color/surface</item>
+        <item name="cornerRadius">@dimen/button_corner_radius</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Bouton d'action secondaire (Contour orange) -->
+    <style name="Widget.Marketplace.Button.Outlined" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="strokeColor">@color/primary</item>
+        <item name="android:textColor">@color/primary</item>
+        <item name="cornerRadius">@dimen/button_corner_radius</item>
+        <item name="android:textAllCaps">false</item>
     </style>
 </resources>
