@@ -49,8 +49,9 @@ public class ProductCardAdapter extends BaseAdapter<Product, ProductCardAdapter.
         String sellerName = product.getSellerName() != null ? product.getSellerName() : "Vendeur";
         holder.tvSeller.setText("📍 " + sellerName);
 
-        boolean has3d = product.isArSupported() && product.getModel3dUrl() != null && !product.getModel3dUrl().isEmpty();
+        boolean has3d = product.hasValidGlbModel();
         if (holder.tvBadgeAr != null) {
+            holder.tvBadgeAr.setText("3D");
             holder.tvBadgeAr.setVisibility(has3d ? View.VISIBLE : View.GONE);
         }
 

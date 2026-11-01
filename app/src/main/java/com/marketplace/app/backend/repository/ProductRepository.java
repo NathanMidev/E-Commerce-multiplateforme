@@ -151,14 +151,24 @@ public class ProductRepository extends BaseRepository<Product> {
     @Override
     public void update(Product item, Callback<Product> callback) {
         if (useMock) {
-            postSuccess(callback, item);
+            postSuccess(callback, MockBackendService.getInstance().updateProduct(item));
             return;
         }
 
         Map<String, Object> body = new HashMap<>();
         body.put("title", item.getTitle());
+        if (item.getDescription() != null) body.put("description", item.getDescription());
         body.put("price", item.getPrice());
         body.put("stock", item.getStock());
+        if (item.getCategoryId() != null && !item.getCategoryId().isEmpty()) {
+            body.put("categoryId", item.getCategoryId());
+        }
+        if (item.getThumbnailUrl() != null && !item.getThumbnailUrl().isEmpty()) {
+            body.put("thumbnailUrl", item.getThumbnailUrl());
+        }
+        if (item.getModel3dUrl() != null) {
+            body.put("model3dUrl", item.getModel3dUrl());
+        }
         ApiClient.getApi().updateProduct(item.getId(), body).enqueue(new retrofit2.Callback<Product>() {
             @Override
             public void onResponse(Call<Product> call, Response<Product> response) {

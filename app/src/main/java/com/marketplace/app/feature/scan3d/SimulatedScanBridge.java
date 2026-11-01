@@ -13,10 +13,10 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Rôle : Pont de scan 3D simulé (indiquant clairement [SIMULÉ] dans l'interface).
- * Entrée : ID produit et photos.
- * Sortie : Progression pas à pas jusqu'à la fourniture d'un modèle 3D de test GLB.
+ * Rôle : Pont de scan 3D simulé historique.
+ * @deprecated Le scan 3D automatique est temporairement désactivé au profit de l'import manuel de fichiers .glb.
  */
+@Deprecated
 public class SimulatedScanBridge implements ScanBridge {
 
     private final Map<String, ScanJob> jobs = new HashMap<>();

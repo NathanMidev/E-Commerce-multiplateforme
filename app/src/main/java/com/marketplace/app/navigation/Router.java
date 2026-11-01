@@ -72,6 +72,12 @@ public final class Router {
         start(context, "com.marketplace.app.feature.catalogue.ProductPublishActivity", null);
     }
 
+    public static void openProductEdit(Context context, String productId) {
+        Intent intent = new Intent();
+        intent.putExtra(EXTRA_PRODUCT_ID, productId);
+        start(context, "com.marketplace.app.feature.catalogue.ProductPublishActivity", intent);
+    }
+
     public static void openBoutique(Context context, String sellerId) {
         Intent intent = new Intent();
         intent.putExtra(EXTRA_SELLER_ID, sellerId);

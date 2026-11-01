@@ -84,12 +84,12 @@ public class MockBackendService {
         categories.add(new Category("cat_furniture", "Mobilier & Déco", "Meubles et objets scannables en 3D", "ic_furniture"));
         categories.add(new Category("cat_electronics", "Électronique", "Appareils, gadgets et accessoires", "ic_electronics"));
         categories.add(new Category("cat_fashion", "Mode & Chaussures", "Vêtements, sacs et sneakers avec essayage AR", "ic_fashion"));
-        categories.add(new Category("cat_art", "Art & Sculptures", "Objets uniques numérisés par SAM", "ic_art"));
+        categories.add(new Category("cat_art", "Art & Sculptures", "Objets uniques avec modèles 3D .glb", "ic_art"));
 
         Product p1 = new Product(
                 "prod_1",
                 "Fauteuil Scandinave Velours",
-                "Fauteuil confortable avec structure bois massif. Modèle 3D reconstruit par IA Meta SAM.",
+                "Fauteuil confortable avec structure bois massif. Modèle 3D .glb haute fidélité compatible ARCore.",
                 189.99,
                 ProductStatus.DISPONIBLE,
                 "cat_furniture",
@@ -98,15 +98,20 @@ public class MockBackendService {
                 "https://via.placeholder.com/400x300.png?text=Fauteuil+Nordique",
                 true,
                 "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
-                Arrays.asList("https://via.placeholder.com/400x300.png?text=Fauteuil+Nordique"),
+                Arrays.asList(
+                        "https://via.placeholder.com/400x300.png?text=Fauteuil+Nordique+Vue+1",
+                        "https://via.placeholder.com/400x300.png?text=Fauteuil+Nordique+Vue+2"
+                ),
                 5,
                 System.currentTimeMillis() - 86400000
         );
+        p1.setModel3dFormat("glb");
+        p1.setModel3dSize(2457600L);
 
         Product p2 = new Product(
                 "prod_2",
                 "Lampe Design Industrielle",
-                "Lampe à poser en acier brossé. Scannez et placez la lampe directement sur votre table en AR.",
+                "Lampe à poser en acier brossé. Placez et dupliquez la lampe directement sur votre table en AR.",
                 59.00,
                 ProductStatus.NOUVEAU,
                 "cat_furniture",
@@ -119,11 +124,13 @@ public class MockBackendService {
                 12,
                 System.currentTimeMillis() - 43200000
         );
+        p2.setModel3dFormat("glb");
+        p2.setModel3dSize(1843200L);
 
         Product p3 = new Product(
                 "prod_3",
                 "Sneakers Édition Limitée",
-                "Paire de sneakers exclusives. Reconstitution 3D photoréaliste via Meta SAM.",
+                "Paire de sneakers exclusives. Modèle 3D .glb interactif à 360°.",
                 220.00,
                 ProductStatus.A_VENDRE,
                 "cat_fashion",
@@ -136,10 +143,33 @@ public class MockBackendService {
                 2,
                 System.currentTimeMillis() - 20000000
         );
+        p3.setModel3dFormat("glb");
+        p3.setModel3dSize(1126400L);
+
+        Product p4 = new Product(
+                "prod_4",
+                "Table Basse Bois de Palissandre",
+                "Table basse artisanale malgache en palissandre massif (produit local sans modèle 3D, galerie photos uniquement).",
+                145.00,
+                ProductStatus.DISPONIBLE,
+                "cat_furniture",
+                "seller_101",
+                "Atelier Nordique",
+                "https://via.placeholder.com/400x300.png?text=Table+Palissandre",
+                false,
+                "",
+                Arrays.asList(
+                        "https://via.placeholder.com/400x300.png?text=Table+Palissandre+1",
+                        "https://via.placeholder.com/400x300.png?text=Table+Palissandre+2"
+                ),
+                4,
+                System.currentTimeMillis() - 10000000
+        );
 
         products.add(p1);
         products.add(p2);
         products.add(p3);
+        products.add(p4);
     }
 
     private void seedUsers() {
@@ -195,14 +225,34 @@ public class MockBackendService {
         if (product.getId() == null || product.getId().trim().isEmpty()) {
             product.setId("prod_" + (products.size() + 1));
         }
+        product.setUpdatedAt(System.currentTimeMillis());
         products.add(product);
         return product;
+    }
+
+    public synchronized Product updateProduct(Product updated) {
+        if (updated == null || updated.getId() == null) return updated;
+        for (int i = 0; i < products.size(); i++) {
+            if (updated.getId().equals(products.get(i).getId())) {
+                updated.setUpdatedAt(System.currentTimeMillis());
+                products.set(i, updated);
+                return updated;
+            }
+        }
+        products.add(updated);
+        return updated;
     }
 
     public synchronized boolean updateProductModel3d(String productId, String model3dUrl) {
         Product p = getProductById(productId);
         if (p != null) {
-            p.setModel3dUrl(model3dUrl);
+            if (model3dUrl == null || model3dUrl.trim().isEmpty()) {
+                p.clear3DModel();
+            } else {
+                p.setModel3dUrl(model3dUrl);
+                p.setModel3dFormat("glb");
+                p.setUpdatedAt(System.currentTimeMillis());
+            }
             return true;
         }
         return false;

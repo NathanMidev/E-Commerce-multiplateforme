@@ -79,9 +79,9 @@ public class MainActivity extends BaseActivity {
         // Profil
         if (btnBottomProfile != null) btnBottomProfile.setOnClickListener(v -> requireLogin(() -> Router.openProfile(this)));
 
-        // Déposer annonce & scan 3D
+        // Déposer annonce & import manuel d'un modèle 3D .glb (le scan automatique SAM/YOLO est désactivé)
         if (btnPublishMain != null) btnPublishMain.setOnClickListener(v -> requireLogin(() -> Router.openProductPublish(this)));
-        if (btnScanCenter != null) btnScanCenter.setOnClickListener(v -> requireLogin(() -> Router.openScanner(this, "prod_new", "cat_furniture")));
+        if (btnScanCenter != null) btnScanCenter.setOnClickListener(v -> requireLogin(() -> Router.openProductPublish(this)));
 
         // Boutons de compatibilité anciens tests
         Button btnNavCatalog = findViewById(R.id.btn_nav_catalog);

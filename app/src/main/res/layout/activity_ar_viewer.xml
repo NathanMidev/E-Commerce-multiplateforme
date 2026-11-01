@@ -5,70 +5,20 @@
     android:layout_height="match_parent"
     android:background="#121212">
 
-    <!-- 1. Vue Caméra AR / Espace Réel (SurfaceView ARCore) -->
-    <FrameLayout
-        android:id="@+id/ar_camera_surface"
+    <!-- 1. Surface interactive ARCore (Grille de surface + Instances 3D indépendantes) -->
+    <com.marketplace.app.feature.ar.ArInteractiveSurfaceView
+        android:id="@+id/ar_interactive_surface"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#1A1A1A">
+        android:layout_height="match_parent" />
 
-        <!-- Simulation du maillage de surface détectée (ARCore Plane Mesh) -->
-        <View
-            android:id="@+id/view_detected_plane"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:alpha="0.25"
-            android:background="@android:drawable/dialog_holo_dark_frame" />
-
-        <!-- Réticule d'alignement pour poser l'objet au sol -->
-        <ImageView
-            android:id="@+id/iv_ar_reticle"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_gravity="center"
-            android:alpha="0.7"
-            android:src="@android:drawable/ic_menu_crop"
-            app:tint="#00E676" />
-
-        <!-- Simulation de l'objet 3D ancré une fois placé -->
-        <LinearLayout
-            android:id="@+id/layout_anchored_3d_object"
-            android:layout_width="220dp"
-            android:layout_height="220dp"
-            android:layout_gravity="center"
-            android:background="@android:drawable/toast_frame"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:visibility="gone">
-
-            <TextView
-                android:id="@+id/tv_anchored_object_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="📦 Modèle 3D Ancré"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="Échelle réelle : 100%\nGlissez pour pivoter à 360°"
-                android:textColor="#B0BEC5"
-                android:textSize="12sp"
-                android:gravity="center" />
-        </LinearLayout>
-    </FrameLayout>
-
-    <!-- 2. Barre d'en-tête (Nom du produit & Statut ARCore) -->
+    <!-- 2. En-tête supérieur (Nom du produit, Badge ARCore, Statut de détection de surface) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
-        android:background="#CC000000"
+        android:background="#D9111827"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="14dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -76,14 +26,26 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
+            <ImageButton
+                android:id="@+id/btn_ar_close"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Fermer AR"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                app:tint="#FFFFFF" />
+
             <TextView
                 android:id="@+id/tv_ar_product_name"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
                 android:layout_weight="1"
-                android:text="Nom du Produit"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Produit Local 3D (.glb)"
                 android:textColor="#FFFFFF"
-                android:textSize="18sp"
+                android:textSize="16sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -91,11 +53,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="#00897B"
-                android:paddingStart="8dp"
-                android:paddingTop="3dp"
-                android:paddingEnd="8dp"
-                android:paddingBottom="3dp"
-                android:text="ARCore 3D"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
+                android:text="ARCore GLB"
                 android:textColor="#FFFFFF"
                 android:textSize="11sp"
                 android:textStyle="bold" />
@@ -103,74 +63,149 @@
 
         <TextView
             android:id="@+id/tv_ar_plane_status"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Scannez votre sol ou table pour détecter une surface..."
-            android:textColor="#80D8FF"
-            android:textSize="13sp" />
+            android:text="Détection des surfaces planes (horizontales et verticales)..."
+            android:textColor="#69F0AE"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_ar_instance_summary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Aucun exemplaire placé • Touchez la surface ou appuyez sur « Placer »"
+            android:textColor="#CFD8DC"
+            android:textSize="11sp" />
     </LinearLayout>
 
-    <!-- 3. Panneau inférieur d'actions (Placement, Échelle, Achat direct) -->
+    <!-- 3. Panneau inférieur de gestion des instances AR (Placement, Duplication, Rotation, Échelle, Suppression) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="#E6212121"
+        android:background="#E61E293B"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="12dp">
 
-        <!-- Informations d'interaction tactile -->
         <TextView
             android:id="@+id/tv_ar_interaction_hint"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:text="Pointez le réticule vers une surface plane puis appuyez sur 'Placer l'objet'."
-            android:textColor="#CFD8DC"
-            android:textSize="13sp" />
-
-        <!-- Ligne des boutons de contrôle AR -->
-        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
+            android:text="Astuce : Touchez un exemplaire pour le sélectionner, glissez pour le déplacer indépendamment, ou appuyez sur « Dupliquer »."
+            android:textColor="#E2E8F0"
+            android:textSize="11sp" />
+
+        <!-- Ligne 1 : Placer + Dupliquer + Supprimer instance -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <Button
                 android:id="@+id/btn_place_object"
                 android:layout_width="0dp"
-                android:layout_height="50dp"
+                android:layout_height="44dp"
+                android:layout_marginEnd="4dp"
                 android:layout_weight="1"
-                android:layout_marginEnd="6dp"
                 android:backgroundTint="#00897B"
-                android:text="Placer l'objet"
+                android:text="Placer"
+                android:textAllCaps="false"
                 android:textColor="#FFFFFF"
-                android:textSize="14sp" />
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btn_ar_duplicate"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_marginHorizontal="4dp"
+                android:layout_weight="1.15"
+                android:backgroundTint="#FF6000"
+                android:enabled="false"
+                android:text="➕ Dupliquer"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btn_ar_delete_instance"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_marginStart="4dp"
+                android:layout_weight="0.95"
+                android:backgroundTint="#D32F2F"
+                android:enabled="false"
+                android:text="Supprimer"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- Ligne 2 : Pivoter + Échelle -/+ + Réinitialiser scène -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_ar_rotate"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:backgroundTint="#334155"
+                android:enabled="false"
+                android:text="↻ Pivoter"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="11sp" />
+
+            <Button
+                android:id="@+id/btn_ar_scale_down"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginHorizontal="2dp"
+                android:layout_weight="0.75"
+                android:backgroundTint="#334155"
+                android:enabled="false"
+                android:text="Échelle -"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="11sp" />
+
+            <Button
+                android:id="@+id/btn_ar_scale_up"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginHorizontal="2dp"
+                android:layout_weight="0.75"
+                android:backgroundTint="#334155"
+                android:enabled="false"
+                android:text="Échelle +"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="11sp" />
 
             <Button
                 android:id="@+id/btn_reset_ar"
                 android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:layout_weight="1"
-                android:layout_marginStart="6dp"
-                android:backgroundTint="#546E7A"
+                android:layout_height="40dp"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1.1"
+                android:backgroundTint="#475569"
                 android:enabled="false"
-                android:text="Repositionner"
+                android:text="Réinitialiser"
+                android:textAllCaps="false"
                 android:textColor="#FFFFFF"
-                android:textSize="14sp" />
+                android:textSize="11sp" />
         </LinearLayout>
 
-        <!-- Bouton direct pour passer commande après essayage virtuel -->
-        <Button
-            android:id="@+id/btn_buy_from_ar"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:backgroundTint="#2E7D32"
-            android:text="Ce produit me plaît : Commander !"
-            android:textColor="#FFFFFF"
-            android:textSize="14sp"
-            android:textStyle="bold" />
     </LinearLayout>
 
 </FrameLayout>

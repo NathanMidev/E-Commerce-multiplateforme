@@ -1,32 +1,60 @@
 package com.marketplace.app.feature.catalogue;
 
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.marketplace.app.R;
+import com.marketplace.app.backend.AuthSession;
 import com.marketplace.app.backend.repository.CartRepository;
 import com.marketplace.app.backend.repository.ProductRepository;
 import com.marketplace.app.backend.repository.UserRepository;
 import com.marketplace.app.base.BaseActivity;
 import com.marketplace.app.base.BaseRepository;
+import com.marketplace.app.feature.ar.ArLauncher;
+import com.marketplace.app.feature.ar.GlbModelCache;
+import com.marketplace.app.feature.ar.GlbValidator;
+import com.marketplace.app.feature.ar.Interactive3dModelView;
 import com.marketplace.app.feature.contact.ContactBottomSheet;
+import com.marketplace.app.feature.import1688.AdminAccessControl;
 import com.marketplace.app.model.Cart;
 import com.marketplace.app.model.Product;
 import com.marketplace.app.model.User;
 import com.marketplace.app.navigation.Router;
 import com.marketplace.app.ui.PriceFormatter;
 
+import java.util.List;
+
 /**
- * Rôle : Fiche détaillée du produit avec barre d'action fixe [Discuter] [Ajouter au panier] [Commander].
- * Entrée : EXTRA_PRODUCT_ID.
- * Sortie : Consultation, visualisation 3D AR, contact vendeur et achat direct.
+ * Rôle : Fiche détaillée d'un produit de la marketplace locale (Sections 5 & 6).
+ * Fonctionnalités :
+ * - Galerie d'images classiques (miniatures cliquables)
+ * - Si le produit possède un modèle .glb valide :
+ *   - Petit indicateur « 3D »
+ *   - Visualiseur 3D interactif (rotation 360° et zoom)
+ *   - Petite icône AR en haut à droite du visualiseur 3D ouvrant l'expérience ARCore
+ * - Si le produit n'a pas de modèle .glb :
+ *   - Aucun visualiseur 3D vide n'est affiché.
  */
 public class ProductDetailActivity extends BaseActivity {
 
     private ImageView ivDetailImage;
+    private View scrollImageThumbnails;
+    private LinearLayout layoutImageThumbnails;
+    private TextView tv3dBadge;
+
+    private View card3dViewerContainer;
+    private Interactive3dModelView interactive3dView;
+    private ProgressBar progress3dLoading;
+    private TextView tv3dViewerInfo;
+    private ImageButton btnArTopRightIcon;
+
     private TextView tvTitle;
     private TextView tvPrice;
     private TextView tvStock;
@@ -34,9 +62,7 @@ public class ProductDetailActivity extends BaseActivity {
     private TextView tvSeller;
     private TextView tvSellerCity;
     private TextView tvDescription;
-    private TextView tv3dBadge;
-    private Button btnViewAr;
-    private Button btnScan3d;
+    private Button btnEditProductMedia;
     private Button btnVisitBoutique;
 
     private Button btnActionChat;
@@ -66,6 +92,16 @@ public class ProductDetailActivity extends BaseActivity {
         if (productId == null) productId = "prod_1";
 
         ivDetailImage = findViewById(R.id.iv_detail_image);
+        scrollImageThumbnails = findViewById(R.id.scroll_image_thumbnails);
+        layoutImageThumbnails = findViewById(R.id.layout_image_thumbnails);
+        tv3dBadge = findViewById(R.id.tv_detail_3d_badge);
+
+        card3dViewerContainer = findViewById(R.id.card_3d_viewer_container);
+        interactive3dView = findViewById(R.id.view_interactive_3d);
+        progress3dLoading = findViewById(R.id.progress_3d_loading);
+        tv3dViewerInfo = findViewById(R.id.tv_3d_viewer_info);
+        btnArTopRightIcon = findViewById(R.id.btn_ar_top_right_icon);
+
         tvTitle = findViewById(R.id.tv_detail_title);
         tvPrice = findViewById(R.id.tv_detail_price);
         tvStock = findViewById(R.id.tv_detail_stock);
@@ -73,24 +109,45 @@ public class ProductDetailActivity extends BaseActivity {
         tvSeller = findViewById(R.id.tv_detail_seller);
         tvSellerCity = findViewById(R.id.tv_seller_city);
         tvDescription = findViewById(R.id.tv_detail_description);
-        tv3dBadge = findViewById(R.id.tv_detail_3d_badge);
-        btnViewAr = findViewById(R.id.btn_view_ar);
-        btnScan3d = findViewById(R.id.btn_scan_3d);
+        btnEditProductMedia = findViewById(R.id.btn_edit_product_media);
         btnVisitBoutique = findViewById(R.id.btn_visit_boutique);
 
         btnActionChat = findViewById(R.id.btn_action_chat);
         btnActionAddCart = findViewById(R.id.btn_action_add_cart);
         btnActionCheckout = findViewById(R.id.btn_action_checkout);
 
-        btnViewAr.setOnClickListener(v -> {
-            if (currentProduct != null) {
-                Router.openArViewer(this, currentProduct.getId(), currentProduct.getTitle(), currentProduct.getModel3dUrl());
+        // Contrôles du visualiseur 3D
+        findViewById(R.id.btn_3d_zoom_in).setOnClickListener(v -> {
+            if (interactive3dView != null) {
+                interactive3dView.setZoomFactor(interactive3dView.getZoomFactor() + 0.25f);
+            }
+        });
+        findViewById(R.id.btn_3d_zoom_out).setOnClickListener(v -> {
+            if (interactive3dView != null) {
+                interactive3dView.setZoomFactor(interactive3dView.getZoomFactor() - 0.25f);
+            }
+        });
+        findViewById(R.id.btn_3d_reset_view).setOnClickListener(v -> {
+            if (interactive3dView != null) {
+                interactive3dView.resetCameraView();
             }
         });
 
-        btnScan3d.setOnClickListener(v -> {
+        // Bouton icône AR en haut à droite du visualiseur 3D (Section 6)
+        btnArTopRightIcon.setOnClickListener(v -> {
+            if (currentProduct != null && currentProduct.hasValidGlbModel()) {
+                ArLauncher.launchArExperienceIfCompatible(
+                        this,
+                        currentProduct.getId(),
+                        currentProduct.getTitle(),
+                        currentProduct.getModel3dUrl()
+                );
+            }
+        });
+
+        btnEditProductMedia.setOnClickListener(v -> {
             if (currentProduct != null) {
-                Router.openScanner(this, currentProduct.getId(), currentProduct.getCategoryId());
+                Router.openProductEdit(this, currentProduct.getId());
             }
         });
 
@@ -109,6 +166,12 @@ public class ProductDetailActivity extends BaseActivity {
 
         btnActionAddCart.setOnClickListener(v -> addToCart(false));
         btnActionCheckout.setOnClickListener(v -> addToCart(true));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadData();
     }
 
     @Override
@@ -146,30 +209,105 @@ public class ProductDetailActivity extends BaseActivity {
 
     @Override
     protected void render(Object data) {
-        if (data instanceof Product) {
-            Product p = (Product) data;
-            tvTitle.setText(p.getTitle());
-            tvPrice.setText(PriceFormatter.format(p.getPrice()));
-            tvDescription.setText(p.getDescription());
-            tvStock.setText("Stock : " + p.getStock() + " unités");
-            tvSeller.setText("Boutique : " + (p.getSellerName() != null ? p.getSellerName() : "Vendeur"));
+        if (!(data instanceof Product)) return;
+        Product p = (Product) data;
 
-            if (p.getStatus() != null) {
-                tvStatus.setText(p.getStatus().name());
+        tvTitle.setText(p.getTitle());
+        tvPrice.setText(PriceFormatter.format(p.getPrice()));
+        tvDescription.setText(p.getDescription());
+        tvStock.setText("Stock : " + p.getStock() + " unités");
+        tvSeller.setText("Boutique : " + (p.getSellerName() != null ? p.getSellerName() : "Vendeur"));
+
+        if (p.getStatus() != null) {
+            tvStatus.setText(p.getStatus().name());
+        }
+
+        // Bouton d'édition visible pour le vendeur propriétaire ou un admin
+        String currentUid = AuthSession.getInstance().getUserId();
+        boolean isOwner = currentUid != null && currentUid.equals(p.getSellerId());
+        btnEditProductMedia.setVisibility((isOwner || AdminAccessControl.isCurrentUserAdmin()) ? View.VISIBLE : View.GONE);
+
+        // Galerie d'images classiques
+        renderImageGallery(p);
+
+        // Visualiseur 3D interactif et bouton AR en haut à droite (Sections 5 & 6)
+        if (p.hasValidGlbModel()) {
+            tv3dBadge.setText("3D");
+            tv3dBadge.setVisibility(View.VISIBLE);
+            card3dViewerContainer.setVisibility(View.VISIBLE);
+            btnArTopRightIcon.setVisibility(View.VISIBLE);
+
+            String sizeInfo = p.getModel3dSize() > 0
+                    ? " (" + GlbValidator.formatFileSize(p.getModel3dSize()) + ")"
+                    : "";
+            tv3dViewerInfo.setText("Modèle 3D (.glb)" + sizeInfo + " • Rotation & Zoom");
+
+            progress3dLoading.setVisibility(View.VISIBLE);
+            GlbModelCache.getInstance().loadModelAsync(this, p.getModel3dUrl(), new GlbModelCache.LoadCallback() {
+                @Override
+                public void onProgress(int percent) {
+                    progress3dLoading.setVisibility(percent < 100 ? View.VISIBLE : View.GONE);
+                }
+
+                @Override
+                public void onLoaded(GlbModelCache.SharedGlbResource resource) {
+                    progress3dLoading.setVisibility(View.GONE);
+                    interactive3dView.setModelResource(resource);
+                }
+
+                @Override
+                public void onError(String errorMessage) {
+                    progress3dLoading.setVisibility(View.GONE);
+                    tv3dViewerInfo.setText("Erreur chargement .glb : " + errorMessage);
+                    btnArTopRightIcon.setVisibility(View.GONE);
+                }
+            });
+        } else {
+            // Produit sans modèle GLB : ne jamais afficher de visualiseur 3D vide
+            tv3dBadge.setVisibility(View.GONE);
+            card3dViewerContainer.setVisibility(View.GONE);
+            btnArTopRightIcon.setVisibility(View.GONE);
+            if (interactive3dView != null) {
+                interactive3dView.releaseResources();
             }
+        }
+    }
 
-            if (p.isArSupported() && p.getModel3dUrl() != null && !p.getModel3dUrl().isEmpty()) {
-                tv3dBadge.setVisibility(View.VISIBLE);
-                btnViewAr.setVisibility(View.VISIBLE);
-            } else {
-                tv3dBadge.setVisibility(View.GONE);
-                btnViewAr.setVisibility(View.GONE);
+    private void renderImageGallery(Product p) {
+        List<String> images = p.getImageUrls();
+        String mainUrl = p.getThumbnailUrl();
+        Glide.with(this)
+                .load(mainUrl)
+                .placeholder(android.R.drawable.ic_menu_gallery)
+                .into(ivDetailImage);
+
+        if (layoutImageThumbnails == null || scrollImageThumbnails == null) return;
+        layoutImageThumbnails.removeAllViews();
+
+        if (images != null && images.size() > 1) {
+            scrollImageThumbnails.setVisibility(View.VISIBLE);
+            int sizePx = (int) (getResources().getDisplayMetrics().density * 62);
+            int marginPx = (int) (getResources().getDisplayMetrics().density * 8);
+
+            for (String imgUrl : images) {
+                ImageView thumb = new ImageView(this);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(sizePx, sizePx);
+                lp.setMarginEnd(marginPx);
+                thumb.setLayoutParams(lp);
+                thumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                thumb.setBackgroundResource(R.drawable.bg_search_pill);
+                Glide.with(this)
+                        .load(imgUrl)
+                        .placeholder(android.R.drawable.ic_menu_gallery)
+                        .into(thumb);
+                thumb.setOnClickListener(v -> Glide.with(this)
+                        .load(imgUrl)
+                        .placeholder(android.R.drawable.ic_menu_gallery)
+                        .into(ivDetailImage));
+                layoutImageThumbnails.addView(thumb);
             }
-
-            Glide.with(this)
-                    .load(p.getThumbnailUrl())
-                    .placeholder(android.R.drawable.ic_menu_gallery)
-                    .into(ivDetailImage);
+        } else {
+            scrollImageThumbnails.setVisibility(View.GONE);
         }
     }
 
@@ -191,5 +329,13 @@ public class ProductDetailActivity extends BaseActivity {
                 showError(message, null);
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (interactive3dView != null) {
+            interactive3dView.releaseResources();
+        }
+        super.onDestroy();
     }
 }

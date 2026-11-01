@@ -16,35 +16,53 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- 1. Bannière Image Produit avec Badges AR et Statut -->
+            <!-- 1. Galerie d'images classiques du produit + Indicateur « 3D » -->
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="280dp"
+                android:layout_height="270dp"
                 android:background="#F3F4F6">
 
                 <ImageView
                     android:id="@+id/iv_detail_image"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:contentDescription="Photo de l'article" />
+                    android:contentDescription="Photo de l'article"
+                    android:scaleType="centerCrop" />
 
-                <!-- Badge AR 3D sur l'image -->
+                <!-- Petit indicateur « 3D » lorsque le produit possède un modèle GLB -->
                 <TextView
                     android:id="@+id/tv_detail_3d_badge"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="bottom|start"
+                    android:layout_gravity="top|end"
                     android:layout_margin="14dp"
                     android:background="#E60070BA"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="6dp"
-                    android:text="🥽 ESSAYAGE EN RÉALITÉ AUGMENTÉE DISPONIBLE"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="4dp"
+                    android:text="3D"
                     android:textColor="#FFFFFF"
-                    android:textSize="11sp"
+                    android:textSize="12sp"
                     android:textStyle="bold"
                     android:visibility="gone" />
             </FrameLayout>
+
+            <!-- Miniatures de la galerie d'images classiques -->
+            <HorizontalScrollView
+                android:id="@+id/scroll_image_thumbnails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#FFFFFF"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="8dp"
+                android:scrollbars="none"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:id="@+id/layout_image_thumbnails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" />
+            </HorizontalScrollView>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -52,7 +70,113 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <!-- 2. Bloc Prix & Statut Commercial -->
+                <!-- 2. Visualiseur 3D Interactif (.glb) + Bouton AR en haut à droite (Visible UNIQUEMENT si modèle GLB valide) -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_3d_viewer_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="14dp"
+                    android:visibility="gone"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp"
+                    app:strokeColor="#00897B"
+                    app:strokeWidth="1.5dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <!-- Zone de visualisation 3D avec icône AR discrète en haut à droite (Sections 5 & 6) -->
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="260dp"
+                            android:background="#F8FAFC">
+
+                            <com.marketplace.app.feature.ar.Interactive3dModelView
+                                android:id="@+id/view_interactive_3d"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent" />
+
+                            <ProgressBar
+                                android:id="@+id/progress_3d_loading"
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:layout_gravity="center"
+                                android:visibility="gone" />
+
+                            <!-- Étiquette haut-gauche du visualiseur 3D -->
+                            <TextView
+                                android:id="@+id/tv_3d_viewer_info"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="top|start"
+                                android:layout_margin="10dp"
+                                android:background="#CC1E293B"
+                                android:paddingHorizontal="10dp"
+                                android:paddingVertical="4dp"
+                                android:text="Modèle 3D (.glb) • Rotation &amp; Zoom"
+                                android:textColor="#FFFFFF"
+                                android:textSize="11sp"
+                                android:textStyle="bold" />
+
+                            <!-- Petite icône AR discrète en haut à droite du visualiseur 3D (Section 6) -->
+                            <ImageButton
+                                android:id="@+id/btn_ar_top_right_icon"
+                                android:layout_width="42dp"
+                                android:layout_height="42dp"
+                                android:layout_gravity="top|end"
+                                android:layout_margin="10dp"
+                                android:background="@drawable/bg_import1688_center_fab"
+                                android:backgroundTint="#00897B"
+                                android:contentDescription="Ouvrir en Réalité Augmentée ARCore"
+                                android:elevation="4dp"
+                                android:padding="8dp"
+                                android:scaleType="centerInside"
+                                android:src="@drawable/ic_ar_cube_top_right"
+                                android:visibility="gone" />
+                        </FrameLayout>
+
+                        <!-- Barre d'outils rapide du visualiseur 3D -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="#FFFFFF"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="8dp">
+
+                            <Button
+                                android:id="@+id/btn_3d_zoom_out"
+                                style="@style/Widget.Marketplace.Button.Outlined"
+                                android:layout_width="wrap_content"
+                                android:layout_height="34dp"
+                                android:text="Zoom -"
+                                android:textSize="11sp" />
+
+                            <Button
+                                android:id="@+id/btn_3d_zoom_in"
+                                style="@style/Widget.Marketplace.Button.Outlined"
+                                android:layout_width="wrap_content"
+                                android:layout_height="34dp"
+                                android:layout_marginStart="6dp"
+                                android:text="Zoom +"
+                                android:textSize="11sp" />
+
+                            <Button
+                                android:id="@+id/btn_3d_reset_view"
+                                style="@style/Widget.Marketplace.Button.Outlined"
+                                android:layout_width="wrap_content"
+                                android:layout_height="34dp"
+                                android:layout_marginStart="6dp"
+                                android:text="Réinitialiser vue"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- 3. Bloc Prix & Statut Commercial -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -73,7 +197,6 @@
                             android:gravity="center_vertical"
                             android:orientation="horizontal">
 
-                            <!-- Prix en gros caractères orange -->
                             <TextView
                                 android:id="@+id/tv_detail_price"
                                 android:layout_width="0dp"
@@ -97,7 +220,6 @@
                                 android:textStyle="bold" />
                         </LinearLayout>
 
-                        <!-- Titre de l'article -->
                         <TextView
                             android:id="@+id/tv_detail_title"
                             android:layout_width="match_parent"
@@ -108,7 +230,6 @@
                             android:textSize="18sp"
                             android:textStyle="bold" />
 
-                        <!-- Disponibilité Stock -->
                         <TextView
                             android:id="@+id/tv_detail_stock"
                             android:layout_width="wrap_content"
@@ -118,31 +239,20 @@
                             android:textColor="@color/text_secondary"
                             android:textSize="12sp" />
 
-                        <!-- Bouton Essayer en AR -->
+                        <!-- Action Vendeur propriétaire : Modifier l'annonce / Gérer le fichier .glb -->
                         <Button
-                            android:id="@+id/btn_view_ar"
-                            android:layout_width="match_parent"
-                            android:layout_height="46dp"
-                            android:layout_marginTop="12dp"
-                            android:backgroundTint="#00897B"
-                            android:text="🥽 Voir chez vous en Réalité Augmentée (AR 3D)"
-                            android:textColor="#FFFFFF"
-                            android:textSize="13sp"
-                            android:visibility="gone" />
-
-                        <!-- Bouton Scanner 3D Vendeur -->
-                        <Button
-                            android:id="@+id/btn_scan_3d"
+                            android:id="@+id/btn_edit_product_media"
                             style="@style/Widget.Marketplace.Button.Outlined"
                             android:layout_width="match_parent"
                             android:layout_height="40dp"
-                            android:layout_marginTop="8dp"
-                            android:text="📷 Numériser cet objet en 3D (Meta SAM)"
-                            android:textSize="12sp" />
+                            android:layout_marginTop="10dp"
+                            android:text="✏️ Modifier le produit / Gérer le modèle .glb"
+                            android:textSize="12sp"
+                            android:visibility="gone" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- 3. Fiche Vendeur style Deal.mg -->
+                <!-- 4. Fiche Vendeur style Deal.mg -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/layout_seller_card"
                     android:layout_width="match_parent"
@@ -165,7 +275,6 @@
                             android:gravity="center_vertical"
                             android:orientation="horizontal">
 
-                            <!-- Avatar boutique -->
                             <TextView
                                 android:layout_width="44dp"
                                 android:layout_height="44dp"
@@ -213,7 +322,7 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- 4. Description Détaillée -->
+                <!-- 5. Description Détaillée -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -254,7 +363,7 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- 5. Barre d'action fixe sous le pouce style Deal.mg -->
+    <!-- 6. Barre d'action fixe sous le pouce style Deal.mg -->
     <LinearLayout
         android:id="@+id/layout_bottom_actions"
         android:layout_width="match_parent"
@@ -266,7 +375,6 @@
         android:orientation="horizontal"
         android:paddingHorizontal="12dp">
 
-        <!-- Bouton Contacter vendeur direct (WhatsApp / Téléphone) -->
         <Button
             android:id="@+id/btn_action_chat"
             android:layout_width="0dp"
@@ -280,7 +388,6 @@
             android:textSize="12sp"
             android:textStyle="bold" />
 
-        <!-- Bouton Au Panier -->
         <Button
             android:id="@+id/btn_action_add_cart"
             style="@style/Widget.Marketplace.Button.Outlined"
@@ -293,7 +400,6 @@
             android:textSize="12sp"
             android:textStyle="bold" />
 
-        <!-- Bouton Commander -->
         <Button
             android:id="@+id/btn_action_checkout"
             style="@style/Widget.Marketplace.Button.Primary"

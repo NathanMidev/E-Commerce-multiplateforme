@@ -21,6 +21,7 @@ import com.marketplace.app.R;
 import com.marketplace.app.backend.repository.ProductRepository;
 import com.marketplace.app.base.BaseActivity;
 import com.marketplace.app.base.BaseRepository;
+import com.marketplace.app.feature.ar.ArLauncher;
 import com.marketplace.app.model.Category;
 import com.marketplace.app.model.FilterCriteria;
 import com.marketplace.app.model.Product;
@@ -88,7 +89,12 @@ public class CatalogueActivity extends BaseActivity {
 
             @Override
             public void onArClick(Product product) {
-                Router.openArViewer(CatalogueActivity.this, product.getId(), product.getTitle(), product.getModel3dUrl());
+                ArLauncher.launchArExperienceIfCompatible(
+                        CatalogueActivity.this,
+                        product.getId(),
+                        product.getTitle(),
+                        product.getModel3dUrl()
+                );
             }
         });
         rvProducts.setAdapter(adapter);

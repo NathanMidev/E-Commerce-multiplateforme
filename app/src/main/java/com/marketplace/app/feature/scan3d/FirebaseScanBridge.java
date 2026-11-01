@@ -21,10 +21,10 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Rôle : Passerelle Firebase Storage & Firestore avec le worker PC (Meta SAM + COLMAP).
- * Entrée : Upload photos dans scans/{uid}/{jobId}/ et document scan_jobs/{jobId}.
- * Sortie : Écoute temps réel des changements d'état et mise à jour automatique via PATCH /products/:id/model3d.
+ * Rôle : Passerelle historique Firebase Storage & Firestore avec le worker PC.
+ * @deprecated Le scan 3D automatique est temporairement abandonné au profit de ProductMediaFirebaseService (import manuel .glb).
  */
+@Deprecated
 public class FirebaseScanBridge implements ScanBridge {
 
     private static final Map<String, ScanJob> ACTIVE_JOBS = new ConcurrentHashMap<>();

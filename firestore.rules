@@ -1,19 +1,46 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Règles de sécurité pour le pont de scan 3D (projet bizinevo-3d)
-    // Seul un utilisateur authentifié peut créer et consulter ses propres tâches scan_jobs/{jobId}.
-    match /scan_jobs/{jobId} {
-      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-      allow update: if request.auth != null && (
-        resource.data.userId == request.auth.uid ||
-        request.auth.token.admin == true
-      );
-      allow delete: if false;
+
+    function isAuthenticated() {
+      return request.auth != null;
     }
 
-    // Tout autre accès non explicite est interdit (le métier principal passe par l'API REST)
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.admin == true ||
+        request.auth.token.role == 'ADMIN'
+      );
+    }
+
+    // Métadonnées médias et modèles 3D .glb des produits de la marketplace locale
+    // - Les acheteurs peuvent consulter uniquement les produits publiés (published == true)
+    // - Les produits non publiés ne sont lisibles que par leur vendeur propriétaire ou un admin
+    // - Seul le vendeur propriétaire (sellerId == request.auth.uid) ou un admin peut créer/modifier/supprimer
+    match /product_media/{productId} {
+      allow read: if (resource != null && resource.data.published == true) ||
+                  (isAuthenticated() && resource != null && resource.data.sellerId == request.auth.uid) ||
+                  isAdmin();
+
+      allow create: if isAuthenticated() &&
+                    request.resource.data.sellerId == request.auth.uid &&
+                    (!request.resource.data.has3DModel || request.resource.data.model3dFormat == 'glb');
+
+      allow update: if isAuthenticated() &&
+                    (resource.data.sellerId == request.auth.uid || isAdmin()) &&
+                    request.resource.data.sellerId == resource.data.sellerId &&
+                    (!request.resource.data.has3DModel || request.resource.data.model3dFormat == 'glb');
+
+      allow delete: if isAuthenticated() &&
+                    (resource.data.sellerId == request.auth.uid || isAdmin());
+    }
+
+    // Ancien pont scan_jobs (désactivé dans le parcours utilisateur, conservé en lecture/écriture restreinte)
+    match /scan_jobs/{jobId} {
+      allow read, write: if false;
+    }
+
+    // Tout autre accès non explicite est interdit
     match /{document=**} {
       allow read, write: if false;
     }

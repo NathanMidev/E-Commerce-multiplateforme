@@ -11,7 +11,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- En-tête Déposer une annonce -->
+        <!-- En-tête Déposer / Modifier une annonce locale -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -19,12 +19,13 @@
             android:orientation="horizontal">
 
             <TextView
+                android:id="@+id/tv_publish_header_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Déposer une annonce"
+                android:text="Publier un produit local"
                 android:textColor="@color/text_primary"
-                android:textSize="22sp"
+                android:textSize="21sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -33,9 +34,9 @@
                 android:background="#FFF3E0"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="4dp"
-                android:text="Gratuit"
+                android:text="Marketplace Locale"
                 android:textColor="@color/primary"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -43,12 +44,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:layout_marginBottom="16dp"
-            android:text="Vendez rapidement vos articles partout à Madagascar."
+            android:layout_marginBottom="14dp"
+            android:text="Ajoutez vos photos et, en option, un modèle 3D au format .glb pour la visualisation 3D et ARCore."
             android:textColor="@color/text_secondary"
-            android:textSize="13sp" />
+            android:textSize="12sp" />
 
-        <!-- 1. Section Photos & 3D -->
+        <!-- 1. Section : Images et modèle 3D (Section 3 du cahier des charges) -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -67,23 +68,34 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="1. Photos du produit *"
+                    android:text="1. Images et modèle 3D"
                     android:textColor="@color/text_primary"
-                    android:textSize="15sp"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <!-- A. Sous-section Images classiques -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="A. Galerie d'images classiques (plusieurs photos possibles)"
+                    android:textColor="@color/text_primary"
+                    android:textSize="13sp"
                     android:textStyle="bold" />
 
                 <FrameLayout
+                    android:id="@+id/frame_photo_preview"
                     android:layout_width="match_parent"
-                    android:layout_height="160dp"
-                    android:layout_marginTop="10dp"
+                    android:layout_height="155dp"
+                    android:layout_marginTop="8dp"
                     android:background="#F8F9FA">
 
                     <ImageView
                         android:id="@+id/iv_publish_preview"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:contentDescription="Aperçu photo" />
+                        android:contentDescription="Aperçu photo"
+                        android:scaleType="centerCrop" />
 
                     <LinearLayout
                         android:id="@+id/layout_add_photo_prompt"
@@ -97,38 +109,230 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="📷"
-                            android:textSize="32sp" />
+                            android:textSize="30sp" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="Ajouter une photo principale"
+                            android:text="Touchez pour sélectionner plusieurs images"
                             android:textColor="@color/primary"
-                            android:textSize="13sp"
+                            android:textSize="12sp"
                             android:textStyle="bold" />
                     </LinearLayout>
                 </FrameLayout>
 
-                <EditText
-                    android:id="@+id/et_publish_image_url"
+                <TextView
+                    android:id="@+id/tv_images_count"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Aucune photo sélectionnée"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btn_pick_images"
+                        style="@style/Widget.Marketplace.Button.Outlined"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1"
+                        android:text="Choisir des photos"
+                        android:textSize="12sp" />
+
+                    <Button
+                        android:id="@+id/btn_clear_images"
+                        style="@style/Widget.Marketplace.Button.Outlined"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:text="Vider photos"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/et_publish_image_url"
+                        android:layout_width="0dp"
+                        android:layout_height="42dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_search_input"
+                        android:hint="Ou ajouter une URL d'image (https://...)"
+                        android:paddingHorizontal="12dp"
+                        android:textSize="12sp" />
+
+                    <Button
+                        android:id="@+id/btn_add_image_url"
+                        style="@style/Widget.Marketplace.Button.Outlined"
+                        android:layout_width="wrap_content"
+                        android:layout_height="42dp"
+                        android:layout_marginStart="6dp"
+                        android:text="+ Ajouter"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginVertical="14dp"
+                    android:background="@color/divider" />
+
+                <!-- B. Sous-section Modèle 3D (.glb) facultatif -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="B. Modèle 3D .glb (Facultatif)"
+                        android:textColor="@color/text_primary"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@color/badge_3d_bg"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="2dp"
+                        android:text="Format .glb uniquement"
+                        android:textColor="@color/badge_3d_text"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Importez un fichier .glb depuis votre téléphone pour activer le visualiseur 3D et le placement ARCore."
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp" />
+
+                <!-- Bouton principal d'importation .glb -->
+                <Button
+                    android:id="@+id/btn_select_glb"
+                    style="@style/Widget.Marketplace.Button.Outlined"
                     android:layout_width="match_parent"
                     android:layout_height="44dp"
                     android:layout_marginTop="8dp"
-                    android:background="@drawable/bg_search_input"
-                    android:hint="Ou collez l'URL de l'image (https://...)"
-                    android:paddingHorizontal="12dp"
-                    android:textSize="13sp" />
-
-                <!-- Raccourci Numérisation 3D (Meta SAM) -->
-                <Button
-                    android:id="@+id/btn_publish_scan_3d"
-                    style="@style/Widget.Marketplace.Button.Outlined"
-                    android:layout_width="match_parent"
-                    android:layout_height="40dp"
-                    android:layout_marginTop="10dp"
-                    android:text="🥽 Numériser en 3D (Meta SAM)"
+                    android:text="📦 Sélectionner un fichier .glb depuis le téléphone"
                     android:textSize="12sp" />
+
+                <!-- Message d'erreur de validation GLB -->
+                <TextView
+                    android:id="@+id/tv_glb_error"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:textColor="@color/status_red"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+                <!-- Carte d'information et de prévisualisation du fichier .glb sélectionné -->
+                <LinearLayout
+                    android:id="@+id/layout_selected_glb_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_search_pill"
+                    android:orientation="vertical"
+                    android:padding="12dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/tv_glb_file_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Nom du fichier : model.glb"
+                        android:textColor="@color/text_primary"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_glb_file_size"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Taille : 1,25 Mo • Intégrité binaire glTF vérifiée"
+                        android:textColor="@color/status_green"
+                        android:textSize="12sp" />
+
+                    <!-- Prévisualisation 3D interactive avant publication -->
+                    <com.marketplace.app.feature.ar.Interactive3dModelView
+                        android:id="@+id/preview_3d_publish_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="170dp"
+                        android:layout_marginTop="8dp"
+                        android:background="#F8FAFC" />
+
+                    <!-- Actions Remplacer / Supprimer le modèle .glb -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
+
+                        <Button
+                            android:id="@+id/btn_replace_glb"
+                            style="@style/Widget.Marketplace.Button.Outlined"
+                            android:layout_width="0dp"
+                            android:layout_height="38dp"
+                            android:layout_marginEnd="6dp"
+                            android:layout_weight="1"
+                            android:text="Remplacer .glb"
+                            android:textSize="11sp" />
+
+                        <Button
+                            android:id="@+id/btn_remove_glb"
+                            style="@style/Widget.Marketplace.Button.Outlined"
+                            android:layout_width="0dp"
+                            android:layout_height="38dp"
+                            android:layout_weight="1"
+                            android:text="Supprimer .glb"
+                            android:textColor="@color/status_red"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Barre de progression d'upload Firebase Storage -->
+                <ProgressBar
+                    android:id="@+id/progress_glb_upload"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="6dp"
+                    android:layout_marginTop="8dp"
+                    android:max="100"
+                    android:progressTint="@color/primary"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tv_glb_upload_progress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Téléversement Firebase en cours..."
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp"
+                    android:visibility="gone" />
+
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -156,7 +360,6 @@
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
-                <!-- Titre -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -171,11 +374,10 @@
                     android:layout_height="44dp"
                     android:layout_marginTop="4dp"
                     android:background="@drawable/bg_search_input"
-                    android:hint="Ex: Canapé d'angle en cuir, Smartphone..."
+                    android:hint="Ex: Fauteuil scandinave, Table basse..."
                     android:paddingHorizontal="12dp"
                     android:textSize="14sp" />
 
-                <!-- Catégorie -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -192,12 +394,11 @@
                     android:background="@drawable/bg_search_input"
                     android:paddingHorizontal="8dp" />
 
-                <!-- Description -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:text="Description détaillée (état, caractéristiques)"
+                    android:text="Description détaillée (état, dimensions, matériaux)"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
 
@@ -208,7 +409,7 @@
                     android:layout_marginTop="4dp"
                     android:background="@drawable/bg_search_input"
                     android:gravity="top|start"
-                    android:hint="Décrivez l'état, la provenance, les détails..."
+                    android:hint="Décrivez l'état, les dimensions, les détails..."
                     android:padding="12dp"
                     android:textSize="13sp" />
             </LinearLayout>
@@ -296,20 +497,10 @@
                             android:textSize="14sp" />
                     </LinearLayout>
                 </LinearLayout>
-
-                <!-- Checkbox AR -->
-                <CheckBox
-                    android:id="@+id/cb_publish_enable_ar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="Activer l'option Réalité Augmentée 3D"
-                    android:textColor="@color/text_primary"
-                    android:textSize="13sp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Bouton Déposer l'annonce -->
+        <!-- Bouton Publier / Enregistrer les modifications -->
         <Button
             android:id="@+id/btn_submit_publish"
             style="@style/Widget.Marketplace.Button.Primary"

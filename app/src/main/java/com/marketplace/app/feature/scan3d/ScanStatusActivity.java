@@ -14,10 +14,10 @@ import java.io.File;
 import java.util.ArrayList;
 
 /**
- * Rôle : Écran de suivi du traitement SAM & COLMAP via FirebaseScanBridge ou SimulatedScanBridge ([SIMULÉ]).
- * Entrée : EXTRA_JOB_ID.
- * Sortie : Progression en pourcentage et bouton 'Voir en 3D / AR' une fois le fichier .glb généré.
+ * Rôle : Écran historique de suivi du traitement 3D automatique.
+ * @deprecated Désactivé dans le parcours utilisateur au profit de l'import manuel de fichiers .glb.
  */
+@Deprecated
 public class ScanStatusActivity extends BaseActivity {
 
     private TextView tvHeader;

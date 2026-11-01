@@ -6,10 +6,11 @@ import java.io.File;
 import java.util.List;
 
 /**
- * Rôle : Contrat d'interface commune pour le pont de traitement du scan 3D (SAM + COLMAP).
- * Entrée : Photos multi-angles et jobId.
- * Sortie : Progression et mise à disposition du modèle .glb.
+ * Rôle : Contrat d'interface historique pour le pont de traitement du scan 3D automatique.
+ * @deprecated Le scan 3D automatique (YOLO / SAM / COLMAP / worker NVIDIA) est temporairement désactivé
+ * dans le parcours utilisateur au profit de l'importation manuelle de fichiers .glb via ProductMediaFirebaseService.
  */
+@Deprecated
 public interface ScanBridge {
 
     interface ScanListener {

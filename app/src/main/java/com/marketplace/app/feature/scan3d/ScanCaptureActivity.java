@@ -12,10 +12,10 @@ import com.marketplace.app.model.ScanJob;
 import com.marketplace.app.navigation.Router;
 
 /**
- * Rôle : Écran de capture 3D guidé pour le vendeur.
- * Entrée : ID produit et catégorie attendue.
- * Sortie : Capture de clichés et envoi vers le pont de reconstruction SAM + COLMAP (Firebase ou Simulé).
+ * Rôle : Écran historique de capture 3D guidé pour le vendeur.
+ * @deprecated Désactivé dans le parcours utilisateur au profit de l'import manuel de fichiers .glb dans ProductPublishActivity.
  */
+@Deprecated
 public class ScanCaptureActivity extends BaseActivity {
 
     private TextView tvExpectedCategory;
