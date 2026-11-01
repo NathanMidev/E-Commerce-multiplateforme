@@ -10,7 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.marketplace.core.model.Product;
 import com.marketplace.core.navigation.RouterRegistry;
-import com.marketplace.core.network.MockPostgresBackendService;
+import com.marketplace.core.network.BackendProvider;
 import com.marketplace.core.network.PostgresBackendApi;
 import com.marketplace.feature.products.R;
 
@@ -36,7 +36,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_detail);
 
-        backendApi = new MockPostgresBackendService();
+        backendApi = BackendProvider.get();
 
         tvTitle = findViewById(R.id.tv_detail_title);
         tvPrice = findViewById(R.id.tv_detail_price);
@@ -77,7 +77,7 @@ public class ProductDetailActivity extends AppCompatActivity {
                             tvStatus.setBackgroundColor(Color.parseColor("#E8F5E9"));
                             tvStatus.setTextColor(Color.parseColor("#2E7D32"));
                             break;
-                        case EPUISE:
+                        case INDISPONIBLE:
                             tvStatus.setBackgroundColor(Color.parseColor("#FFEBEE"));
                             tvStatus.setTextColor(Color.parseColor("#C62828"));
                             break;

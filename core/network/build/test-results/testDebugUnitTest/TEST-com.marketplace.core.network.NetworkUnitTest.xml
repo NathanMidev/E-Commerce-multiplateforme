@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.marketplace.core.network.NetworkUnitTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-10-26T04:56:39" hostname="DESKTOP-LTB6QG5" time="0.021">
-  <properties/>
-  <testcase name="testGetCategories" classname="com.marketplace.core.network.NetworkUnitTest" time="0.013"/>
-  <testcase name="testFilterProductsByAr" classname="com.marketplace.core.network.NetworkUnitTest" time="0.007"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

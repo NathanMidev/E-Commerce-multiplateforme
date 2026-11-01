@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.marketplace.core.model.ModelUnitTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-26T04:56:34" hostname="DESKTOP-LTB6QG5" time="0.019">
-  <properties/>
-  <testcase name="testFilterCriteria_CategoryMatch" classname="com.marketplace.core.model.ModelUnitTest" time="0.014"/>
-  <testcase name="testFilterCriteria_NonMatchingCategory" classname="com.marketplace.core.model.ModelUnitTest" time="0.001"/>
-  <testcase name="testSamScanJobProgress" classname="com.marketplace.core.model.ModelUnitTest" time="0.002"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

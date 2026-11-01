@@ -15,7 +15,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import com.marketplace.core.model.User;
-import com.marketplace.core.model.UserRole;
 import com.marketplace.core.navigation.RouterRegistry;
 import com.marketplace.feature.ar3d.R;
 
@@ -66,7 +65,7 @@ public class ArViewerActivity extends AppCompatActivity {
 
         // Si aucun utilisateur spécifié, simulation d'un BUYER connecté par défaut
         if (currentUser == null) {
-            currentUser = new User("buyer_default", "Acheteur Test", "buyer@marketplace.com", UserRole.BUYER, "", "");
+            currentUser = new User("buyer_default", "Acheteur Test", "buyer@marketplace.com", "");
         }
 
         // 1. Contrôle des droits d'accès : Les comptes GUEST ne peuvent pas accéder à la RA

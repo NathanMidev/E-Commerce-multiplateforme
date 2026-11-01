@@ -1,5 +1,5 @@
 package com.marketplace.core.model;
-
+import java.util.Random;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,9 +21,11 @@ public class Product implements Serializable {
     private long createdAt;
 
     public Product() {
+        this.id = generateDynamicId();
         this.status = ProductStatus.NOUVEAU;
         this.modele3d = false;
         this.imageUrls = new ArrayList<>();
+        this.createdAt = System.currentTimeMillis(); // <-- Initialisez aussi le timestamp
     }
 
     public Product(String id, String title, String description, double price,
@@ -82,8 +84,8 @@ public class Product implements Serializable {
     public void setArSupported(boolean arSupported) { this.modele3d = arSupported; }
 
     public String getModel3dUrl() { return model3dUrl; }
-    public void setModel3dUrl(String model3dUrl) { 
-        this.model3dUrl = model3dUrl; 
+    public void setModel3dUrl(String model3dUrl) {
+        this.model3dUrl = model3dUrl;
         this.modele3d = (model3dUrl != null && !model3dUrl.trim().isEmpty());
     }
 
@@ -91,13 +93,32 @@ public class Product implements Serializable {
     public void setImageUrls(List<String> imageUrls) { this.imageUrls = imageUrls; }
 
     public int getStock() { return stock; }
-    public void setStock(int stock) { 
+    public void setStock(int stock) {
         this.stock = stock;
-        if (stock <= 0 && this.status != ProductStatus.EPUISE) {
-            this.status = ProductStatus.EPUISE;
+        if (stock <= 0 && this.status != ProductStatus.INDISPONIBLE) {
+            this.status = ProductStatus.INDISPONIBLE;
         }
     }
 
     public long getCreatedAt() { return createdAt; }
     public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
+    /**
+     * Génère un ID unique : 3 lettres majuscules suivies de 4 chiffres (ex: KTZ4829)
+     */
+    private String generateDynamicId() {
+        String letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        Random random = new Random();
+        StringBuilder sb = new StringBuilder();
+
+        // 3 lettres
+        for (int i = 0; i < 3; i++) {
+            sb.append(letters.charAt(random.nextInt(letters.length())));
+        }
+
+        // 4 chiffres
+        int digits = random.nextInt(10000);
+        sb.append(String.format("%04d", digits));
+
+        return sb.toString();
+    }
 }

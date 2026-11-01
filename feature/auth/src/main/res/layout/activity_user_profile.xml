@@ -3,22 +3,46 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="24dp"
-    android:gravity="center">
+    android:padding="20dp"
+    android:gravity="center_horizontal">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Profil Utilisateur"
-        android:textSize="22sp"
+        android:text="Complétez votre profil"
+        android:textSize="20sp"
         android:textStyle="bold"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="24dp"/>
 
-    <TextView
-        android:id="@+id/tv_user_id"
-        android:layout_width="wrap_content"
+    <!-- Notez bien les ID : et_whatsapp, et_address, et_phone -->
+    <EditText
+        android:id="@+id/et_whatsapp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:text="ID : Chargement..." />
+        android:hint="WhatsApp (ex: +261...)"
+        android:inputType="phone"
+        android:layout_marginBottom="12dp"/>
+
+    <EditText
+        android:id="@+id/et_address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Adresse ou Ville"
+        android:inputType="textPostalAddress"
+        android:layout_marginBottom="12dp"/>
+
+    <EditText
+        android:id="@+id/et_phone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Téléphone"
+        android:inputType="phone"
+        android:layout_marginBottom="24dp"/>
+
+    <Button
+        android:id="@+id/btn_save_profile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enregistrer et continuer" />
 
 </LinearLayout>

@@ -18,7 +18,7 @@ import com.marketplace.core.model.Category;
 import com.marketplace.core.model.FilterCriteria;
 import com.marketplace.core.model.Product;
 import com.marketplace.core.navigation.RouterRegistry;
-import com.marketplace.core.network.MockPostgresBackendService;
+import com.marketplace.core.network.BackendProvider;
 import com.marketplace.core.network.PostgresBackendApi;
 import com.marketplace.feature.products.R;
 
@@ -47,7 +47,7 @@ public class ProductCatalogActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_catalog);
 
-        backendApi = new MockPostgresBackendService();
+        backendApi = BackendProvider.get();
 
         initViews();
         setupRecyclerView();

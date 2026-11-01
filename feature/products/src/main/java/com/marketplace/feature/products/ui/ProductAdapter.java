@@ -63,7 +63,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                     holder.tvStatus.setBackgroundColor(Color.parseColor("#E8F5E9"));
                     holder.tvStatus.setTextColor(Color.parseColor("#2E7D32"));
                     break;
-                case EPUISE:
+                case INDISPONIBLE:
                     holder.tvStatus.setBackgroundColor(Color.parseColor("#FFEBEE"));
                     holder.tvStatus.setTextColor(Color.parseColor("#C62828"));
                     break;

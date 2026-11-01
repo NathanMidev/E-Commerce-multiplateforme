@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Version debug uniquement : autorise le HTTP non chiffré vers le serveur de développement
+     (10.0.2.2 ou l'IP du PC). La version release exige HTTPS. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application android:usesCleartextTraffic="true" />
+</manifest>

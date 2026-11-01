@@ -166,3 +166,10 @@ Vérifie la liaison de tous les modules via le routeur principal et le bon flux 
 ```bash
 ./gradlew :app:testDebugUnitTest --tests "com.marketplace.app.GrandIntegrationTest"
 ```
+
+---
+
+## Backend PostgreSQL (données partagées avec la version web)
+
+L'application dialogue avec une API REST adossée à PostgreSQL (dossier `backend/`), la même que celle de la version web.
+Elle gère aussi le **panier** et les **commandes**. Démarrage, configuration de l'app et référence de l'API : voir [`backend/README.md`](backend/README.md).
