@@ -1,40 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background">
 
-    <!-- Barre supérieure de recherche -->
+    <!-- En-tête style Deal.mg avec Logo et Barre de Recherche -->
     <LinearLayout
         android:id="@+id/layout_search_bar"
         android:layout_width="match_parent"
-        android:layout_height="52dp"
+        android:layout_height="wrap_content"
         android:background="#FFFFFF"
-        android:elevation="2dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="16dp">
+        android:elevation="4dp"
+        android:orientation="vertical"
+        android:padding="12dp">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Marketplace 3D"
-            android:textColor="@color/primary"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🇲🇬 MARKETPLACE"
+                android:textColor="@color/primary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
-        <Button
-            android:id="@+id/btn_scan_center"
-            style="@style/Widget.Marketplace.Button.Primary"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:text="Scanner 3D"
-            android:textSize="11sp" />
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/btn_scan_center"
+                style="@style/Widget.Marketplace.Button.Outlined"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:paddingHorizontal="10dp"
+                android:text="📷 Scan 3D SAM"
+                android:textSize="11sp" />
+
+            <Button
+                android:id="@+id/btn_publish_main"
+                style="@style/Widget.Marketplace.Button.Primary"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginStart="8dp"
+                android:paddingHorizontal="12dp"
+                android:text="+ Vendre"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <!-- Barre de recherche cliquable redirigeant vers le catalogue -->
+        <LinearLayout
+            android:id="@+id/layout_search_trigger"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_search_input"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🔍"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:text="Rechercher des produits, meubles, high-tech..."
+                android:textColor="@color/text_hint"
+                android:textSize="13sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#E5E7EB"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:text="Madagascar"
+                android:textColor="#4B5563"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
     </LinearLayout>
 
     <ScrollView
@@ -49,142 +105,432 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Bannière promotionnelle -->
-            <androidx.cardview.widget.CardView
+            <!-- Bannière promotionnelle AR 3D & Bons Plans -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
-                android:layout_height="120dp"
+                android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                android:elevation="1dp">
+                app:cardCornerRadius="14dp"
+                app:cardElevation="2dp"
+                app:strokeColor="#EDEDED"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/primary_light"
-                    android:gravity="center"
-                    android:orientation="vertical">
+                    android:layout_height="125dp"
+                    android:background="#FFF5ED"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@color/primary"
+                            android:paddingHorizontal="6dp"
+                            android:paddingVertical="2dp"
+                            android:text="NOUVEAUTÉ EXCLUSIVE"
+                            android:textColor="#FFFFFF"
+                            android:textSize="10sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="Essayez vos meubles en Réalité Augmentée 🥽"
+                            android:textColor="#1F2937"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="Modèles 3D à l'échelle réelle dans votre pièce."
+                            android:textColor="#6B7280"
+                            android:textSize="11sp" />
+                    </LinearLayout>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Visualisation 3D Réelle &amp; E-Commerce"
-                        android:textColor="@color/primary_dark"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:layout_marginStart="10dp"
+                        android:text="🛋️🥽"
+                        android:textSize="36sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Titre Catégories Populaires -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Catégories Populaires"
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_see_all_categories"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tout voir >"
+                    android:textColor="@color/primary"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Grille de Bulles de Catégories style Deal.mg -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/btn_quick_cat_hightech"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="52dp"
+                        android:layout_height="52dp"
+                        android:background="@drawable/bg_search_input"
+                        android:gravity="center"
+                        android:text="📱"
+                        android:textSize="24sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="Essayez vos meubles et objets en Réalité Augmentée"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
+                        android:text="High-Tech"
+                        android:textColor="@color/text_primary"
+                        android:textSize="11sp" />
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
 
-            <!-- Accès rapides -->
+                <LinearLayout
+                    android:id="@+id/btn_quick_cat_furniture"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="52dp"
+                        android:layout_height="52dp"
+                        android:background="@drawable/bg_search_input"
+                        android:gravity="center"
+                        android:text="🛋️"
+                        android:textSize="24sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Mobilier"
+                        android:textColor="@color/text_primary"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/btn_quick_cat_shoes"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="52dp"
+                        android:layout_height="52dp"
+                        android:background="@drawable/bg_search_input"
+                        android:gravity="center"
+                        android:text="👟"
+                        android:textSize="24sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Mode"
+                        android:textColor="@color/text_primary"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/btn_quick_cat_ar"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="52dp"
+                        android:layout_height="52dp"
+                        android:background="#E0F2FE"
+                        android:gravity="center"
+                        android:text="🥽"
+                        android:textSize="24sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Objets 3D"
+                        android:textColor="#0369A1"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Raccourcis Rapides Vendeur & Acheteur -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
                 android:orientation="horizontal">
 
-                <Button
-                    android:id="@+id/btn_nav_catalog"
-                    style="@style/Widget.Marketplace.Button.Outlined"
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_shortcut_catalog"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
+                    android:layout_height="80dp"
                     android:layout_marginEnd="6dp"
                     android:layout_weight="1"
-                    android:text="Catalogue"
-                    android:textSize="12sp" />
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="1dp">
 
-                <Button
-                    android:id="@+id/btn_nav_cart"
-                    style="@style/Widget.Marketplace.Button.Outlined"
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="🛍️"
+                            android:textSize="26sp" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Catalogue"
+                                android:textColor="@color/text_primary"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Toutes les annonces"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="10sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_shortcut_orders"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
+                    android:layout_height="80dp"
                     android:layout_marginStart="6dp"
                     android:layout_weight="1"
-                    android:text="Mon Panier"
-                    android:textSize="12sp" />
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="📦"
+                            android:textSize="26sp" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Commandes"
+                                android:textColor="@color/text_primary"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Suivi &amp; Paiement"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="10sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/btn_nav_orders"
-                    style="@style/Widget.Marketplace.Button.Outlined"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_marginEnd="6dp"
-                    android:layout_weight="1"
-                    android:text="Mes Commandes"
-                    android:textSize="12sp" />
-
-                <Button
-                    android:id="@+id/btn_nav_auth"
-                    style="@style/Widget.Marketplace.Button.Outlined"
-                    android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_marginStart="6dp"
-                    android:layout_weight="1"
-                    android:text="Mon Compte"
-                    android:textSize="12sp" />
-            </LinearLayout>
+            <!-- Boutons masqués pour compatibilité avec l'ancien code MainActivity -->
+            <Button
+                android:id="@+id/btn_nav_catalog"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
+            <Button
+                android:id="@+id/btn_nav_cart"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
+            <Button
+                android:id="@+id/btn_nav_orders"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
+            <Button
+                android:id="@+id/btn_nav_auth"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
 
         </LinearLayout>
     </ScrollView>
 
-    <!-- Barre de navigation basse (4 destinations + scanner central) -->
+    <!-- Barre de Navigation Basse style Application Mobile Native -->
     <LinearLayout
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="58dp"
         android:layout_alignParentBottom="true"
         android:background="#FFFFFF"
-        android:elevation="8dp"
+        android:elevation="12dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <Button
+        <LinearLayout
             android:id="@+id/btn_bottom_home"
-            style="?android:attr/borderlessButtonStyle"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Accueil"
-            android:textColor="@color/primary"
-            android:textSize="11sp" />
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center"
+            android:orientation="vertical">
 
-        <Button
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🏠"
+                android:textSize="18sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Accueil"
+                android:textColor="@color/primary"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/btn_bottom_catalog"
-            style="?android:attr/borderlessButtonStyle"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Catalogue"
-            android:textSize="11sp" />
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center"
+            android:orientation="vertical">
 
-        <Button
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🔍"
+                android:textSize="18sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Catalogue"
+                android:textColor="@color/text_secondary"
+                android:textSize="10sp" />
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/btn_bottom_cart"
-            style="?android:attr/borderlessButtonStyle"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Panier"
-            android:textSize="11sp" />
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center"
+            android:orientation="vertical">
 
-        <Button
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🛒"
+                android:textSize="18sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Panier"
+                android:textColor="@color/text_secondary"
+                android:textSize="10sp" />
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/btn_bottom_profile"
-            style="?android:attr/borderlessButtonStyle"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Compte"
-            android:textSize="11sp" />
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="👤"
+                android:textSize="18sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Profil"
+                android:textColor="@color/text_secondary"
+                android:textSize="10sp" />
+        </LinearLayout>
     </LinearLayout>
 
 </RelativeLayout>

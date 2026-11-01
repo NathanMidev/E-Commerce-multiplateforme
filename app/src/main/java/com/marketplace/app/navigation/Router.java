@@ -62,7 +62,11 @@ public final class Router {
     }
 
     public static void openPublishProduct(Context context) {
-        start(context, "com.marketplace.app.feature.catalogue.PublishProductActivity", null);
+        openProductPublish(context);
+    }
+
+    public static void openProductPublish(Context context) {
+        start(context, "com.marketplace.app.feature.catalogue.ProductPublishActivity", null);
     }
 
     public static void openBoutique(Context context, String sellerId) {

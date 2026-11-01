@@ -34,6 +34,7 @@
         <!-- Catalogue & Boutique -->
         <activity android:name=".feature.catalogue.CatalogueActivity" android:exported="false" />
         <activity android:name=".feature.catalogue.ProductDetailActivity" android:exported="false" />
+        <activity android:name=".feature.catalogue.ProductPublishActivity" android:exported="false" />
         <activity android:name=".feature.boutique.BoutiqueActivity" android:exported="false" />
 
         <!-- Transactions : Panier, Caisse, Commandes -->

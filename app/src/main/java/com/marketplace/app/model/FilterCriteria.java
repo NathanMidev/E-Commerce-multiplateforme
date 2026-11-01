@@ -63,6 +63,9 @@ public class FilterCriteria extends BaseModel {
     public String getSearchQuery() { return searchQuery; }
     public void setSearchQuery(String searchQuery) { this.searchQuery = searchQuery; }
 
+    public String getKeyword() { return searchQuery; }
+    public void setKeyword(String keyword) { this.searchQuery = keyword; }
+
     public String getSortBy() { return sortBy; }
     public void setSortBy(String sortBy) { this.sortBy = sortBy; }
 

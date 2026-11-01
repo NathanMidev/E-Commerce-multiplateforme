@@ -25,6 +25,11 @@ public final class FirebaseAuthSession {
         auth.addAuthStateListener(firebaseAuth -> syncSession(firebaseAuth.getCurrentUser()));
     }
 
+    public static void signOut() {
+        FirebaseAuth.getInstance().signOut();
+        AuthSession.getInstance().clear();
+    }
+
     private static void syncSession(FirebaseUser user) {
         if (user != null) {
             String uid = user.getUid();

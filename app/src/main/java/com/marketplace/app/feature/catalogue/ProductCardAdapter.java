@@ -17,9 +17,9 @@ import com.marketplace.app.model.Product;
 import com.marketplace.app.ui.PriceFormatter;
 
 /**
- * Rôle : Adaptateur RecyclerView uniforme pour les cartes produits sur deux colonnes.
+ * Rôle : Adaptateur RecyclerView uniforme pour les cartes produits sur deux colonnes style Deal.mg.
  * Entrée : Liste de Product.
- * Sortie : Affichage du visuel, prix en orange vif, pastille 3D/AR et clics.
+ * Sortie : Affichage du visuel, prix en Ariary orange, pastille 3D/AR et interactions.
  */
 public class ProductCardAdapter extends BaseAdapter<Product, ProductCardAdapter.ViewHolder> {
 
@@ -45,15 +45,27 @@ public class ProductCardAdapter extends BaseAdapter<Product, ProductCardAdapter.
     protected void bind(@NonNull ViewHolder holder, Product product, int position) {
         holder.tvTitle.setText(product.getTitle());
         holder.tvPrice.setText(PriceFormatter.format(product.getPrice()));
-        holder.tvSeller.setText("Boutique : " + (product.getSellerName() != null ? product.getSellerName() : "Vendeur"));
+        
+        String sellerName = product.getSellerName() != null ? product.getSellerName() : "Vendeur";
+        holder.tvSeller.setText("📍 " + sellerName);
 
-        if (product.isArSupported() && product.getModel3dUrl() != null && !product.getModel3dUrl().isEmpty()) {
+        boolean has3d = product.isArSupported() && product.getModel3dUrl() != null && !product.getModel3dUrl().isEmpty();
+        if (holder.tvBadgeAr != null) {
+            holder.tvBadgeAr.setVisibility(has3d ? View.VISIBLE : View.GONE);
+        }
+
+        if (has3d) {
             holder.btnQuickAr.setVisibility(View.VISIBLE);
             holder.btnQuickAr.setOnClickListener(v -> {
                 if (actionListener != null) actionListener.onArClick(product);
             });
         } else {
             holder.btnQuickAr.setVisibility(View.GONE);
+        }
+
+        if (holder.tvStatus != null && product.getStatus() != null) {
+            holder.tvStatus.setVisibility(View.VISIBLE);
+            holder.tvStatus.setText(product.getStatus().name());
         }
 
         Glide.with(holder.itemView.getContext())
@@ -72,6 +84,8 @@ public class ProductCardAdapter extends BaseAdapter<Product, ProductCardAdapter.
         TextView tvTitle;
         TextView tvPrice;
         TextView tvSeller;
+        TextView tvBadgeAr;
+        TextView tvStatus;
         Button btnQuickAr;
 
         public ViewHolder(@NonNull View itemView) {
@@ -80,6 +94,8 @@ public class ProductCardAdapter extends BaseAdapter<Product, ProductCardAdapter.
             tvTitle = itemView.findViewById(R.id.tv_product_title);
             tvPrice = itemView.findViewById(R.id.tv_product_price);
             tvSeller = itemView.findViewById(R.id.tv_product_seller);
+            tvBadgeAr = itemView.findViewById(R.id.tv_badge_ar_overlay);
+            tvStatus = itemView.findViewById(R.id.tv_product_status);
             btnQuickAr = itemView.findViewById(R.id.btn_quick_ar);
         }
     }

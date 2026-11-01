@@ -3,113 +3,122 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="12dp"
-    android:layout_marginVertical="6dp"
-    app:cardCornerRadius="10dp"
+    android:layout_margin="6dp"
+    app:cardCornerRadius="12dp"
     app:cardElevation="2dp"
-    app:strokeColor="#E0E0E0"
-    app:strokeWidth="1dp">
+    app:strokeColor="#EDEDED"
+    app:strokeWidth="1dp"
+    android:foreground="?attr/selectableItemBackground">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="12dp">
+        android:orientation="vertical">
 
-        <LinearLayout
+        <!-- Conteneur Image avec Badge AR en superposition -->
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_height="145dp"
+            android:background="#F8F9FA">
 
             <ImageView
                 android:id="@+id/iv_product_thumbnail"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                android:background="#F5F5F5"
-                android:contentDescription="Miniature produit" />
+                android:contentDescription="Photo produit" />
 
-            <LinearLayout
-                android:layout_width="0dp"
+            <!-- Badge AR 3D compact sur l'image -->
+            <TextView
+                android:id="@+id/tv_badge_ar_overlay"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:layout_gravity="top|start"
+                android:layout_margin="8dp"
+                android:background="#E00070BA"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
+                android:text="3D AR 🥽"
+                android:textColor="#FFFFFF"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+            <!-- Badge Statut / Promo -->
+            <TextView
+                android:id="@+id/tv_product_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|start"
+                android:layout_margin="8dp"
+                android:background="#D92E7D32"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="2dp"
+                android:text="DISPONIBLE"
+                android:textColor="#FFFFFF"
+                android:textSize="9sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+        </FrameLayout>
 
-                    <TextView
-                        android:id="@+id/tv_product_title"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:maxLines="2"
-                        android:ellipsize="end"
-                        android:text="Titre du Produit"
-                        android:textColor="#212121"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
+        <!-- Informations Produit -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp">
 
-                    <TextView
-                        android:id="@+id/tv_product_status"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
-                        android:background="#E8F5E9"
-                        android:paddingHorizontal="6dp"
-                        android:paddingVertical="2dp"
-                        android:text="DISPONIBLE"
-                        android:textColor="#2E7D32"
-                        android:textSize="10sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
+            <!-- Titre sur 2 lignes max -->
+            <TextView
+                android:id="@+id/tv_product_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:lines="2"
+                android:maxLines="2"
+                android:text="Titre du Produit"
+                android:textColor="#1F2937"
+                android:textSize="13sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/tv_product_price"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="0 Ar"
-                    android:textColor="#FF5722"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+            <!-- Prix mis en valeur en orange vif -->
+            <TextView
+                android:id="@+id/tv_product_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="0 Ar"
+                android:textColor="@color/price_color"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/tv_product_seller"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="Vendeur : Boutique"
-                    android:textColor="#757575"
-                    android:textSize="12sp" />
+            <!-- Vendeur & Ville -->
+            <TextView
+                android:id="@+id/tv_product_seller"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="📍 Vendeur"
+                android:textColor="#6B7280"
+                android:textSize="11sp" />
 
-                <TextView
-                    android:id="@+id/tv_product_stock"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="En stock : 5"
-                    android:textColor="#9E9E9E"
-                    android:textSize="11sp" />
-            </LinearLayout>
+            <!-- Bouton Essayer en AR -->
+            <Button
+                android:id="@+id/btn_quick_ar"
+                android:layout_width="match_parent"
+                android:layout_height="32dp"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="#00897B"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:padding="0dp"
+                android:text="Essayer en AR 🥽"
+                android:textColor="#FFFFFF"
+                android:textSize="11sp"
+                android:visibility="gone" />
+
         </LinearLayout>
-
-        <Button
-            android:id="@+id/btn_quick_ar"
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:layout_marginTop="8dp"
-            android:layout_gravity="end"
-            android:backgroundTint="#00897B"
-            android:paddingHorizontal="12dp"
-            android:text="Essayer en AR 3D 🥽"
-            android:textColor="#FFFFFF"
-            android:textSize="11sp"
-            android:visibility="gone" />
-
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
