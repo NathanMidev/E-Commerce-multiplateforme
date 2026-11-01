@@ -1,0 +1,21 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Règles de sécurité Firebase Storage pour les clichés du scanner 3D : scans/{uid}/{jobId}/{fileName}
+    // Seul l'utilisateur authentifié propriétaire ({uid}) peut téléverser et lire ses photos de scan.
+    match /scans/{uid}/{jobId}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Modèles 3D .glb générés par le worker : lecture publique/authentifiée, écriture réservée au propriétaire ou worker admin
+    match /models3d/{uid}/{jobId}/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && (request.auth.uid == uid || request.auth.token.admin == true);
+    }
+
+    // Refuser tout accès anonyme ou hors périmètre
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

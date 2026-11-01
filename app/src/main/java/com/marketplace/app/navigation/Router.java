@@ -16,6 +16,9 @@ public final class Router {
     public static final String EXTRA_ORDER_ID = "EXTRA_ORDER_ID";
     public static final String EXTRA_MODEL_URL = "EXTRA_MODEL_URL";
     public static final String EXTRA_JOB_ID = "EXTRA_JOB_ID";
+    public static final String EXTRA_IMPORT_ORDER_ID = "EXTRA_IMPORT_ORDER_ID";
+    public static final String EXTRA_IMPORT_PRODUCT_URL = "EXTRA_IMPORT_PRODUCT_URL";
+    public static final String EXTRA_IMPORT_PRODUCT_NAME = "EXTRA_IMPORT_PRODUCT_NAME";
 
     private Router() {}
 
@@ -112,5 +115,30 @@ public final class Router {
         intent.putExtra("EXTRA_PRODUCT_NAME", productName);
         intent.putExtra(EXTRA_MODEL_URL, modelUrl);
         start(context, "com.marketplace.app.feature.ar.ArViewerActivity", intent);
+    }
+
+    public static void openImport1688(Context context) {
+        start(context, "com.marketplace.app.feature.import1688.Import1688HomeActivity", null);
+    }
+
+    public static void openImport1688Browser(Context context) {
+        start(context, "com.marketplace.app.feature.import1688.Import1688BrowserActivity", null);
+    }
+
+    public static void openImport1688Request(Context context, String productUrl, String productName) {
+        Intent intent = new Intent();
+        if (productUrl != null) intent.putExtra(EXTRA_IMPORT_PRODUCT_URL, productUrl);
+        if (productName != null) intent.putExtra(EXTRA_IMPORT_PRODUCT_NAME, productName);
+        start(context, "com.marketplace.app.feature.import1688.Import1688RequestActivity", intent);
+    }
+
+    public static void openImport1688OrderDetail(Context context, String importOrderId) {
+        Intent intent = new Intent();
+        intent.putExtra(EXTRA_IMPORT_ORDER_ID, importOrderId);
+        start(context, "com.marketplace.app.feature.import1688.Import1688OrderDetailActivity", intent);
+    }
+
+    public static void openImport1688Admin(Context context) {
+        start(context, "com.marketplace.app.feature.import1688.Import1688AdminActivity", null);
     }
 }

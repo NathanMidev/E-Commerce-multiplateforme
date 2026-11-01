@@ -47,6 +47,22 @@
         <activity android:name=".feature.scan3d.ScanStatusActivity" android:exported="false" />
         <activity android:name=".feature.ar.ArViewerActivity" android:exported="false" />
 
+        <!-- Service d'Achat Agence Import 1688 -->
+        <activity
+            android:name=".feature.import1688.Import1688HomeActivity"
+            android:exported="true"
+            android:label="Import 1688">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".feature.import1688.Import1688BrowserActivity" android:exported="false" />
+        <activity android:name=".feature.import1688.Import1688RequestActivity" android:exported="false" />
+        <activity android:name=".feature.import1688.Import1688OrderDetailActivity" android:exported="false" />
+        <activity android:name=".feature.import1688.Import1688AdminActivity" android:exported="false" />
+
     </application>
 
 </manifest>

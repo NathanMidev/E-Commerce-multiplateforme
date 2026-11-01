@@ -24,7 +24,7 @@ public class CartRepository extends BaseRepository<Cart> {
     private final boolean useMock;
 
     public CartRepository() {
-        this(false);
+        this(ApiClient.isUseMock());
     }
 
     public CartRepository(boolean useMock) {

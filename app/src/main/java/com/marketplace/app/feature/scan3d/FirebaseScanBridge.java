@@ -13,10 +13,12 @@ import com.marketplace.app.model.ScanJobStatus;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Rôle : Passerelle Firebase Storage & Firestore avec le worker PC (Meta SAM + COLMAP).
@@ -25,29 +27,38 @@ import java.util.UUID;
  */
 public class FirebaseScanBridge implements ScanBridge {
 
+    private static final Map<String, ScanJob> ACTIVE_JOBS = new ConcurrentHashMap<>();
     private final ProductRepository productRepository = new ProductRepository();
 
     @Override
     public ScanJob createJob(String productId, String sellerId, String categoryId) {
         String id = "scan_" + UUID.randomUUID().toString().substring(0, 8);
-        return new ScanJob(id, productId, sellerId, categoryId);
+        ScanJob job = new ScanJob(id, productId != null ? productId : "", sellerId != null ? sellerId : "", categoryId != null ? categoryId : "");
+        ACTIVE_JOBS.put(id, job);
+        return job;
     }
 
     @Override
     public void submitScan(String jobId, List<File> photos, ScanListener listener) {
         String uid = AuthSession.getInstance().getUserId();
-        if (uid == null) {
-            if (listener != null) listener.onError("Connexion requise pour envoyer un scan");
+        if (uid == null || uid.trim().isEmpty()) {
+            if (listener != null) listener.onError("Connexion Firebase requise pour envoyer un scan 3D");
             return;
         }
 
         FirebaseStorage storage = FirebaseStorage.getInstance();
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        ScanJob existingJob = ACTIVE_JOBS.get(jobId);
+        String productId = existingJob != null ? existingJob.getProductId() : "";
+
+        if (photos == null || photos.isEmpty()) {
+            writeFirestoreJobDocument(firestore, jobId, uid, productId, Collections.emptyList(), listener);
+            return;
+        }
 
         StorageReference scanDirRef = storage.getReference().child("scans").child(uid).child(jobId);
-        List<String> photoUrls = new ArrayList<>();
+        List<String> photoUrls = Collections.synchronizedList(new ArrayList<>());
 
-        // Envoi photos
         for (int i = 0; i < photos.size(); i++) {
             File photo = photos.get(i);
             StorageReference fileRef = scanDirRef.child("frame_" + i + ".jpg");
@@ -55,26 +66,38 @@ public class FirebaseScanBridge implements ScanBridge {
                 fileRef.getDownloadUrl().addOnSuccessListener(uri -> {
                     photoUrls.add(uri.toString());
                     if (photoUrls.size() == photos.size()) {
-                        // Création document Firestore
-                        Map<String, Object> doc = new HashMap<>();
-                        doc.put("jobId", jobId);
-                        doc.put("userId", uid);
-                        doc.put("status", "EN_ATTENTE");
-                        doc.put("progress", 20);
-                        doc.put("photoUrls", photoUrls);
-                        doc.put("createdAt", System.currentTimeMillis());
-
-                        firestore.collection("scan_jobs").document(jobId).set(doc)
-                                .addOnSuccessListener(aVoid -> listenToJobUpdates(jobId, firestore, listener))
-                                .addOnFailureListener(e -> {
-                                    if (listener != null) listener.onError(e.getMessage());
-                                });
+                        writeFirestoreJobDocument(firestore, jobId, uid, productId, photoUrls, listener);
                     }
                 });
             }).addOnFailureListener(e -> {
-                if (listener != null) listener.onError("Erreur upload photo: " + e.getMessage());
+                if (listener != null) listener.onError("Erreur upload photo Storage: " + e.getMessage());
             });
         }
+    }
+
+    private void writeFirestoreJobDocument(
+            FirebaseFirestore firestore,
+            String jobId,
+            String uid,
+            String productId,
+            List<String> photoUrls,
+            ScanListener listener
+    ) {
+        Map<String, Object> doc = new HashMap<>();
+        doc.put("jobId", jobId);
+        doc.put("userId", uid);
+        doc.put("productId", productId != null ? productId : "");
+        doc.put("status", "EN_ATTENTE");
+        doc.put("progress", 20);
+        doc.put("photoUrls", photoUrls);
+        doc.put("modelUrl", "");
+        doc.put("createdAt", System.currentTimeMillis());
+
+        firestore.collection("scan_jobs").document(jobId).set(doc)
+                .addOnSuccessListener(aVoid -> listenToJobUpdates(jobId, firestore, listener))
+                .addOnFailureListener(e -> {
+                    if (listener != null) listener.onError("Erreur Firestore scan_jobs: " + e.getMessage());
+                });
     }
 
     private void listenToJobUpdates(String jobId, FirebaseFirestore firestore, ScanListener listener) {
@@ -89,15 +112,16 @@ public class FirebaseScanBridge implements ScanBridge {
                 String modelUrl = snapshot.getString("modelUrl");
                 String productId = snapshot.getString("productId");
 
-                ScanJob job = new ScanJob();
+                ScanJob job = ACTIVE_JOBS.getOrDefault(jobId, new ScanJob());
                 job.setId(jobId);
+                if (productId != null) job.setProductId(productId);
                 job.setProgress(progressVal != null ? progressVal.intValue() : 0);
+
                 if ("TERMINE".equals(statusStr)) {
                     job.setStatus(ScanJobStatus.TERMINE);
                     job.setModelUrl(modelUrl);
 
-                    // Mise à jour de l'API REST
-                    if (productId != null && modelUrl != null) {
+                    if (productId != null && !productId.isEmpty() && modelUrl != null && !modelUrl.isEmpty()) {
                         productRepository.updateModel3d(productId, modelUrl, new BaseRepository.Callback<Boolean>() {
                             @Override public void onSuccess(Boolean result) {}
                             @Override public void onError(String message) {}
@@ -118,6 +142,7 @@ public class FirebaseScanBridge implements ScanBridge {
 
     @Override
     public ScanJob getJob(String jobId) {
-        return new ScanJob(jobId, "", "", "");
+        ScanJob job = ACTIVE_JOBS.get(jobId);
+        return job != null ? job : new ScanJob(jobId, "", "", "");
     }
 }

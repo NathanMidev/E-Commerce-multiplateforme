@@ -7,6 +7,10 @@ import com.marketplace.app.model.Category;
 import com.marketplace.app.model.ContactChannel;
 import com.marketplace.app.model.ContactRequest;
 import com.marketplace.app.model.FilterCriteria;
+import com.marketplace.app.model.ImportAgencyConfig;
+import com.marketplace.app.model.ImportOrder;
+import com.marketplace.app.model.ImportStatusHistoryEntry;
+import com.marketplace.app.model.ImportTrackingStatus;
 import com.marketplace.app.model.Order;
 import com.marketplace.app.model.OrderItem;
 import com.marketplace.app.model.OrderStatus;
@@ -41,8 +45,11 @@ public class MockBackendService {
     private final List<Order> orders = new ArrayList<>();
     private final List<ContactRequest> contactRequests = new ArrayList<>();
     private final Map<String, Payment> payments = new HashMap<>();
+    private final List<ImportOrder> importOrders = new ArrayList<>();
+    private ImportAgencyConfig importAgencyConfig = ImportAgencyConfig.createDefaultConfig();
     private long orderSequence = 0;
     private long contactSequence = 0;
+    private long importOrderSequence = 0;
 
     public MockBackendService() {
         initInitialData();
@@ -64,8 +71,11 @@ public class MockBackendService {
         orders.clear();
         contactRequests.clear();
         payments.clear();
+        importOrders.clear();
+        importAgencyConfig = ImportAgencyConfig.createDefaultConfig();
         orderSequence = 0;
         contactSequence = 0;
+        importOrderSequence = 0;
         initInitialData();
         seedUsers();
     }
@@ -431,5 +441,243 @@ public class MockBackendService {
             p.setUpdatedAt(System.currentTimeMillis());
         }
         return p;
+    }
+
+    // --- Service d'Importation 1688 (Simulation locale explicitement identifiée)
+    public synchronized ImportAgencyConfig getImportAgencyConfig() {
+        return importAgencyConfig;
+    }
+
+    public synchronized ImportAgencyConfig updateImportAgencyConfig(ImportAgencyConfig updated, String adminUid) {
+        List<String> errors = updated.validate();
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException(errors.get(0));
+        }
+        updated.setExchangeRateUpdatedAt(System.currentTimeMillis());
+        updated.setExchangeRateUpdatedBy(adminUid);
+        this.importAgencyConfig = updated;
+        return this.importAgencyConfig;
+    }
+
+    public synchronized ImportOrder createImportOrder(ImportOrder draft) {
+        List<String> errors = draft.validate();
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException(errors.get(0));
+        }
+        importOrderSequence++;
+        long now = System.currentTimeMillis();
+        String id = String.format(java.util.Locale.US, "IMP1688-%05d", importOrderSequence);
+
+        draft.setImportOrderId(id);
+        draft.setPaymentStatus(PaymentStatus.EN_ATTENTE);
+        draft.setTrackingStatus(ImportTrackingStatus.PAIEMENT_EN_ATTENTE);
+        draft.setAmountConfirmedByAdmin(false);
+        draft.setCreatedAt(now);
+        draft.setUpdatedAt(now);
+        draft.setSimulated(true);
+
+        // Coordonnées de l'importateur désigné par l'agence
+        draft.setImporterName(importAgencyConfig.getImporterName());
+        draft.setImporterCompany(importAgencyConfig.getImporterCompany());
+        draft.setImporterPhone(importAgencyConfig.getImporterPhone());
+        draft.setImporterWhatsapp(importAgencyConfig.getImporterWhatsapp());
+        draft.setImporterAddress(importAgencyConfig.getImporterAddress());
+        draft.setImporterInstructions(importAgencyConfig.getImporterInstructions());
+
+        List<ImportStatusHistoryEntry> history = new ArrayList<>();
+        history.add(new ImportStatusHistoryEntry(
+                ImportTrackingStatus.PAIEMENT_EN_ATTENTE,
+                now,
+                "Demande d'achat soumise avec estimation",
+                draft.getUserId() != null ? draft.getUserId() : "client"
+        ));
+        draft.setStatusHistory(history);
+
+        importOrders.add(draft);
+        return draft;
+    }
+
+    public synchronized List<ImportOrder> getImportOrders(String uid, boolean asAdmin, String searchId) {
+        List<ImportOrder> result = new ArrayList<>();
+        String q = searchId != null ? searchId.trim().toLowerCase() : "";
+        for (int i = importOrders.size() - 1; i >= 0; i--) {
+            ImportOrder o = importOrders.get(i);
+            if (!asAdmin && (uid == null || !uid.equals(o.getUserId()))) {
+                continue;
+            }
+            if (!q.isEmpty()) {
+                boolean matchId = o.getImportOrderId() != null && o.getImportOrderId().toLowerCase().contains(q);
+                boolean matchName = o.getProductName() != null && o.getProductName().toLowerCase().contains(q);
+                boolean matchCustomer = o.getCustomerName() != null && o.getCustomerName().toLowerCase().contains(q);
+                if (!matchId && !matchName && !matchCustomer) {
+                    continue;
+                }
+            }
+            result.add(o);
+        }
+        return result;
+    }
+
+    public synchronized ImportOrder getImportOrderById(String importOrderId) {
+        if (importOrderId == null) return null;
+        for (ImportOrder o : importOrders) {
+            if (importOrderId.equalsIgnoreCase(o.getImportOrderId())) {
+                return o;
+            }
+        }
+        return null;
+    }
+
+    public synchronized ImportOrder confirmImportOrderAmount(
+            String importOrderId,
+            double verifiedPriceCny,
+            double exchangeRate,
+            double serviceFeeMga,
+            String adminUid
+    ) {
+        ImportOrder order = getImportOrderById(importOrderId);
+        if (order == null) throw new IllegalArgumentException("Commande Import 1688 introuvable");
+        if (verifiedPriceCny <= 0 || exchangeRate <= 0 || serviceFeeMga < 0) {
+            throw new IllegalArgumentException("Montants ou taux invalides");
+        }
+        double estimatedMga = Math.round(verifiedPriceCny * order.getQuantity() * exchangeRate);
+        double totalMga = Math.round(estimatedMga + serviceFeeMga);
+
+        order.setPriceCNY(verifiedPriceCny);
+        order.setExchangeRate(exchangeRate);
+        order.setEstimatedPriceMGA(estimatedMga);
+        order.setServiceFeeMGA(serviceFeeMga);
+        order.setTotalAmountMGA(totalMga);
+        order.setAmountConfirmedByAdmin(true);
+        order.setUpdatedAt(System.currentTimeMillis());
+        return order;
+    }
+
+    public synchronized ImportOrder submitImportPaymentReference(String importOrderId, String paymentRef) {
+        ImportOrder order = getImportOrderById(importOrderId);
+        if (order == null) throw new IllegalArgumentException("Commande Import 1688 introuvable");
+        if (!order.isAmountConfirmedByAdmin()) {
+            throw new IllegalStateException("Le montant définitif doit d'abord être confirmé par l'agence avant le règlement MVola");
+        }
+        if (paymentRef == null || paymentRef.trim().isEmpty()) {
+            throw new IllegalArgumentException("La référence de transaction MVola est requise");
+        }
+        order.setPaymentReference(paymentRef.trim());
+        // Règle stricte : la saisie client maintient le statut à EN_ATTENTE jusqu'à vérification admin
+        order.setPaymentStatus(PaymentStatus.EN_ATTENTE);
+        order.setTrackingStatus(ImportTrackingStatus.PAIEMENT_EN_ATTENTE);
+        order.setUpdatedAt(System.currentTimeMillis());
+        return order;
+    }
+
+    public synchronized ImportOrder verifyImportPayment(
+            String importOrderId,
+            PaymentStatus newPaymentStatus,
+            String note,
+            String adminUid
+    ) {
+        ImportOrder order = getImportOrderById(importOrderId);
+        if (order == null) throw new IllegalArgumentException("Commande Import 1688 introuvable");
+        if (newPaymentStatus != PaymentStatus.PAYE && newPaymentStatus != PaymentStatus.ECHOUE) {
+            throw new IllegalArgumentException("Statut de vérification invalide : PAYE ou ECHOUE attendu");
+        }
+        long now = System.currentTimeMillis();
+        order.setPaymentStatus(newPaymentStatus);
+        order.setUpdatedAt(now);
+
+        if (newPaymentStatus == PaymentStatus.PAYE) {
+            order.setTrackingStatus(ImportTrackingStatus.PAIEMENT_CONFIRME);
+            order.getStatusHistory().add(new ImportStatusHistoryEntry(
+                    ImportTrackingStatus.PAIEMENT_CONFIRME,
+                    now,
+                    note != null && !note.trim().isEmpty() ? note.trim() : "Paiement MVola vérifié (" + order.getPaymentReference() + ")",
+                    adminUid
+            ));
+        } else {
+            order.setTrackingStatus(ImportTrackingStatus.PAIEMENT_EN_ATTENTE);
+            order.getStatusHistory().add(new ImportStatusHistoryEntry(
+                    ImportTrackingStatus.PAIEMENT_EN_ATTENTE,
+                    now,
+                    note != null && !note.trim().isEmpty() ? "Paiement refusé : " + note.trim() : "Paiement MVola refusé après vérification",
+                    adminUid
+            ));
+        }
+        return order;
+    }
+
+    public synchronized ImportOrder recordReal1688Purchase(
+            String importOrderId,
+            String supplierOrderRef,
+            double actualPaidCny,
+            String purchaseDate,
+            String note,
+            String adminUid
+    ) {
+        ImportOrder order = getImportOrderById(importOrderId);
+        if (order == null) throw new IllegalArgumentException("Commande Import 1688 introuvable");
+        if (order.getPaymentStatus() != PaymentStatus.PAYE) {
+            throw new IllegalStateException("Le paiement MVola doit être vérifié (PAYE) avant d'enregistrer l'achat réel sur 1688");
+        }
+        if (supplierOrderRef == null || supplierOrderRef.trim().isEmpty()) {
+            throw new IllegalArgumentException("La référence de commande fournisseur 1688 est obligatoire");
+        }
+        if (actualPaidCny <= 0) {
+            throw new IllegalArgumentException("Le montant réel payé en CNY doit être supérieur à 0");
+        }
+        long now = System.currentTimeMillis();
+        order.setSupplierOrderReference(supplierOrderRef.trim());
+        order.setActualPurchasePriceCNY(actualPaidCny);
+        order.setPurchaseDate(purchaseDate != null && !purchaseDate.trim().isEmpty()
+                ? purchaseDate.trim()
+                : new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.FRANCE).format(new java.util.Date(now)));
+        order.setAdminPurchaseNote(note);
+        order.setTrackingStatus(ImportTrackingStatus.ACHAT_EFFECTUE);
+        order.setUpdatedAt(now);
+
+        order.getStatusHistory().add(new ImportStatusHistoryEntry(
+                ImportTrackingStatus.ACHAT_EFFECTUE,
+                now,
+                "Achat 1688 réf. " + supplierOrderRef.trim() + " (" + actualPaidCny + " ¥)"
+                        + (note != null && !note.trim().isEmpty() ? " - " + note.trim() : ""),
+                adminUid
+        ));
+        return order;
+    }
+
+    public synchronized ImportOrder updateImportTrackingStatus(
+            String importOrderId,
+            ImportTrackingStatus nextStatus,
+            String note,
+            String adminUid
+    ) {
+        ImportOrder order = getImportOrderById(importOrderId);
+        if (order == null) throw new IllegalArgumentException("Commande Import 1688 introuvable");
+        if (nextStatus == null) throw new IllegalArgumentException("Nouveau statut requis");
+        if (order.getPaymentStatus() != PaymentStatus.PAYE && nextStatus.getStepOrder() >= ImportTrackingStatus.PAIEMENT_CONFIRME.getStepOrder()) {
+            throw new IllegalStateException("Impossible d'avancer le suivi : le paiement n'est pas confirmé");
+        }
+        if (nextStatus.getStepOrder() >= ImportTrackingStatus.PREPARATION_FOURNISSEUR.getStepOrder()
+                && (order.getSupplierOrderReference() == null || order.getSupplierOrderReference().isEmpty())) {
+            throw new IllegalStateException("L'achat réel sur 1688 doit être enregistré avant l'étape " + nextStatus.name());
+        }
+
+        long now = System.currentTimeMillis();
+        order.setTrackingStatus(nextStatus);
+        // Synchroniser les coordonnées de l'importateur courant
+        order.setImporterName(importAgencyConfig.getImporterName());
+        order.setImporterCompany(importAgencyConfig.getImporterCompany());
+        order.setImporterPhone(importAgencyConfig.getImporterPhone());
+        order.setImporterWhatsapp(importAgencyConfig.getImporterWhatsapp());
+        order.setImporterAddress(importAgencyConfig.getImporterAddress());
+        order.setImporterInstructions(importAgencyConfig.getImporterInstructions());
+        order.setUpdatedAt(now);
+
+        order.getStatusHistory().add(new ImportStatusHistoryEntry(
+                nextStatus,
+                now,
+                note != null && !note.trim().isEmpty() ? note.trim() : nextStatus.getDescription(),
+                adminUid
+        ));
+        return order;
     }
 }

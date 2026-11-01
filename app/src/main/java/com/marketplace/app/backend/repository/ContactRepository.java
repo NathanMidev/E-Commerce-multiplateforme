@@ -21,7 +21,7 @@ public class ContactRepository extends BaseRepository<ContactRequest> {
     private final boolean useMock;
 
     public ContactRepository() {
-        this(false);
+        this(ApiClient.isUseMock());
     }
 
     public ContactRepository(boolean useMock) {

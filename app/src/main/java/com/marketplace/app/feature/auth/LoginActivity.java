@@ -66,6 +66,29 @@ public class LoginActivity extends BaseActivity {
         btnLogin.setOnClickListener(v -> loginWithEmail());
         btnGoogle.setOnClickListener(v -> startGoogleSignIn());
         btnGoRegister.setOnClickListener(v -> Router.openRegister(this));
+
+        View btnForgot = findViewById(R.id.btn_forgot_password);
+        if (btnForgot != null) {
+            btnForgot.setOnClickListener(v -> sendPasswordReset());
+        }
+    }
+
+    private void sendPasswordReset() {
+        String email = editEmail.getText().toString().trim();
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            editEmail.setError("Saisissez votre adresse email pour réinitialiser le mot de passe");
+            return;
+        }
+        setBusy(true);
+        FirebaseAuth.getInstance().sendPasswordResetEmail(email)
+                .addOnSuccessListener(unused -> {
+                    setBusy(false);
+                    toast("Email de réinitialisation envoyé à " + email);
+                })
+                .addOnFailureListener(e -> {
+                    setBusy(false);
+                    showError("Impossible d'envoyer l'email : " + e.getMessage(), null);
+                });
     }
 
     @Override

@@ -24,7 +24,7 @@ public class ProductRepository extends BaseRepository<Product> {
     private final boolean useMock;
 
     public ProductRepository() {
-        this(false);
+        this(ApiClient.isUseMock());
     }
 
     public ProductRepository(boolean useMock) {
@@ -113,7 +113,25 @@ public class ProductRepository extends BaseRepository<Product> {
             return;
         }
 
-        ApiClient.getApi().createProduct(item).enqueue(new retrofit2.Callback<Product>() {
+        Map<String, Object> body = new HashMap<>();
+        body.put("title", item.getTitle());
+        if (item.getDescription() != null) body.put("description", item.getDescription());
+        body.put("price", item.getPrice());
+        if (item.getCategoryId() != null && !item.getCategoryId().isEmpty()) {
+            body.put("categoryId", item.getCategoryId());
+        }
+        if (item.getThumbnailUrl() != null && !item.getThumbnailUrl().isEmpty()) {
+            body.put("thumbnailUrl", item.getThumbnailUrl());
+        }
+        if (item.getModel3dUrl() != null && !item.getModel3dUrl().isEmpty()) {
+            body.put("model3dUrl", item.getModel3dUrl());
+        }
+        body.put("stock", item.getStock());
+        if (item.getStatus() != null) {
+            body.put("status", item.getStatus().name());
+        }
+
+        ApiClient.getApi().createProduct(body).enqueue(new retrofit2.Callback<Product>() {
             @Override
             public void onResponse(Call<Product> call, Response<Product> response) {
                 if (response.isSuccessful() && response.body() != null) {

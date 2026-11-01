@@ -5,17 +5,16 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.marketplace.app.R;
+import com.marketplace.app.backend.ApiClient;
+import com.marketplace.app.backend.AuthSession;
 import com.marketplace.app.base.BaseActivity;
 import com.marketplace.app.model.ScanJob;
 import com.marketplace.app.navigation.Router;
 
-import java.io.File;
-import java.util.ArrayList;
-
 /**
  * Rôle : Écran de capture 3D guidé pour le vendeur.
  * Entrée : ID produit et catégorie attendue.
- * Sortie : Capture de clichés et envoi vers le pont de reconstruction SAM + COLMAP.
+ * Sortie : Capture de clichés et envoi vers le pont de reconstruction SAM + COLMAP (Firebase ou Simulé).
  */
 public class ScanCaptureActivity extends BaseActivity {
 
@@ -40,7 +39,7 @@ public class ScanCaptureActivity extends BaseActivity {
 
     @Override
     protected void bindViews() {
-        bridge = new SimulatedScanBridge();
+        bridge = ApiClient.isUseMock() ? new SimulatedScanBridge() : new FirebaseScanBridge();
         productId = getIntent().getStringExtra(Router.EXTRA_PRODUCT_ID);
         categoryId = getIntent().getStringExtra(Router.EXTRA_CATEGORY_ID);
 
@@ -55,7 +54,9 @@ public class ScanCaptureActivity extends BaseActivity {
             tvExpectedCategory.setText("Catégorie : " + categoryId);
         }
 
-        currentJob = bridge.createJob(productId, "seller_me", categoryId);
+        String sellerId = AuthSession.getInstance().getUserId() != null
+                ? AuthSession.getInstance().getUserId() : "seller_me";
+        currentJob = bridge.createJob(productId, sellerId, categoryId);
 
         btnCapture.setOnClickListener(v -> {
             capturedFrames += 3;

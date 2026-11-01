@@ -25,7 +25,7 @@ public class OrderRepository extends BaseRepository<Order> {
     private final boolean useMock;
 
     public OrderRepository() {
-        this(false);
+        this(ApiClient.isUseMock());
     }
 
     public OrderRepository(boolean useMock) {

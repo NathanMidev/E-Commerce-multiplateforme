@@ -17,13 +17,14 @@ public class MarketplaceApp extends Application {
     public void onCreate() {
         super.onCreate();
 
-        // 1. Initialisation de l'API Retrofit (URL configurable)
+        // 1. Configuration du mode mock (explicite via BuildConfig.USE_MOCK_BACKEND) et de l'URL API
+        ApiClient.setUseMock(BuildConfig.USE_MOCK_BACKEND);
         ApiClient.init(BuildConfig.API_BASE_URL);
 
         // 2. Synchronisation de la session Firebase Auth
         FirebaseAuthSession.initialize();
 
-        // 3. Préparation des données en mémoire si mode démo activé
+        // 3. Préparation des données en mémoire uniquement si mode démo activé
         if (BuildConfig.USE_MOCK_BACKEND) {
             MockBackendService.getInstance().resetData();
         }

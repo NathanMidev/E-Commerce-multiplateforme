@@ -8,8 +8,9 @@ captures/
 *.apk
 *.aab
 
-# Local config
+# Local config & Firebase secrets
 local.properties
+app/google-services.json
 
 # IntelliJ / Android Studio
 *.iml

@@ -1,6 +1,7 @@
 package com.marketplace.app.backend;
 
 import com.marketplace.app.backend.api.MarketplaceApi;
+import com.marketplace.app.feature.auth.FirebaseAuthSession;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -13,16 +14,29 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
- * Rôle : Client HTTP centralisé (Retrofit / OkHttp).
- * Entrée : URL de base et intercepteur d'authentification Bearer.
+ * Rôle : Client HTTP centralisé (Retrofit / OkHttp) et indicateur de mode mock.
+ * Entrée : URL de base et intercepteur d'authentification Bearer Firebase.
  * Sortie : Instance unique de MarketplaceApi.
  */
 public final class ApiClient {
 
     private static MarketplaceApi apiService;
     private static String currentBaseUrl;
+    private static boolean useMock = false;
 
     private ApiClient() {}
+
+    public static synchronized void setUseMock(boolean mock) {
+        useMock = mock;
+    }
+
+    public static synchronized boolean isUseMock() {
+        return useMock;
+    }
+
+    public static synchronized String getBaseUrl() {
+        return currentBaseUrl != null ? currentBaseUrl : "http://10.0.2.2:8080/api/";
+    }
 
     public static synchronized void init(String baseUrl) {
         if (baseUrl == null || baseUrl.trim().isEmpty()) {
@@ -41,6 +55,9 @@ public final class ApiClient {
                         if (session != null && session.isLoggedIn()) {
                             try {
                                 String token = session.getIdToken();
+                                if (token == null || token.trim().isEmpty()) {
+                                    token = FirebaseAuthSession.fetchFreshToken();
+                                }
                                 if (token != null && !token.trim().isEmpty()) {
                                     request = request.newBuilder()
                                             .header("Authorization", "Bearer " + token)

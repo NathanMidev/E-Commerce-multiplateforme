@@ -23,7 +23,7 @@ public class UserRepository extends BaseRepository<User> {
     private final boolean useMock;
 
     public UserRepository() {
-        this(false);
+        this(ApiClient.isUseMock());
     }
 
     public UserRepository(boolean useMock) {

@@ -24,7 +24,7 @@ public class PaymentRepository extends BaseRepository<Payment> {
     private final boolean useMock;
 
     public PaymentRepository() {
-        this(false);
+        this(ApiClient.isUseMock());
     }
 
     public PaymentRepository(boolean useMock) {

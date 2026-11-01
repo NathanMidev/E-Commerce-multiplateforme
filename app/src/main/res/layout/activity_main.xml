@@ -3,6 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     android:background="@color/background">
 
     <!-- En-tête style Deal.mg avec Logo et Barre de Recherche -->
@@ -428,21 +430,25 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- Barre de Navigation Basse style Application Mobile Native -->
+    <!-- Barre de Navigation Basse : Accueil | Catégories | [Bouton Circulaire Import 1688] | Panier | Mon compte -->
     <LinearLayout
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
-        android:layout_height="58dp"
+        android:layout_height="68dp"
         android:layout_alignParentBottom="true"
         android:background="#FFFFFF"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         android:elevation="12dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:gravity="bottom"
+        android:orientation="horizontal"
+        android:paddingBottom="6dp">
 
+        <!-- 1. Accueil -->
         <LinearLayout
             android:id="@+id/btn_bottom_home"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="56dp"
             android:layout_weight="1"
             android:background="?attr/selectableItemBackground"
             android:gravity="center"
@@ -457,16 +463,18 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:maxLines="1"
                 android:text="Accueil"
                 android:textColor="@color/primary"
                 android:textSize="10sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
+        <!-- 2. Catégories -->
         <LinearLayout
             android:id="@+id/btn_bottom_catalog"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="56dp"
             android:layout_weight="1"
             android:background="?attr/selectableItemBackground"
             android:gravity="center"
@@ -475,21 +483,61 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="🔍"
+                android:text="🗂️"
                 android:textSize="18sp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Catalogue"
+                android:maxLines="1"
+                android:text="Catégories"
                 android:textColor="@color/text_secondary"
                 android:textSize="10sp" />
         </LinearLayout>
 
+        <!-- 3. Gros bouton circulaire central distinctif : Import 1688 -->
+        <LinearLayout
+            android:id="@+id/btn_bottom_import1688"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.25"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:id="@+id/fab_import1688_circle"
+                android:layout_width="54dp"
+                android:layout_height="54dp"
+                android:layout_marginTop="-14dp"
+                android:background="@drawable/bg_import1688_center_fab"
+                android:elevation="6dp">
+
+                <ImageView
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="Import 1688"
+                    android:src="@drawable/ic_import_1688_globe" />
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:maxLines="1"
+                android:text="Import 1688"
+                android:textColor="@color/primary"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- 4. Panier -->
         <LinearLayout
             android:id="@+id/btn_bottom_cart"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="56dp"
             android:layout_weight="1"
             android:background="?attr/selectableItemBackground"
             android:gravity="center"
@@ -504,15 +552,17 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:maxLines="1"
                 android:text="Panier"
                 android:textColor="@color/text_secondary"
                 android:textSize="10sp" />
         </LinearLayout>
 
+        <!-- 5. Mon compte -->
         <LinearLayout
             android:id="@+id/btn_bottom_profile"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="56dp"
             android:layout_weight="1"
             android:background="?attr/selectableItemBackground"
             android:gravity="center"
@@ -527,7 +577,8 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Profil"
+                android:maxLines="1"
+                android:text="Mon compte"
                 android:textColor="@color/text_secondary"
                 android:textSize="10sp" />
         </LinearLayout>

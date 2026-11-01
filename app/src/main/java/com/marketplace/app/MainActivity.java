@@ -35,8 +35,28 @@ public class MainActivity extends BaseActivity {
 
         View btnBottomHome = findViewById(R.id.btn_bottom_home);
         View btnBottomCatalog = findViewById(R.id.btn_bottom_catalog);
+        View btnBottomImport1688 = findViewById(R.id.btn_bottom_import1688);
+        View fabImport1688Circle = findViewById(R.id.fab_import1688_circle);
         View btnBottomCart = findViewById(R.id.btn_bottom_cart);
         View btnBottomProfile = findViewById(R.id.btn_bottom_profile);
+
+        // Bouton central Import 1688 avec animation discrète au clic
+        if (btnBottomImport1688 != null) {
+            btnBottomImport1688.setOnClickListener(v -> {
+                View targetAnim = fabImport1688Circle != null ? fabImport1688Circle : btnBottomImport1688;
+                targetAnim.animate()
+                        .scaleX(0.88f)
+                        .scaleY(0.88f)
+                        .setDuration(90)
+                        .withEndAction(() -> targetAnim.animate()
+                                .scaleX(1f)
+                                .scaleY(1f)
+                                .setDuration(90)
+                                .withEndAction(() -> Router.openImport1688(this))
+                                .start())
+                        .start();
+            });
+        }
 
         // Actions de recherche & catalogue
         if (btnSearchTrigger != null) btnSearchTrigger.setOnClickListener(v -> Router.openCatalogue(this));

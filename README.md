@@ -1,119 +1,50 @@
-# Marketplace Mobile 3D AR - Application Android & API
+# Marketplace Mobile 3D AR & Service d'Achat Agence Import 1688
 
-Application mobile Android de marketplace moderne multi-vendeurs avec visualisation en **Réalité Augmentée (AR 3D)**, numérisation d'objets via **Meta SAM**, gestion des paniers, commandes, paiements locaux (Ariary, MVola, Orange Money, Airtel Money) et contact direct vendeur (WhatsApp, Messenger, Appel téléphonique).
+Application Android native (**Java 17**, package `com.marketplace.app`) combinant :
+1. **Marketplace Locale (inspirée de Deal.mg)** : Catalogue multi-vendeurs, recherche, filtres, panier, passage en caisse, commandes, contact direct vendeur (WhatsApp, Messenger, Appel) et visualisation **Réalité Augmentée (AR 3D)** / numérisation 3D **Meta SAM**.
+2. **Service d'Achat Agence « Import 1688 »** : Accessible depuis le **bouton central circulaire « Import 1688 »** de la barre de navigation inférieure :
+   - Navigation intégrée sécurisée sur **1688.com** ou partage/collage direct d'un lien produit 1688.
+   - **Double affichage monétaire** : Prix original en **Yuan chinois (`CNY` / `¥`)** et conversion en **Ariary malgache (`MGA` / `Ar`)** via `CurrencyConversionService`, avec détail des frais de prestation d'achat de l'agence.
+   - **Paiement MVola en deux étapes** : Confirmation du montant définitif par l'administrateur, puis envoi de la référence de transaction MVola par le client (statut maintenu à `EN_ATTENTE` jusqu'à la vérification administrative).
+   - **Achat réel sur 1688 par l'agence** (avec la carte bancaire de l'agence) et **suivi logistique en 6 étapes** (`PAIEMENT_EN_ATTENTE`, `PAIEMENT_CONFIRME`, `ACHAT_EFFECTUE`, `PREPARATION_FOURNISSEUR`, `EXPEDIE_VERS_IMPORTATEUR`, `RECU_PAR_IMPORTATEUR`) jusqu'à la réception par l'importateur partenaire.
 
 ---
 
 ## 🛠️ Stack Technique
 
-- **Plateforme** : Android (Java 17 / Java 21)
-- **Architecture** : Module unique `app` (Package `com.marketplace.app`), patron Clean Architecture découplé
-- **Build System** : Gradle 8.10.2 & Android Gradle Plugin 8.7.3
-- **Compatibilité** : `minSdkVersion 24` (Android 7.0), `compileSdkVersion 35` (Android 15)
-- **Réseau & API** : Retrofit 2.9.0, Gson 2.10.1, OkHttp 4.12.0
-- **Authentification & Passerelle 3D** : Firebase Auth (Email/MDP + Google Sign-In), Firebase Storage & Firestore
-- **Réalité Augmentée** : Google ARCore (`com.google.ar:core:1.46.0`) & Scene Viewer Google (format standard `.glb` / `.gltf`)
-- **Chargement d'images** : Glide 4.16.0
-- **UI / Design** : Material Design 3, palette commerciale inspirée de 1688 (Orange dynamique `#FF6A00`, fond `#F8F9FA`, cartes blanches arrondies, devises en Ariary `Ar`)
+- **Plateforme** : Android (Java 17) — Module unique `:app` (`com.marketplace.app`)
+- **Build System** : Gradle 8.10.2 & Android Gradle Plugin 8.7.3 (`minSdk 24`, `compileSdk 35`)
+- **Réseau & API** : Retrofit 2.9.0, Gson 2.10.1, OkHttp 4.12.0 (avec injection automatique du jeton Firebase `Bearer`)
+- **Firebase (`bizinevo-3d`)** : Firebase Auth (Email/Mot de passe + Google Sign-In), Firebase Storage (`scans/{uid}/{jobId}/`) & Cloud Firestore (`scan_jobs/{jobId}`)
+- **Réalité Augmentée** : Google ARCore (`com.google.ar:core:1.46.0`) & Scene Viewer (`.glb` / `.gltf`)
 
 ---
 
-## 🏛️ Structure du Projet
+## 🚀 Compilation et Tests
 
-```text
-E-Commerce-multiplateforme/
-├── app/                                 --> Module Android unique
-│   ├── src/main/java/com/marketplace/app/
-│   │   ├── base/                        --> Classes abstraites (BaseModel, BaseActivity, BaseRepository, BaseAdapter)
-│   │   ├── model/                       --> Modèles POJO (User, Product, Cart, Order, Payment, ContactRequest...)
-│   │   ├── backend/
-│   │   │   ├── api/                     --> Retrofit MarketplaceApi, ApiClient
-│   │   │   ├── repository/              --> ProductRepository, CartRepository, OrderRepository...
-│   │   │   └── mock/                    --> MockBackendService (Démonstration hors-ligne complète)
-│   │   ├── navigation/                  --> Router (Navigation centralisée statique)
-│   │   ├── transaction/                 --> Panier, Checkout, Commandes, Paiement simulé
-│   │   ├── feature/
-│   │   │   ├── auth/                    --> Connexion, Inscription, Profil, FirebaseAuthSession
-│   │   │   ├── catalogue/               --> Grille produits, filtres, fiche détaillée, publication
-│   │   │   ├── boutique/                --> Vitrine vendeur
-│   │   │   ├── contact/                 --> ContactBottomSheet, liens WhatsApp / Messenger / Appel
-│   │   │   ├── scan3d/                  --> Capture photo 360°, suivi IA Meta SAM, pont Firebase
-│   │   │   └── ar/                      --> ArLauncher, visualiseur ARCore / Scene Viewer
-│   │   ├── ui/                          --> PriceFormatter, PriceView, SellerBadge, QuantityStepper
-│   │   ├── MarketplaceApp.java          --> Classe Application (Initialisation session et backend)
-│   │   └── MainActivity.java            --> Accueil / Dashboard
-│   ├── src/test/                        --> Tests unitaires JVM (CommerceMockTest, AuthUnitTest...)
-│   └── google-services.json.example     --> Modèle de configuration Firebase
-│
-├── backend/                             --> API REST commune protégée (PostgreSQL / Express / Spring)
-│   ├── README.md                        --> Documentation des routes de l'API commune
-│   └── ...
-│
-└── docs/
-    ├── ARCHITECTURE.md                  --> Documentation détaillée de l'architecture
-    └── MODIFIER.md                      --> Guide des modifications en direct pour la soutenance
+Exécutez à la racine du projet :
+
+```powershell
+# Nettoyer, exécuter tous les tests unitaires et compiler l'APK debug
+.\gradlew.bat clean testDebugUnitTest assembleDebug
 ```
 
----
-
-## 🚀 Démarrage Rapide
-
-### 1. Configuration Firebase
-
-1. Rendez-vous sur la console [Firebase](https://console.firebase.google.com/).
-2. Créez un projet ou utilisez un projet existant avec le package **`com.marketplace.app`**.
-3. Téléchargez le fichier `google-services.json` et déposez-le dans le dossier `app/` (remplacez ou configurez selon `app/google-services.json.example`).
-4. Activez les fournisseurs **Email/Mot de passe** et **Google** dans *Authentication*.
-5. Activez **Cloud Storage** et **Cloud Firestore** si vous testez le pont de scan SAM réel.
-
-### 2. Configuration de l'API / Mode Hors-Ligne (Mock)
-
-Dans [`MarketplaceApp.java`](file:///C:/Users/ASUS/StudioProjects/E-Commerce-multiplateforme/app/src/main/java/com/marketplace/app/MarketplaceApp.java) :
-
-```java
-// Pour une démonstration 100% autonome sans serveur (recommandé pour la soutenance) :
-ApiClient.setUseMock(true);
-
-// Pour se connecter à votre serveur local ou distant :
-ApiClient.setUseMock(false);
-ApiClient.setBaseUrl("http://10.0.2.2:3000/"); // 10.0.2.2 pour l'émulateur Android vers localhost
-```
-
-### 3. Compilation et Tests
-
-Exécutez dans un terminal à la racine :
-
-```bash
-# Lancer tous les tests unitaires
-./gradlew testDebugUnitTest
-
-# Compiler l'application et générer l'APK de débogage
-./gradlew assembleDebug
-```
-
-L'APK généré se trouvera dans :
-`app/build/outputs/apk/debug/app-debug.apk`
+- **APK généré** : `app/build/outputs/apk/debug/app-debug.apk`
+- **Rapport des tests unitaires** : `app/build/reports/tests/testDebugUnitTest/index.html`
 
 ---
 
-## 🥽 Réalité Augmentée & Modèles 3D
+## 🧪 Tests Unitaires Inclus
 
-L'application prend en charge les modèles 3D au format `.glb` / `.gltf` :
-- **Sur appareil physique compatible ARCore** : Scene Viewer de Google s'ouvre automatiquement en réalité augmentée à l'échelle réelle dans la pièce.
-- **Sur émulateur ou appareil sans ARCore** : Un visualiseur 3D alternatif ou le mode 3D interactif est utilisé sans faire planter l'application.
-
----
-
-## 🧪 Tests Unitaires Intégrés
-
-1. **`CommerceMockTest`** : Vérifie l'ensemble du cycle commercial (ajout au panier, atomicité des stocks, découpage des commandes par vendeur, cycle de vie et restockage lors d'une annulation, conversion QueryMap).
-2. **`AuthUnitTest`** : Vérifie les règles de permissions métier (accès AR restreint aux utilisateurs connectés, exigences pour devenir vendeur, transitions de rôles).
-3. **`ContactLinksTest`** : Vérifie la normalisation des numéros de téléphone malgaches (`+261`) et la génération des liens d'encodage WhatsApp et Messenger.
-4. **`ModelUnitTest`** : Vérifie la validation stricte de tous les modèles POJO (`Product`, `Cart`, `Order`, `User`).
+- **`Import1688UnitTest`** : Conversion CNY → MGA, calcul des quantités et commissions d'agence, validation et sérialisation JSON (`Gson`) de `ImportOrder`, interdiction d'auto-confirmation du paiement MVola, enregistrement de l'achat réel 1688, progression des 6 statuts de suivi jusqu'à `RECU_PAR_IMPORTATEUR`, contrôle d'accès administrateur (`AdminAccessControl`), et gestion des erreurs HTTP API.
+- **`CommerceMockTest`** : Cycle commercial complet du panier et des commandes locales.
+- **`AuthUnitTest`** : Règles d'authentification et permissions vendeur/AR.
+- **`ContactLinksTest`** : Normalisation des numéros malgaches (`+261`) et génération d'URL WhatsApp/Messenger.
+- **`ModelUnitTest`** : Validation des modèles métier.
 
 ---
 
-## 📚 Documentation Additionnelle
+## 📚 Documentation
 
-- Consultez [`docs/ARCHITECTURE.md`](file:///C:/Users/ASUS/StudioProjects/E-Commerce-multiplateforme/docs/ARCHITECTURE.md) pour les diagrammes et détails techniques complets.
-- Consultez [`docs/MODIFIER.md`](file:///C:/Users/ASUS/StudioProjects/E-Commerce-multiplateforme/docs/MODIFIER.md) pour les pas-à-pas de modification en temps réel devant le jury de soutenance.
+- [`docs/ARCHITECTURE.md`](file:///c:/Users/ASUS/StudioProjects/E-Commerce-multiplateforme/docs/ARCHITECTURE.md) : Architecture complète, flux Import 1688, contrat REST API et règles de sécurité Firebase (`firestore.rules`, `storage.rules`).
+- [`docs/MODIFIER.md`](file:///c:/Users/ASUS/StudioProjects/E-Commerce-multiplateforme/docs/MODIFIER.md) : Guide rapide pour modifier l'application pendant la soutenance.

@@ -162,7 +162,7 @@ Toutes les couleurs sont centralisées dans [`app/src/main/res/values/colors.xml
 
 1. Créer l'Activity étendant `BaseActivity`.
 2. Déclarer l'Activity dans [`app/src/main/AndroidManifest.xml`](file:///C:/Users/ASUS/StudioProjects/E-Commerce-multiplateforme/app/src/main/AndroidManifest.xml).
-3. Ajouter une méthode statique dans [`app/src/main/java/com/marketplace/app/navigation/Router.java`](file:///C:/Users/ASUS/StudioProjects/E-Commerce-multiplateforme/app/src/main/java/com/marketplace/app/navigation/Router.java) :
+3. Ajouter une méthode statique dans [`app/src/main/java/com/marketplace/app/navigation/Router.java`](file:///c:/Users/ASUS/StudioProjects/E-Commerce-multiplateforme/app/src/main/java/com/marketplace/app/navigation/Router.java) :
    ```java
    public static void openMonNouvelEcran(Context context, String param) {
        if (context == null) return;
@@ -172,3 +172,15 @@ Toutes les couleurs sont centralisées dans [`app/src/main/res/values/colors.xml
    }
    ```
 4. Appeler `Router.openMonNouvelEcran(this, ...)` depuis n'importe quelle vue.
+
+---
+
+## 7. Modifier le Service d'Achat Agence « Import 1688 » en Soutenance
+
+- **Changer le taux CNY → MGA par défaut ou la commission d'agence** :
+  - Dans l'application en direct : Ouvrir le bouton central **Import 1688** → **Admin** → modifier le taux (ex: `660`) et cliquer sur *Enregistrer Taux & Coordonnées Importateur*.
+  - Dans le code : [`ImportAgencyConfig.createDefaultConfig()`](file:///c:/Users/ASUS/StudioProjects/E-Commerce-multiplateforme/app/src/main/java/com/marketplace/app/model/ImportAgencyConfig.java#L33-L51).
+- **Ajouter ou modifier une étape de suivi Import 1688** :
+  - Modifier l'énumération [`ImportTrackingStatus.java`](file:///c:/Users/ASUS/StudioProjects/E-Commerce-multiplateforme/app/src/main/java/com/marketplace/app/model/ImportTrackingStatus.java) (`stepOrder`, `label`, `description`).
+- **Modifier le message final affiché lorsque le colis arrive chez l'importateur (`RECU_PAR_IMPORTATEUR`)** :
+  - Modifier la constante `FINAL_IMPORTER_MESSAGE` dans [`ImportOrder.java`](file:///c:/Users/ASUS/StudioProjects/E-Commerce-multiplateforme/app/src/main/java/com/marketplace/app/model/ImportOrder.java#L15-L19).

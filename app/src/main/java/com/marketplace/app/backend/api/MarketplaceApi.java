@@ -3,6 +3,8 @@ package com.marketplace.app.backend.api;
 import com.marketplace.app.model.Cart;
 import com.marketplace.app.model.Category;
 import com.marketplace.app.model.ContactRequest;
+import com.marketplace.app.model.ImportAgencyConfig;
+import com.marketplace.app.model.ImportOrder;
 import com.marketplace.app.model.Order;
 import com.marketplace.app.model.Payment;
 import com.marketplace.app.model.Product;
@@ -44,7 +46,7 @@ public interface MarketplaceApi {
     Call<Product> getProductById(@Path("id") String productId);
 
     @POST("products")
-    Call<Product> createProduct(@Body Product product);
+    Call<Product> createProduct(@Body Map<String, Object> body);
 
     @PATCH("products/{id}")
     Call<Product> updateProduct(@Path("id") String productId, @Body Map<String, Object> body);
@@ -113,4 +115,35 @@ public interface MarketplaceApi {
 
     @PATCH("orders/{orderId}/payment")
     Call<Payment> updatePaymentStatus(@Path("orderId") String orderId, @Body Map<String, String> body);
+
+    // --- Service d'Importation 1688 (Extensions contractuelles documentées)
+    @GET("import1688/config")
+    Call<ImportAgencyConfig> getImportAgencyConfig();
+
+    @PUT("import1688/config")
+    Call<ImportAgencyConfig> updateImportAgencyConfig(@Body ImportAgencyConfig config);
+
+    @POST("import1688/orders")
+    Call<ImportOrder> createImportOrder(@Body ImportOrder order);
+
+    @GET("import1688/orders")
+    Call<List<ImportOrder>> getImportOrders(@Query("role") String role, @Query("search") String search);
+
+    @GET("import1688/orders/{id}")
+    Call<ImportOrder> getImportOrderById(@Path("id") String importOrderId);
+
+    @PATCH("import1688/orders/{id}/confirm-amount")
+    Call<ImportOrder> confirmImportOrderAmount(@Path("id") String importOrderId, @Body Map<String, Object> body);
+
+    @POST("import1688/orders/{id}/payment-reference")
+    Call<ImportOrder> submitImportPaymentReference(@Path("id") String importOrderId, @Body Map<String, String> body);
+
+    @PATCH("import1688/orders/{id}/verify-payment")
+    Call<ImportOrder> verifyImportPayment(@Path("id") String importOrderId, @Body Map<String, Object> body);
+
+    @PATCH("import1688/orders/{id}/record-purchase")
+    Call<ImportOrder> recordImportRealPurchase(@Path("id") String importOrderId, @Body Map<String, Object> body);
+
+    @PATCH("import1688/orders/{id}/tracking")
+    Call<ImportOrder> updateImportTrackingStatus(@Path("id") String importOrderId, @Body Map<String, String> body);
 }

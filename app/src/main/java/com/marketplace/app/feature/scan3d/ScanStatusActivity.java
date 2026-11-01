@@ -5,6 +5,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.marketplace.app.R;
+import com.marketplace.app.backend.ApiClient;
 import com.marketplace.app.base.BaseActivity;
 import com.marketplace.app.model.ScanJob;
 import com.marketplace.app.navigation.Router;
@@ -13,7 +14,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 /**
- * Rôle : Écran de suivi du traitement SAM & COLMAP avec affichage transparent de l'état [SIMULÉ].
+ * Rôle : Écran de suivi du traitement SAM & COLMAP via FirebaseScanBridge ou SimulatedScanBridge ([SIMULÉ]).
  * Entrée : EXTRA_JOB_ID.
  * Sortie : Progression en pourcentage et bouton 'Voir en 3D / AR' une fois le fichier .glb généré.
  */
@@ -34,7 +35,7 @@ public class ScanStatusActivity extends BaseActivity {
 
     @Override
     protected void bindViews() {
-        bridge = new SimulatedScanBridge();
+        bridge = ApiClient.isUseMock() ? new SimulatedScanBridge() : new FirebaseScanBridge();
         String jobId = getIntent().getStringExtra(Router.EXTRA_JOB_ID);
         if (jobId == null) jobId = "demo_job";
 
@@ -54,28 +55,29 @@ public class ScanStatusActivity extends BaseActivity {
     }
 
     private void startProcessing(String jobId) {
-        tvHeader.setText("[SIMULÉ] Démarrage du traitement SAM (Meta)...");
+        final String modePrefix = ApiClient.isUseMock() ? "[SIMULÉ] " : "[FIREBASE] ";
+        tvHeader.setText(modePrefix + "Démarrage du traitement SAM (Meta)...");
         tvDetail.setText("Segmentation et reconstruction du maillage 3D...");
 
         bridge.submitScan(jobId, new ArrayList<File>(), new ScanBridge.ScanListener() {
             @Override
             public void onProgress(ScanJob job) {
                 progressBar.setProgress(job.getProgress());
-                tvDetail.setText("[SIMULÉ] Progression : " + job.getProgress() + "%");
+                tvDetail.setText(modePrefix + "Progression : " + job.getProgress() + "%");
             }
 
             @Override
             public void onCompleted(String model3dUrl) {
                 generatedModelUrl = model3dUrl;
                 progressBar.setProgress(100);
-                tvHeader.setText("[SIMULÉ] Modèle 3D prêt !");
+                tvHeader.setText(modePrefix + "Modèle 3D prêt !");
                 tvDetail.setText("Modèle .glb disponible pour la Réalité Augmentée.");
                 btnViewAr.setVisibility(android.view.View.VISIBLE);
             }
 
             @Override
             public void onError(String message) {
-                tvHeader.setText("Erreur");
+                tvHeader.setText("Erreur de traitement 3D");
                 tvDetail.setText(message);
             }
         });

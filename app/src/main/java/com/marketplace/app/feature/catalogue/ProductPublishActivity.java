@@ -155,18 +155,22 @@ public class ProductPublishActivity extends BaseActivity {
         p.setCategoryId(getSelectedCategoryId());
         p.setSellerId(AuthSession.getInstance().getUserId());
         p.setStatus(ProductStatus.DISPONIBLE);
-        p.setArSupported(cbEnableAr.isChecked());
-        p.setThumbnailUrl(imgUrl.isEmpty() ? "https://images.unsplash.com/photo-1555041469-a586c61ea9bc" : imgUrl);
-        if (cbEnableAr.isChecked()) {
-            p.setModel3dUrl("https://modelviewer.dev/shared-assets/models/Astronaut.glb");
-        }
+        p.setArSupported(false);
+        p.setThumbnailUrl(imgUrl.isEmpty() ? null : imgUrl);
+        p.setModel3dUrl(null);
+
+        final boolean launchScanAfterCreate = cbEnableAr.isChecked();
 
         productRepository.create(p, new BaseRepository.Callback<Product>() {
             @Override
             public void onSuccess(Product created) {
                 btnSubmit.setEnabled(true);
                 toast("Votre annonce a été publiée avec succès !");
-                Router.openProductDetail(ProductPublishActivity.this, created.getId());
+                if (launchScanAfterCreate && created != null && created.getId() != null) {
+                    Router.openScanner(ProductPublishActivity.this, created.getId(), created.getCategoryId());
+                } else if (created != null) {
+                    Router.openProductDetail(ProductPublishActivity.this, created.getId());
+                }
                 finish();
             }
 
