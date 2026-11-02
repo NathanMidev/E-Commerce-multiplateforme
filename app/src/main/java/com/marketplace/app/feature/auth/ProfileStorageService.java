@@ -63,6 +63,8 @@ public class ProfileStorageService {
         UID_TO_USERNAME.clear();
         UID_TO_AVATAR_URL.clear();
         // Pré-enregistrement des usernames des vendeurs de démonstration
+        USERNAME_TO_UID.put("bubble.design.mg", "seller_bubble_design");
+        UID_TO_USERNAME.put("seller_bubble_design", "bubble.design.mg");
         USERNAME_TO_UID.put("atelier.nordique", "seller_101");
         UID_TO_USERNAME.put("seller_101", "atelier.nordique");
         USERNAME_TO_UID.put("luminaires.co", "seller_102");

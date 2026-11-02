@@ -238,14 +238,25 @@ public class Interactive3dModelView extends View {
         Collections.sort(sortedFaces, (a, b) -> Float.compare(b.depthZ, a.depthZ));
 
         // 4. Dessiner chaque face ombrée et ses arêtes
-        int[] palette = {
-                Color.parseColor("#FF7A1A"),
-                Color.parseColor("#F97316"),
-                Color.parseColor("#EA580C"),
-                Color.parseColor("#FB923C"),
-                Color.parseColor("#C2410C"),
-                Color.parseColor("#FDBA74")
-        };
+        boolean isBlueBubble = modelResource.getSourceUrl() != null
+                && modelResource.getSourceUrl().toLowerCase().contains("base_basic_shaded");
+        int[] palette = isBlueBubble
+                ? new int[]{
+                        Color.parseColor("#1D4ED8"),
+                        Color.parseColor("#2563EB"),
+                        Color.parseColor("#3B82F6"),
+                        Color.parseColor("#1E40AF"),
+                        Color.parseColor("#1E3A8A"),
+                        Color.parseColor("#60A5FA")
+                }
+                : new int[]{
+                        Color.parseColor("#FF7A1A"),
+                        Color.parseColor("#F97316"),
+                        Color.parseColor("#EA580C"),
+                        Color.parseColor("#FB923C"),
+                        Color.parseColor("#C2410C"),
+                        Color.parseColor("#FDBA74")
+                };
 
         for (ProjectedFace pf : sortedFaces) {
             facePath.reset();

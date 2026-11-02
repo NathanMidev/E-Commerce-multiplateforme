@@ -86,6 +86,30 @@ public class MockBackendService {
         categories.add(new Category("cat_fashion", "Mode & Chaussures", "Vêtements, sacs et sneakers avec essayage AR", "ic_fashion"));
         categories.add(new Category("cat_art", "Art & Sculptures", "Objets uniques avec modèles 3D .glb", "ic_art"));
 
+        // Article phare avec les 3 photos réelles du Canapé Bubble Bleu et le fichier base_basic_shaded.glb (35,3 Mo)
+        Product pBubbleSofa = new Product(
+                "prod_bubble_sofa",
+                "Canapé Bubble 3-4 Places Bleu Électrique",
+                "Canapé design capitonné style Bubble en tissu nid d'abeille extensible 3D bleu roi. Assise enveloppante ultra-confortable en mousse haute résilience bi-densité, structure bois massif. Modèle 3D complet (base_basic_shaded.glb) disponible pour rotation 360° et placement multi-exemplaires dans votre salon via ARCore.",
+                890.00,
+                ProductStatus.NOUVEAU,
+                "cat_furniture",
+                "seller_bubble_design",
+                "Maison Bubble Design Mada",
+                "file:///android_asset/demo/bubble_sofa/bubble_sofa_1.jpg",
+                true,
+                "file:///android_asset/models/base_basic_shaded.glb",
+                Arrays.asList(
+                        "file:///android_asset/demo/bubble_sofa/bubble_sofa_1.jpg",
+                        "file:///android_asset/demo/bubble_sofa/bubble_sofa_2.jpg",
+                        "file:///android_asset/demo/bubble_sofa/bubble_sofa_3.jpg"
+                ),
+                3,
+                System.currentTimeMillis() - 1800000
+        );
+        pBubbleSofa.setModel3dFormat("glb");
+        pBubbleSofa.setModel3dSize(35318604L);
+
         Product p1 = new Product(
                 "prod_1",
                 "Fauteuil Scandinave Velours",
@@ -166,6 +190,7 @@ public class MockBackendService {
                 System.currentTimeMillis() - 10000000
         );
 
+        products.add(pBubbleSofa);
         products.add(p1);
         products.add(p2);
         products.add(p3);
@@ -174,6 +199,25 @@ public class MockBackendService {
 
     private void seedUsers() {
         com.marketplace.app.feature.auth.ProfileStorageService.resetSimulatedState();
+
+        // Vendeur exemple complet propriétaire du Canapé Bubble 3D (avec photo, @username, WhatsApp unique E.164 et lien Facebook)
+        User bubbleSeller = new User(
+                "seller_bubble_design",
+                "Maison Bubble Design Mada",
+                "contact@bubbledesign.mg",
+                "file:///android_asset/demo/bubble_sofa/bubble_sofa_1.jpg"
+        );
+        bubbleSeller.setUsername("bubble.design.mg");
+        bubbleSeller.setCity("Antananarivo");
+        bubbleSeller.setAddress("Showroom Ivandry, Lot II J 142 Antananarivo");
+        bubbleSeller.setWhatsapp("+261348899001");
+        bubbleSeller.setPhoneNumber("+261348899001");
+        bubbleSeller.setFacebookLink("https://facebook.com/bubble.design.mada");
+        bubbleSeller.setTotalSales(18);
+        bubbleSeller.setResponseScore(4.9);
+        bubbleSeller.setLevel("SELLER");
+        users.put("seller_bubble_design", bubbleSeller);
+
         seedUser("seller_101", "Atelier Nordique", "atelier.nordique", "+261341234567", "https://facebook.com/atelier.nordique");
         seedUser("seller_102", "Luminaires & Co", "luminaires.co", "+261331122334", "https://facebook.com/luminaires.co");
         seedUser("seller_103", "SneakersHub", "sneakershub", "+261320011223", "https://facebook.com/sneakershub");

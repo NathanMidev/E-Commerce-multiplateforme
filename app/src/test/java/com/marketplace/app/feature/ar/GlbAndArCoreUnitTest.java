@@ -642,4 +642,30 @@ public class GlbAndArCoreUnitTest {
         assertEquals("products/seller_102/prod_2/model/model.glb", pathB);
         assertNotEquals(pathA, pathB);
     }
+
+    // =========================================================================
+    // 20. Vérification du vendeur exemple et de l'article Canapé Bubble avec les 3 photos et base_basic_shaded.glb
+    // =========================================================================
+    @Test
+    public void scenario20_demoBubbleSofaProductAndSellerWithBaseBasicShadedGlb() {
+        Product bubbleSofa = mockBackend.getProductById("prod_bubble_sofa");
+        assertNotNull("L'article exemple Canapé Bubble doit être présent dans le catalogue", bubbleSofa);
+        assertEquals("Canapé Bubble 3-4 Places Bleu Électrique", bubbleSofa.getTitle());
+        assertEquals("seller_bubble_design", bubbleSofa.getSellerId());
+        assertEquals(3, bubbleSofa.getImageUrls().size());
+        assertTrue(bubbleSofa.getImageUrls().get(0).endsWith("bubble_sofa_1.jpg"));
+        assertTrue(bubbleSofa.getImageUrls().get(1).endsWith("bubble_sofa_2.jpg"));
+        assertTrue(bubbleSofa.getImageUrls().get(2).endsWith("bubble_sofa_3.jpg"));
+        assertTrue(bubbleSofa.hasValidGlbModel());
+        assertEquals("file:///android_asset/models/base_basic_shaded.glb", bubbleSofa.getModel3dUrl());
+        assertEquals(35318604L, bubbleSofa.getModel3dSize());
+
+        com.marketplace.app.model.User seller = mockBackend.getOrCreateProfile("seller_bubble_design");
+        assertNotNull(seller);
+        assertEquals("Maison Bubble Design Mada", seller.getDisplayName());
+        assertEquals("bubble.design.mg", seller.getUsername());
+        assertEquals("+261348899001", seller.getWhatsappNumber());
+        assertEquals("https://facebook.com/bubble.design.mada", seller.getFacebookUrl());
+        assertTrue(seller.hasCustomAvatar());
+    }
 }

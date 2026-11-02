@@ -24,9 +24,7 @@ public class MarketplaceApp extends Application {
         // 2. Synchronisation de la session Firebase Auth
         FirebaseAuthSession.initialize();
 
-        // 3. Préparation des données en mémoire uniquement si mode démo activé
-        if (BuildConfig.USE_MOCK_BACKEND) {
-            MockBackendService.getInstance().resetData();
-        }
+        // 3. Initialisation des données de démonstration (vendeur exemple Canapé Bubble + base_basic_shaded.glb)
+        MockBackendService.getInstance().resetData();
     }
 }

@@ -261,9 +261,18 @@ public class ArInteractiveSurfaceView extends View {
             float cosP = (float) Math.cos(Math.toRadians(18.0));
             float sinP = (float) Math.sin(Math.toRadians(18.0));
 
-            int[] colors = isSelected
-                    ? new int[]{Color.parseColor("#FF6D00"), Color.parseColor("#FF9100"), Color.parseColor("#E65100")}
-                    : new int[]{Color.parseColor("#00897B"), Color.parseColor("#26A69A"), Color.parseColor("#00695C")};
+            boolean isBlueBubble = res.getSourceUrl() != null
+                    && res.getSourceUrl().toLowerCase().contains("base_basic_shaded");
+            int[] colors;
+            if (isBlueBubble) {
+                colors = isSelected
+                        ? new int[]{Color.parseColor("#2563EB"), Color.parseColor("#3B82F6"), Color.parseColor("#1D4ED8")}
+                        : new int[]{Color.parseColor("#1E40AF"), Color.parseColor("#1D4ED8"), Color.parseColor("#1E3A8A")};
+            } else {
+                colors = isSelected
+                        ? new int[]{Color.parseColor("#FF6D00"), Color.parseColor("#FF9100"), Color.parseColor("#E65100")}
+                        : new int[]{Color.parseColor("#00897B"), Color.parseColor("#26A69A"), Color.parseColor("#00695C")};
+            }
 
             for (int fIdx = 0; fIdx < faces.length; fIdx++) {
                 int[] f = faces[fIdx];
