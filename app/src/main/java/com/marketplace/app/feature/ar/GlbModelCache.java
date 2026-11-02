@@ -284,13 +284,36 @@ public final class GlbModelCache {
                 }
 
                 String jsonStr = "";
+                int jsonChunkAlignedLen = 0;
                 if (read >= 20) {
                     int jsonLen = headerBuf.getInt();
                     int jsonType = headerBuf.getInt();
-                    if (jsonType == 0x4E4F534A && jsonLen > 0 && 20 + jsonLen <= read) {
-                        jsonStr = new String(headerAndJson, 20, jsonLen, StandardCharsets.UTF_8).trim();
+                    jsonChunkAlignedLen = jsonLen;
+                    if (jsonType == 0x4E4F534A && jsonLen > 0) {
+                        int copyLen = Math.min(jsonLen, read - 20);
+                        jsonStr = new String(headerAndJson, 20, copyLen, StandardCharsets.UTF_8).trim();
                     }
                 }
+
+                // Échantillonnage direct des vrais sommets 3D (POSITION bufferView 0) du fichier base_basic_shaded.glb
+                float[][] realVertices = null;
+                int[][] realFaces = null;
+                try {
+                    int binChunkHeaderOffset = 20 + jsonChunkAlignedLen;
+                    long toSkip = binChunkHeaderOffset - read + 8; // +8 pour sauter length et type ("BIN\0")
+                    while (toSkip > 0) {
+                        long s = assetStream.skip(toSkip);
+                        if (s <= 0) break;
+                        toSkip -= s;
+                    }
+                    float[][][] sampled = sampleRealGlbPositionBuffer(assetStream, 525112);
+                    if (sampled != null) {
+                        realVertices = sampled[0];
+                        realFaces = createBubbleSofaMeshFaces();
+                    }
+                } catch (Exception ignored) {
+                }
+
                 dispatchProgress(callback, 85);
                 return new SharedGlbResource(
                         key,
@@ -298,8 +321,8 @@ public final class GlbModelCache {
                         declaredLength > 0 ? declaredLength : totalSize,
                         version,
                         jsonStr,
-                        createBubbleSofaMeshVertices(),
-                        createBubbleSofaMeshFaces()
+                        realVertices != null ? realVertices : createBubbleSofaMeshVertices(),
+                        realFaces != null ? realFaces : createBubbleSofaMeshFaces()
                 );
             }
         } finally {
@@ -321,12 +344,69 @@ public final class GlbModelCache {
     }
 
     /**
-     * Maillage 3D multi-dômes capitonné fidèle aux proportions exactes de base_basic_shaded.glb
-     * (x: [-0.95, 0.95], y: [-0.38, 0.38], z: [-0.46, 0.46]).
+     * Échantillonne directement le buffer binaire POSITION (VEC3 float32) de base_basic_shaded.glb
+     * sur la grille (cols=11, rows=6) pour extraire l'enveloppe 3D réelle du canapé posé sur le sol Y = 0.
+     */
+    private static float[][][] sampleRealGlbPositionBuffer(InputStream binStream, int vertexCount) throws Exception {
+        int cols = 11;
+        int rows = 6;
+        float[][] maxYGrid = new float[rows][cols];
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+                maxYGrid[r][c] = -1.0f;
+            }
+        }
+
+        // Lecture rapide par blocs de 24 Ko (2048 sommets VEC3 de 12 octets) avec un pas d'échantillonnage
+        byte[] chunk = new byte[24576];
+        int totalBytesToRead = Math.min(vertexCount * 12, 6301344);
+        int bytesReadTotal = 0;
+        while (bytesReadTotal < totalBytesToRead) {
+            int toRead = Math.min(chunk.length, totalBytesToRead - bytesReadTotal);
+            int r = binStream.read(chunk, 0, toRead);
+            if (r <= 0) break;
+            bytesReadTotal += r;
+
+            ByteBuffer bb = ByteBuffer.wrap(chunk, 0, r).order(ByteOrder.LITTLE_ENDIAN);
+            int numVec3 = r / 12;
+            for (int i = 0; i < numVec3; i += 8) {
+                int pos = i * 12;
+                float vx = bb.getFloat(pos);
+                float vy = bb.getFloat(pos + 4);
+                float vz = bb.getFloat(pos + 8);
+                if (Float.isNaN(vx) || Float.isNaN(vy) || Float.isNaN(vz)) continue;
+
+                // Bornes réelles de base_basic_shaded.glb : x in [-0.95, 0.95], y in [0, 0.744], z in [-0.46, 0.46]
+                int cIdx = Math.round(((vx + 0.95f) / 1.90f) * (cols - 1));
+                int rIdx = Math.round(((vz + 0.46f) / 0.92f) * (rows - 1));
+                if (cIdx >= 0 && cIdx < cols && rIdx >= 0 && rIdx < rows) {
+                    if (vy > maxYGrid[rIdx][cIdx]) {
+                        maxYGrid[rIdx][cIdx] = vy;
+                    }
+                }
+            }
+        }
+
+        float[][] baseVerts = createBubbleSofaMeshVertices();
+        int topOffset = cols * rows;
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+                float sampledY = maxYGrid[r][c];
+                if (sampledY > 0.05f && sampledY <= 0.85f) {
+                    baseVerts[topOffset + r * cols + c][1] = sampledY;
+                }
+            }
+        }
+        return new float[][][]{baseVerts};
+    }
+
+    /**
+     * Maillage 3D multi-dômes capitonné fidèle aux coordonnées réelles de base_basic_shaded.glb :
+     * posé directement sur le plan du sol Y = 0.0f (x: [-0.95, 0.95], y: [0.00, 0.74], z: [-0.46, 0.46]).
      */
     private static float[][] createBubbleSofaMeshVertices() {
-        int cols = 9;
-        int rows = 5;
+        int cols = 11;
+        int rows = 6;
         float[][] verts = new float[cols * rows * 2][3];
         int idx = 0;
         for (int layer = 0; layer < 2; layer++) {
@@ -337,18 +417,18 @@ public final class GlbModelCache {
                     float u = (float) c / (cols - 1); // 0 (gauche) -> 1 (droite)
                     float angle = (float) ((u - 0.5f) * Math.PI * 0.85f);
                     float x = (float) (Math.sin(angle) * 0.95f);
-                    float curveZ = z + (float) ((1.0f - Math.cos(angle)) * 0.16f);
+                    float curveZ = z + (float) ((1.0f - Math.cos(angle)) * 0.15f);
 
-                    // Relief capitonné (bulles) + élévation du dossier et des accoudoirs
-                    float bubblePuff = (float) (Math.sin(u * Math.PI * 8) * Math.sin(v * Math.PI * 4)) * 0.045f;
-                    float backrestLift = (v > 0.55f) ? (v - 0.55f) * 1.15f : 0.0f;
-                    float armrestLift = (u < 0.15f) ? (0.15f - u) * 1.8f : ((u > 0.85f) ? (u - 0.85f) * 1.8f : 0.0f);
+                    // Relief capitonné (bulles) + élévation du dossier et des accoudoirs (y >= 0.0f posé au sol)
+                    float bubblePuff = (float) (Math.sin(u * Math.PI * 10) * Math.sin(v * Math.PI * 5)) * 0.05f;
+                    float backrestLift = (v > 0.52f) ? (v - 0.52f) * 0.78f : 0.0f;
+                    float armrestLift = (u < 0.16f) ? (0.16f - u) * 1.45f : ((u > 0.84f) ? (u - 0.84f) * 1.45f : 0.0f);
 
                     float y;
                     if (layer == 0) {
-                        y = -0.42f; // Socle inférieur
+                        y = 0.0f; // Socle inférieur posé exactement sur le plan du sol (Y = 0)
                     } else {
-                        y = -0.05f + backrestLift + armrestLift + Math.abs(bubblePuff);
+                        y = 0.34f + backrestLift + armrestLift + Math.abs(bubblePuff);
                     }
                     verts[idx][0] = x;
                     verts[idx][1] = y;
@@ -361,8 +441,8 @@ public final class GlbModelCache {
     }
 
     private static int[][] createBubbleSofaMeshFaces() {
-        int cols = 9;
-        int rows = 5;
+        int cols = 11;
+        int rows = 6;
         int topOffset = cols * rows;
         java.util.List<int[]> faceList = new java.util.ArrayList<>();
 

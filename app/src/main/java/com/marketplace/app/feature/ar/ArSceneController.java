@@ -23,6 +23,163 @@ public class ArSceneController {
     private ArPlacedInstance selectedInstance = null;
     private int sequence = 0;
 
+    // Pose 3D de la caméra dans le repère du monde réel (World Space, sol physique à Y = 0.0f)
+    public static final float DEFAULT_CAMERA_HEIGHT_METERS = 1.25f;
+    public static final float DEFAULT_CAMERA_PITCH_DEGREES = -24.0f;
+
+    private float cameraX = 0.0f;
+    private float cameraY = DEFAULT_CAMERA_HEIGHT_METERS;
+    private float cameraZ = 0.0f;
+    private float cameraYawDegrees = 0.0f;
+    private float cameraPitchDegrees = DEFAULT_CAMERA_PITCH_DEGREES;
+    private float cameraRollDegrees = 0.0f;
+
+    /**
+     * Met à jour l'orientation 3D de la caméra (Yaw / Pitch / Roll en degrés) à partir des capteurs ou d'ARCore.
+     * Les objets déjà placés conservent leurs coordonnées (X, Y, Z) dans le monde réel et ne suivent pas l'écran.
+     */
+    public void updateCameraOrientation(float yawDegrees, float pitchDegrees, float rollDegrees) {
+        this.cameraYawDegrees = yawDegrees;
+        // Borner le pitch entre -82° (regard vers le sol) et +45° (regard vers le haut)
+        this.cameraPitchDegrees = Math.max(-82.0f, Math.min(45.0f, pitchDegrees));
+        this.cameraRollDegrees = Math.max(-60.0f, Math.min(60.0f, rollDegrees));
+    }
+
+    /**
+     * Met à jour la pose 6DoF complète (position 3D + orientation 3D) de la caméra dans l'espace réel.
+     */
+    public void updateCameraPose(float camX, float camY, float camZ,
+                                 float yawDegrees, float pitchDegrees, float rollDegrees) {
+        this.cameraX = camX;
+        this.cameraY = Math.max(0.25f, camY);
+        this.cameraZ = camZ;
+        updateCameraOrientation(yawDegrees, pitchDegrees, rollDegrees);
+    }
+
+    public void resetCameraPose() {
+        this.cameraX = 0.0f;
+        this.cameraY = DEFAULT_CAMERA_HEIGHT_METERS;
+        this.cameraZ = 0.0f;
+        this.cameraYawDegrees = 0.0f;
+        this.cameraPitchDegrees = DEFAULT_CAMERA_PITCH_DEGREES;
+        this.cameraRollDegrees = 0.0f;
+    }
+
+    public float getCameraX() { return cameraX; }
+    public float getCameraY() { return cameraY; }
+    public float getCameraZ() { return cameraZ; }
+    public float getCameraYawDegrees() { return cameraYawDegrees; }
+    public float getCameraPitchDegrees() { return cameraPitchDegrees; }
+    public float getCameraRollDegrees() { return cameraRollDegrees; }
+
+    /**
+     * Projette un point 3D du monde réel (worldX, worldY, worldZ) vers les coordonnées pixels de l'écran
+     * en utilisant la matrice de vue-projection 3D de la caméra.
+     *
+     * @return tableau float[]{screenX, screenY, depthMeters} où depthMeters > 0.12f indique que le point est devant la caméra.
+     */
+    public float[] projectWorldToScreen(float worldX, float worldY, float worldZ, int screenWidth, int screenHeight) {
+        if (screenWidth <= 0 || screenHeight <= 0) {
+            return new float[]{0f, 0f, -1f};
+        }
+
+        // 1. Translation Monde -> Caméra
+        float dx = worldX - cameraX;
+        float dy = worldY - cameraY;
+        float dz = worldZ - cameraZ;
+
+        // 2. Rotation horizontale inverse autour de l'axe vertical Y du monde (Yaw)
+        double yawRad = Math.toRadians(cameraYawDegrees);
+        float cosY = (float) Math.cos(yawRad);
+        float sinY = (float) Math.sin(yawRad);
+        float x1 = dx * cosY + dz * sinY;
+        float z1 = dz * cosY - dx * sinY;
+
+        // 3. Rotation verticale autour de l'axe X caméra (Pitch : négatif quand on regarde vers le sol)
+        double pitchRad = Math.toRadians(cameraPitchDegrees);
+        float cosP = (float) Math.cos(pitchRad);
+        float sinP = (float) Math.sin(pitchRad);
+        float yCam = dy * cosP + z1 * sinP;
+        float zCam = -dy * sinP + z1 * cosP;
+
+        // 4. Rotation de roulis autour de l'axe optique Z caméra (Roll)
+        double rollRad = Math.toRadians(cameraRollDegrees);
+        float cosR = (float) Math.cos(rollRad);
+        float sinR = (float) Math.sin(rollRad);
+        float xRolled = x1 * cosR - yCam * sinR;
+        float yRolled = x1 * sinR + yCam * cosR;
+
+        // En repère caméra OpenGL/ARCore, l'axe de visée est -Z, donc la profondeur devant la caméra est -zCam
+        float depth = -zCam;
+        if (depth <= 0.12f) {
+            return new float[]{-10000f, -10000f, depth};
+        }
+
+        float focalLengthPx = Math.min(screenWidth, screenHeight) * 0.92f;
+        float screenX = (screenWidth * 0.5f) + (xRolled / depth) * focalLengthPx;
+        float screenY = (screenHeight * 0.5f) - (yRolled / depth) * focalLengthPx;
+        return new float[]{screenX, screenY, depth};
+    }
+
+    /**
+     * Lance un rayon 3D depuis le pixel (screenX, screenY) à travers la caméra actuelle et calcule
+     * son intersection exacte (worldX, 0.0f, worldZ) avec le plan physique horizontal du sol (Y = 0).
+     */
+    public float[] screenRayToFloorPlane(float screenX, float screenY, int screenWidth, int screenHeight) {
+        if (screenWidth <= 0 || screenHeight <= 0) {
+            return new float[]{cameraX, 0.0f, cameraZ - 2.2f};
+        }
+
+        float focalLengthPx = Math.min(screenWidth, screenHeight) * 0.92f;
+        float rxRolled = (screenX - screenWidth * 0.5f) / focalLengthPx;
+        float ryRolled = (screenHeight * 0.5f - screenY) / focalLengthPx;
+        float rzCam = -1.0f;
+
+        // 1. Inverse du Roll
+        double rollRad = Math.toRadians(cameraRollDegrees);
+        float cosR = (float) Math.cos(rollRad);
+        float sinR = (float) Math.sin(rollRad);
+        float rxCam = rxRolled * cosR + ryRolled * sinR;
+        float ryCam = -rxRolled * sinR + ryRolled * cosR;
+
+        // 2. Inverse du Pitch
+        double pitchRad = Math.toRadians(cameraPitchDegrees);
+        float cosP = (float) Math.cos(pitchRad);
+        float sinP = (float) Math.sin(pitchRad);
+        float dirY = ryCam * cosP - rzCam * sinP;
+        float z1 = ryCam * sinP + rzCam * cosP;
+
+        // 3. Inverse du Yaw -> Direction du rayon dans le Monde (World Space)
+        double yawRad = Math.toRadians(cameraYawDegrees);
+        float cosY = (float) Math.cos(yawRad);
+        float sinY = (float) Math.sin(yawRad);
+        float dirX = rxCam * cosY - z1 * sinY;
+        float dirZ = rxCam * sinY + z1 * cosY;
+
+        // 4. Intersection avec le plan horizontal du sol (worldY = 0) : cameraY + t * dirY = 0
+        float t;
+        if (dirY < -0.06f) {
+            t = -cameraY / dirY;
+            t = Math.max(0.65f, Math.min(7.5f, t));
+        } else {
+            // Si le téléphone vise au-dessus de l'horizon, projeter sur le sol à 2.4m devant la direction visée
+            t = 2.4f;
+        }
+
+        float hitWorldX = cameraX + t * dirX;
+        float hitWorldZ = cameraZ + t * dirZ;
+        return new float[]{hitWorldX, 0.0f, hitWorldZ};
+    }
+
+    /**
+     * Retourne les coordonnées 3D (worldX, 0, worldZ) sur le sol physique visées par le réticule central de la caméra.
+     */
+    public float[] getReticleWorldHit(int screenWidth, int screenHeight) {
+        int w = screenWidth > 0 ? screenWidth : 1080;
+        int h = screenHeight > 0 ? screenHeight : 1920;
+        return screenRayToFloorPlane(w * 0.5f, h * 0.54f, w, h);
+    }
+
     public void bindSharedGlbResource(GlbModelCache.SharedGlbResource resource) {
         if (resource == null) {
             throw new IllegalArgumentException("La ressource modèle .glb ne peut pas être nulle");

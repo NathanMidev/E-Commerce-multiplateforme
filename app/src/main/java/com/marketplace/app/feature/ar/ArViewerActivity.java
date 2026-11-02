@@ -4,6 +4,10 @@ import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.SurfaceTexture;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
@@ -28,16 +32,15 @@ import java.util.Collections;
 import java.util.Locale;
 
 /**
- * Rôle : Expérience de Réalité Augmentée ARCore pour les produits de la marketplace locale (Section 7).
+ * Rôle : Expérience de Réalité Augmentée ARCore en espace réel 3D (World Space) pour les produits locaux (Section 7).
  * Fonctionnalités :
- * - Vérification de compatibilité ARCore, autorisation caméra et validité du fichier .glb
- * - Détection des surfaces planes (horizontales et verticales)
- * - Placement d'un produit .glb sur la surface détectée
- * - Duplication en plusieurs exemplaires indépendants partageant la même ressource .glb en mémoire
- * - Sélection, déplacement indépendant, rotation, mise à l'échelle, suppression d'instance et réinitialisation
- * - Libération propre des ressources ARCore et 3D à la fermeture de l'écran.
+ * - Suivi 6DoF / 3DoF+Translation temps réel de la pose caméra (Yaw, Pitch, Roll, Position 3D) pour que chaque
+ *   objet placé ou dupliqué reste ancré à sa position physique sur le sol lorsque le téléphone bouge
+ * - Détection des surfaces planes et projection 3D perspective du maillage .glb
+ * - Placement et duplication d'exemplaires avec ancres 3D indépendantes sur le plan physique
+ * - Sélection, déplacement par ray-casting sur la surface, rotation, mise à l'échelle et suppression.
  */
-public class ArViewerActivity extends BaseActivity {
+public class ArViewerActivity extends BaseActivity implements SensorEventListener {
 
     private static final int REQ_CAMERA_PERMISSION = 4102;
 
@@ -63,6 +66,32 @@ public class ArViewerActivity extends BaseActivity {
     private final ArSceneController sceneController = new ArSceneController();
     private CameraDevice cameraDevice;
     private CameraCaptureSession captureSession;
+
+    // Capteurs inertiels 3D pour l'ancrage dans l'espace réel (World Space)
+    private SensorManager sensorManager;
+    private Sensor rotationSensor;
+    private Sensor linearAccelSensor;
+    private Sensor accelFallbackSensor;
+    private Sensor magFallbackSensor;
+
+    private final float[] rotationMatrix = new float[9];
+    private final float[] gravityValues = new float[3];
+    private final float[] geomagneticValues = new float[3];
+    private boolean hasGravity = false;
+    private boolean hasGeomagnetic = false;
+
+    private boolean hasInitialHeading = false;
+    private float initialYawDeg = 0.0f;
+    private float smoothedYawDeg = 0.0f;
+    private float smoothedPitchDeg = ArSceneController.DEFAULT_CAMERA_PITCH_DEGREES;
+    private float smoothedRollDeg = 0.0f;
+
+    private float trackedCamX = 0.0f;
+    private float trackedCamY = ArSceneController.DEFAULT_CAMERA_HEIGHT_METERS;
+    private float trackedCamZ = 0.0f;
+    private float velX = 0.0f;
+    private float velZ = 0.0f;
+    private long lastAccelTimestampNs = 0L;
 
     @Override
     protected int getLayoutId() {
@@ -130,11 +159,171 @@ public class ArViewerActivity extends BaseActivity {
         });
         btnResetScene.setOnClickListener(v -> {
             sceneController.resetScene();
+            resetWorldTrackingOrigin();
             arSurfaceView.invalidate();
             refreshUiState();
-            toast("Scène AR réinitialisée");
+            toast("Scène AR et repère 3D réinitialisés");
         });
+
+        initMotionSensors();
     }
+
+    private void initMotionSensors() {
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        if (sensorManager == null) return;
+        rotationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
+        if (rotationSensor == null) {
+            rotationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+        }
+        if (rotationSensor == null) {
+            accelFallbackSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            magFallbackSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        }
+        linearAccelSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+    }
+
+    private void resetWorldTrackingOrigin() {
+        hasInitialHeading = false;
+        trackedCamX = 0.0f;
+        trackedCamY = ArSceneController.DEFAULT_CAMERA_HEIGHT_METERS;
+        trackedCamZ = 0.0f;
+        velX = 0.0f;
+        velZ = 0.0f;
+        lastAccelTimestampNs = 0L;
+        sceneController.resetCameraPose();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (sensorManager != null) {
+            if (rotationSensor != null) {
+                sensorManager.registerListener(this, rotationSensor, SensorManager.SENSOR_DELAY_GAME);
+            } else {
+                if (accelFallbackSensor != null) {
+                    sensorManager.registerListener(this, accelFallbackSensor, SensorManager.SENSOR_DELAY_GAME);
+                }
+                if (magFallbackSensor != null) {
+                    sensorManager.registerListener(this, magFallbackSensor, SensorManager.SENSOR_DELAY_GAME);
+                }
+            }
+            if (linearAccelSensor != null) {
+                sensorManager.registerListener(this, linearAccelSensor, SensorManager.SENSOR_DELAY_GAME);
+            }
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        if (sensorManager != null) {
+            sensorManager.unregisterListener(this);
+        }
+        super.onPause();
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event == null || event.sensor == null) return;
+        int type = event.sensor.getType();
+
+        if (type == Sensor.TYPE_GAME_ROTATION_VECTOR || type == Sensor.TYPE_ROTATION_VECTOR) {
+            SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
+            applyRotationMatrixToCameraPose(rotationMatrix);
+        } else if (type == Sensor.TYPE_ACCELEROMETER) {
+            System.arraycopy(event.values, 0, gravityValues, 0, 3);
+            hasGravity = true;
+            if (hasGeomagnetic && SensorManager.getRotationMatrix(rotationMatrix, null, gravityValues, geomagneticValues)) {
+                applyRotationMatrixToCameraPose(rotationMatrix);
+            }
+        } else if (type == Sensor.TYPE_MAGNETIC_FIELD) {
+            System.arraycopy(event.values, 0, geomagneticValues, 0, 3);
+            hasGeomagnetic = true;
+            if (hasGravity && SensorManager.getRotationMatrix(rotationMatrix, null, gravityValues, geomagneticValues)) {
+                applyRotationMatrixToCameraPose(rotationMatrix);
+            }
+        } else if (type == Sensor.TYPE_LINEAR_ACCELERATION) {
+            if (lastAccelTimestampNs != 0L) {
+                float dt = (event.timestamp - lastAccelTimestampNs) * 1e-9f;
+                if (dt > 0.001f && dt < 0.25f) {
+                    float ax = event.values[0];
+                    float az = event.values[2];
+                    if (Math.abs(ax) > 0.22f || Math.abs(az) > 0.22f) {
+                        double yawRad = Math.toRadians(smoothedYawDeg);
+                        float cosY = (float) Math.cos(yawRad);
+                        float sinY = (float) Math.sin(yawRad);
+                        float worldAx = -(ax * cosY - az * sinY) * 0.35f;
+                        float worldAz = -(ax * sinY + az * cosY) * 0.35f;
+                        velX = (velX + worldAx * dt) * 0.85f;
+                        velZ = (velZ + worldAz * dt) * 0.85f;
+                        trackedCamX = Math.max(-2.5f, Math.min(2.5f, trackedCamX + velX * dt));
+                        trackedCamZ = Math.max(-2.5f, Math.min(2.5f, trackedCamZ + velZ * dt));
+                    } else {
+                        velX *= 0.70f;
+                        velZ *= 0.70f;
+                    }
+                }
+            }
+            lastAccelTimestampNs = event.timestamp;
+        }
+    }
+
+    private void applyRotationMatrixToCameraPose(float[] R) {
+        // Vecteur optique de la caméra arrière dans le repère du monde réel : F = R * (0, 0, -1) = (-R[2], -R[5], -R[8])
+        float forwardEast = -R[2];
+        float forwardNorth = -R[5];
+        float forwardUp = -R[8];
+
+        // Vecteur haut du téléphone (axe +Y écran) pour stabiliser le cap même quand le téléphone pointe vers le sol
+        float upEast = R[1];
+        float upNorth = R[4];
+
+        float rawAzimuthDeg = (float) Math.toDegrees(Math.atan2(
+                forwardEast + 0.40f * upEast,
+                forwardNorth + 0.40f * upNorth
+        ));
+
+        if (!hasInitialHeading) {
+            initialYawDeg = rawAzimuthDeg;
+            smoothedYawDeg = 0.0f;
+            hasInitialHeading = true;
+        }
+
+        float relYawDeg = normalizeSignedAngle(rawAzimuthDeg - initialYawDeg);
+        float clampedForwardUp = Math.max(-0.98f, Math.min(0.98f, forwardUp));
+        float rawPitchDeg = (float) Math.toDegrees(Math.asin(clampedForwardUp));
+        float clampedRightUp = Math.max(-0.95f, Math.min(0.95f, R[6]));
+        float rawRollDeg = (float) -Math.toDegrees(Math.asin(clampedRightUp)) * 0.45f;
+
+        smoothedYawDeg = smoothSignedAngle(smoothedYawDeg, relYawDeg, 0.25f);
+        smoothedPitchDeg = smoothedPitchDeg + 0.25f * (rawPitchDeg - smoothedPitchDeg);
+        smoothedRollDeg = smoothedRollDeg + 0.22f * (rawRollDeg - smoothedRollDeg);
+
+        sceneController.updateCameraPose(
+                trackedCamX,
+                trackedCamY,
+                trackedCamZ,
+                smoothedYawDeg,
+                smoothedPitchDeg,
+                smoothedRollDeg
+        );
+        if (arSurfaceView != null) {
+            arSurfaceView.invalidate();
+        }
+    }
+
+    private static float normalizeSignedAngle(float angleDeg) {
+        float a = (angleDeg + 180.0f) % 360.0f;
+        if (a < 0) a += 360.0f;
+        return a - 180.0f;
+    }
+
+    private static float smoothSignedAngle(float current, float target, float alpha) {
+        float diff = normalizeSignedAngle(target - current);
+        return normalizeSignedAngle(current + alpha * diff);
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
     @Override
     protected void loadData() {
@@ -321,23 +510,60 @@ public class ArViewerActivity extends BaseActivity {
             toast("Le modèle .glb est encore en cours de chargement");
             return;
         }
-        int count = sceneController.getInstanceCount();
-        float offsetX = (count == 0) ? 0.0f : ((count % 2 == 1 ? 1 : -1) * 0.32f * ((count + 1) / 2));
-        float offsetZ = (count == 0) ? 0.0f : ((count % 3 - 1) * 0.22f);
-        sceneController.placeInstanceOnSurface(offsetX, 0f, offsetZ);
+
+        // Place le nouvel exemplaire à l'endroit exact du sol physique visé par le réticule 3D de la caméra
+        int w = arSurfaceView != null ? arSurfaceView.getWidth() : 1080;
+        int h = arSurfaceView != null ? arSurfaceView.getHeight() : 1920;
+        float[] target = sceneController.getReticleWorldHit(w, h);
+        float worldX = target[0];
+        float worldZ = target[2];
+
+        // Si un exemplaire est déjà ancré exactement à ce point du sol, décaler légèrement sur le sol réel
+        for (ArPlacedInstance existing : sceneController.getInstances()) {
+            if (Math.hypot(existing.getX() - worldX, existing.getZ() - worldZ) < 0.30f) {
+                int count = sceneController.getInstanceCount();
+                worldX += (count % 2 == 1 ? 1 : -1) * 0.85f;
+                break;
+            }
+        }
+
+        sceneController.placeInstanceOnSurface(worldX, 0.0f, worldZ);
         arSurfaceView.invalidate();
         refreshUiState();
     }
 
     private void duplicateCurrentInstance() {
         try {
-            int count = sceneController.getInstanceCount();
-            float stepX = (count % 2 == 1) ? 0.38f : -0.38f;
-            float stepZ = 0.18f;
-            ArPlacedInstance copy = sceneController.duplicateSelectedInstance(stepX, stepZ);
+            ArPlacedInstance sel = sceneController.getSelectedInstance();
+            if (sel == null) {
+                toast("Placez d'abord un premier exemplaire");
+                return;
+            }
+            int w = arSurfaceView != null ? arSurfaceView.getWidth() : 1080;
+            int h = arSurfaceView != null ? arSurfaceView.getHeight() : 1920;
+            float[] reticleHit = sceneController.getReticleWorldHit(w, h);
+
+            float dxToReticle = reticleHit[0] - sel.getX();
+            float dzToReticle = reticleHit[2] - sel.getZ();
+            float distToReticle = (float) Math.hypot(dxToReticle, dzToReticle);
+
+            float offsetX;
+            float offsetZ;
+            if (distToReticle >= 0.35f) {
+                // Si l'utilisateur a orienté le téléphone vers un nouvel endroit du sol, y ancrer la copie !
+                offsetX = dxToReticle;
+                offsetZ = dzToReticle;
+            } else {
+                // Sinon, poser la copie sur le sol réel juste à côté de l'original
+                int count = sceneController.getInstanceCount();
+                offsetX = (count % 2 == 1) ? 0.90f : -0.90f;
+                offsetZ = -0.15f;
+            }
+
+            ArPlacedInstance copy = sceneController.duplicateSelectedInstance(offsetX, offsetZ);
             arSurfaceView.invalidate();
             refreshUiState();
-            toast("Exemplaire #" + copy.getInstanceNumber() + " dupliqué (ressource .glb partagée)");
+            toast("Exemplaire #" + copy.getInstanceNumber() + " ancré sur la surface");
         } catch (Exception e) {
             toast(e.getMessage());
         }

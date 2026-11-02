@@ -199,19 +199,19 @@ public class Interactive3dModelView extends View {
         float cosP = (float) Math.cos(pitchRad);
         float sinP = (float) Math.sin(pitchRad);
 
-        // 1. Dessiner le plateau circulaire / grille 3D au sol (y = -0.55f)
+        // 1. Dessiner le plateau circulaire / grille 3D au sol (y = -0.35f centré pour l'aperçu fiche produit)
         for (int g = -2; g <= 2; g++) {
             float offset = g * 0.45f;
-            float[] p1 = projectPoint(-0.9f, -0.56f, offset, cosY, sinY, cosP, sinP, cx, cy, baseScale);
-            float[] p2 = projectPoint(0.9f, -0.56f, offset, cosY, sinY, cosP, sinP, cx, cy, baseScale);
+            float[] p1 = projectPoint(-0.9f, -0.35f, offset, cosY, sinY, cosP, sinP, cx, cy, baseScale);
+            float[] p2 = projectPoint(0.9f, -0.35f, offset, cosY, sinY, cosP, sinP, cx, cy, baseScale);
             canvas.drawLine(p1[0], p1[1], p2[0], p2[1], gridPaint);
 
-            float[] p3 = projectPoint(offset, -0.56f, -0.9f, cosY, sinY, cosP, sinP, cx, cy, baseScale);
-            float[] p4 = projectPoint(offset, -0.56f, 0.9f, cosY, sinY, cosP, sinP, cx, cy, baseScale);
+            float[] p3 = projectPoint(offset, -0.35f, -0.9f, cosY, sinY, cosP, sinP, cx, cy, baseScale);
+            float[] p4 = projectPoint(offset, -0.35f, 0.9f, cosY, sinY, cosP, sinP, cx, cy, baseScale);
             canvas.drawLine(p3[0], p3[1], p4[0], p4[1], gridPaint);
         }
 
-        // 2. Projeter les sommets du maillage .glb
+        // 2. Projeter les sommets du maillage .glb (avec socle y=0 recalé sur le plateau y=-0.35f)
         float[][] vertices = modelResource.getVertices();
         int[][] faces = modelResource.getFaces();
         if (vertices == null || faces == null) return;
@@ -219,7 +219,7 @@ public class Interactive3dModelView extends View {
         float[][] projected = new float[vertices.length][3];
         for (int i = 0; i < vertices.length; i++) {
             projected[i] = projectPoint(
-                    vertices[i][0], vertices[i][1], vertices[i][2],
+                    vertices[i][0], vertices[i][1] - 0.35f, vertices[i][2],
                     cosY, sinY, cosP, sinP, cx, cy, baseScale
             );
         }

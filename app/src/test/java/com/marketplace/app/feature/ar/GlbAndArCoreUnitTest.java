@@ -668,4 +668,58 @@ public class GlbAndArCoreUnitTest {
         assertEquals("https://facebook.com/bubble.design.mada", seller.getFacebookUrl());
         assertTrue(seller.hasCustomAvatar());
     }
+
+    // =========================================================================
+    // 21. Ancrage 3D réel sur la surface (World Space) et duplication indépendante de l'écran
+    // =========================================================================
+    @Test
+    public void scenario21_worldSpaceSurfaceAnchoringAndCameraMovementIndependence() {
+        ArSceneController scene = new ArSceneController();
+        GlbModelCache.SharedGlbResource resource = GlbModelCache.getInstance()
+                .loadFromBytes("file:///android_asset/models/base_basic_shaded.glb",
+                        GlbValidator.createMinimalValidGlbBytes());
+        scene.bindSharedGlbResource(resource);
+        scene.onSurfaceDetected("HORIZONTAL");
+
+        int screenW = 1080;
+        int screenH = 1920;
+
+        // 1. Ray-casting d'un point de l'écran sur le plan physique du sol (Y = 0) et re-projection 3D inverse
+        float touchPxX = 540.0f;
+        float touchPxY = 1120.0f;
+        float[] floorHit = scene.screenRayToFloorPlane(touchPxX, touchPxY, screenW, screenH);
+        assertEquals("L'impact doit être posé sur le plan horizontal Y = 0", 0.0f, floorHit[1], 0.0001f);
+
+        float[] reprojected = scene.projectWorldToScreen(floorHit[0], floorHit[1], floorHit[2], screenW, screenH);
+        assertEquals("La re-projection 3D du point du sol doit retomber exactement sur le pixel X touché",
+                touchPxX, reprojected[0], 0.5f);
+        assertEquals("La re-projection 3D du point du sol doit retomber exactement sur le pixel Y touché",
+                touchPxY, reprojected[1], 0.5f);
+
+        // 2. Placement du 1er exemplaire et duplication d'un 2nd exemplaire sur le sol réel
+        ArPlacedInstance inst1 = scene.placeInstanceOnSurface(floorHit[0], 0.0f, floorHit[2]);
+        ArPlacedInstance inst2 = scene.duplicateSelectedInstance(0.90f, -0.15f);
+
+        float[] screen1Before = scene.projectWorldToScreen(inst1.getX(), inst1.getY(), inst1.getZ(), screenW, screenH);
+        float[] screen2Before = scene.projectWorldToScreen(inst2.getX(), inst2.getY(), inst2.getZ(), screenW, screenH);
+        assertTrue("Les deux exemplaires doivent occuper des positions distinctes sur le sol",
+                Math.abs(screen2Before[0] - screen1Before[0]) > 80.0f);
+
+        // 3. Rotation du téléphone vers la droite (+25° de Yaw) et inclinaison vers le bas (-35° de Pitch)
+        scene.updateCameraOrientation(25.0f, -35.0f, 0.0f);
+
+        // Les coordonnées 3D sur le sol réel restent strictement fixes (ancrées dans la pièce)
+        assertEquals(floorHit[0], inst1.getX(), 0.0001f);
+        assertEquals(floorHit[2], inst1.getZ(), 0.0001f);
+        assertEquals(floorHit[0] + 0.90f, inst2.getX(), 0.0001f);
+        assertEquals(floorHit[2] - 0.15f, inst2.getZ(), 0.0001f);
+
+        // La projection à l'écran se décale vers la gauche (et vers le haut) car la caméra a tourné vers la droite
+        float[] screen1After = scene.projectWorldToScreen(inst1.getX(), inst1.getY(), inst1.getZ(), screenW, screenH);
+        float[] screen2After = scene.projectWorldToScreen(inst2.getX(), inst2.getY(), inst2.getZ(), screenW, screenH);
+        assertTrue("Quand le téléphone tourne à droite, l'objet ancré au sol doit se décaler vers la gauche de l'écran",
+                screen1After[0] < screen1Before[0] - 100.0f);
+        assertTrue("Quand le téléphone tourne à droite, la copie ancrée au sol doit aussi se décaler vers la gauche de l'écran",
+                screen2After[0] < screen2Before[0] - 100.0f);
+    }
 }
