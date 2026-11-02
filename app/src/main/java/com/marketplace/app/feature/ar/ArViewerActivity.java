@@ -1,7 +1,16 @@
 package com.marketplace.app.feature.ar;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.SurfaceTexture;
+import android.hardware.camera2.CameraCaptureSession;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraDevice;
+import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CaptureRequest;
+import android.view.Surface;
+import android.view.TextureView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -11,12 +20,11 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.google.ar.core.Config;
-import com.google.ar.core.Session;
 import com.marketplace.app.R;
 import com.marketplace.app.base.BaseActivity;
 import com.marketplace.app.navigation.Router;
 
+import java.util.Collections;
 import java.util.Locale;
 
 /**
@@ -33,6 +41,7 @@ public class ArViewerActivity extends BaseActivity {
 
     private static final int REQ_CAMERA_PERMISSION = 4102;
 
+    private TextureView arCameraPreview;
     private ArInteractiveSurfaceView arSurfaceView;
     private TextView tvProductName;
     private TextView tvPlaneStatus;
@@ -52,7 +61,8 @@ public class ArViewerActivity extends BaseActivity {
     private String modelUrl;
 
     private final ArSceneController sceneController = new ArSceneController();
-    private Session arCoreSession;
+    private CameraDevice cameraDevice;
+    private CameraCaptureSession captureSession;
 
     @Override
     protected int getLayoutId() {
@@ -65,6 +75,7 @@ public class ArViewerActivity extends BaseActivity {
         productName = getIntent().getStringExtra("EXTRA_PRODUCT_NAME");
         modelUrl = getIntent().getStringExtra(Router.EXTRA_MODEL_URL);
 
+        arCameraPreview = findViewById(R.id.ar_camera_preview);
         arSurfaceView = findViewById(R.id.ar_interactive_surface);
         tvProductName = findViewById(R.id.tv_ar_product_name);
         tvPlaneStatus = findViewById(R.id.tv_ar_plane_status);
@@ -165,21 +176,117 @@ public class ArViewerActivity extends BaseActivity {
     }
 
     private void initializeArCoreSurfaceDetection() {
-        try {
-            if (ArLauncher.isArSupported(this)) {
-                arCoreSession = new Session(this);
-                Config config = new Config(arCoreSession);
-                config.setPlaneFindingMode(Config.PlaneFindingMode.HORIZONTAL_AND_VERTICAL);
-                arCoreSession.configure(config);
-            }
-        } catch (Throwable ignored) {
-            // Sur émulateur ou appareil sans caméra physique ARCore active, on active la grille de surface
-        }
-
+        startLiveCameraPreview();
         sceneController.onSurfaceDetected("HORIZONTAL_AND_VERTICAL");
         tvPlaneStatus.setText("✔ Surface plane détectée (Horizontale & Verticale) • Prêt à placer");
         arSurfaceView.invalidate();
         refreshUiState();
+    }
+
+    private void startLiveCameraPreview() {
+        if (arCameraPreview == null) return;
+        if (arCameraPreview.isAvailable()) {
+            openRearCamera(arCameraPreview.getSurfaceTexture());
+        } else {
+            arCameraPreview.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
+                @Override
+                public void onSurfaceTextureAvailable(@NonNull SurfaceTexture surface, int width, int height) {
+                    openRearCamera(surface);
+                }
+
+                @Override
+                public void onSurfaceTextureSizeChanged(@NonNull SurfaceTexture surface, int width, int height) {}
+
+                @Override
+                public boolean onSurfaceTextureDestroyed(@NonNull SurfaceTexture surface) {
+                    closeCameraPreview();
+                    return true;
+                }
+
+                @Override
+                public void onSurfaceTextureUpdated(@NonNull SurfaceTexture surface) {}
+            });
+        }
+    }
+
+    private void openRearCamera(SurfaceTexture surfaceTexture) {
+        if (surfaceTexture == null) return;
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        try {
+            CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+            if (manager == null) return;
+            String targetCameraId = null;
+            for (String camId : manager.getCameraIdList()) {
+                CameraCharacteristics chars = manager.getCameraCharacteristics(camId);
+                Integer facing = chars.get(CameraCharacteristics.LENS_FACING);
+                if (facing != null && facing == CameraCharacteristics.LENS_FACING_BACK) {
+                    targetCameraId = camId;
+                    break;
+                }
+            }
+            if (targetCameraId == null && manager.getCameraIdList().length > 0) {
+                targetCameraId = manager.getCameraIdList()[0];
+            }
+            if (targetCameraId == null) return;
+
+            surfaceTexture.setDefaultBufferSize(1280, 720);
+            final Surface previewSurface = new Surface(surfaceTexture);
+
+            manager.openCamera(targetCameraId, new CameraDevice.StateCallback() {
+                @Override
+                public void onOpened(@NonNull CameraDevice camera) {
+                    cameraDevice = camera;
+                    try {
+                        final CaptureRequest.Builder builder = camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+                        builder.addTarget(previewSurface);
+                        builder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+                        camera.createCaptureSession(Collections.singletonList(previewSurface), new CameraCaptureSession.StateCallback() {
+                            @Override
+                            public void onConfigured(@NonNull CameraCaptureSession session) {
+                                if (cameraDevice == null) return;
+                                captureSession = session;
+                                try {
+                                    session.setRepeatingRequest(builder.build(), null, null);
+                                } catch (Exception ignored) {}
+                            }
+
+                            @Override
+                            public void onConfigureFailed(@NonNull CameraCaptureSession session) {}
+                        }, null);
+                    } catch (Exception ignored) {}
+                }
+
+                @Override
+                public void onDisconnected(@NonNull CameraDevice camera) {
+                    camera.close();
+                    cameraDevice = null;
+                }
+
+                @Override
+                public void onError(@NonNull CameraDevice camera, int error) {
+                    camera.close();
+                    cameraDevice = null;
+                }
+            }, null);
+        } catch (Throwable ignored) {
+        }
+    }
+
+    private void closeCameraPreview() {
+        if (captureSession != null) {
+            try {
+                captureSession.close();
+            } catch (Throwable ignored) {}
+            captureSession = null;
+        }
+        if (cameraDevice != null) {
+            try {
+                cameraDevice.close();
+            } catch (Throwable ignored) {}
+            cameraDevice = null;
+        }
     }
 
     private void loadSharedGlbModel() {
@@ -277,13 +384,7 @@ public class ArViewerActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        if (arCoreSession != null) {
-            try {
-                arCoreSession.close();
-            } catch (Throwable ignored) {
-            }
-            arCoreSession = null;
-        }
+        closeCameraPreview();
         sceneController.release();
         super.onDestroy();
     }

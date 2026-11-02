@@ -59,12 +59,35 @@ public final class ArLauncher {
             return testArSupportOverride;
         }
         if (context == null) return false;
+
+        // 1. Vérifier si Google Play Services for AR (com.google.ar.core) est installé sur l'appareil
+        try {
+            PackageManager pm = context.getPackageManager();
+            if (pm != null) {
+                pm.getPackageInfo("com.google.ar.core", 0);
+                return true;
+            }
+        } catch (Throwable ignored) {
+        }
+
+        // 2. Vérifier via l'API officielle ArCoreApk (y compris l'état transitoire UNKNOWN_CHECKING au 1er appel)
         try {
             ArCoreApk.Availability availability = ArCoreApk.getInstance().checkAvailability(context);
-            return availability != null && availability.isSupported();
-        } catch (Throwable e) {
-            return false;
+            if (availability != null && (availability.isSupported() || availability.isTransient())) {
+                return true;
+            }
+        } catch (Throwable ignored) {
         }
+
+        // 3. Fallback caméra physique disponible sur le téléphone
+        try {
+            PackageManager pm = context.getPackageManager();
+            if (pm != null && pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
+                return true;
+            }
+        } catch (Throwable ignored) {
+        }
+        return false;
     }
 
     public static boolean hasCameraPermission(Context context) {

@@ -5,8 +5,13 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CAMERA" />
 
-    <!-- Déclaration facultative ARCore -->
+    <!-- Déclaration facultative ARCore et visibilité du package Google Play Services for AR (Android 11+) -->
     <uses-feature android:name="android.hardware.camera.ar" android:required="false" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
+    <queries>
+        <package android:name="com.google.ar.core" />
+    </queries>
 
     <application
         android:name=".MarketplaceApp"
@@ -16,6 +21,11 @@
         android:roundIcon="@android:drawable/sym_def_app_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.Marketplace">
+
+        <!-- Métadonnée officielle obligatoire pour initialiser ARCore (Google Play Services for AR) -->
+        <meta-data
+            android:name="com.google.ar.core"
+            android:value="optional" />
 
         <activity
             android:name=".MainActivity"

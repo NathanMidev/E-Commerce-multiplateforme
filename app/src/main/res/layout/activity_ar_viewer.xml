@@ -5,6 +5,12 @@
     android:layout_height="match_parent"
     android:background="#121212">
 
+    <!-- 0. Flux caméra temps réel en arrière-plan pour la Réalité Augmentée -->
+    <TextureView
+        android:id="@+id/ar_camera_preview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <!-- 1. Surface interactive ARCore (Grille de surface + Instances 3D indépendantes) -->
     <com.marketplace.app.feature.ar.ArInteractiveSurfaceView
         android:id="@+id/ar_interactive_surface"
