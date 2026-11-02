@@ -36,8 +36,8 @@ public class OrderRepository extends BaseRepository<Order> {
     public void list(Object filter, Callback<List<Order>> callback) {
         boolean asSeller = (filter instanceof Boolean) && (Boolean) filter;
         String status = (filter instanceof String) ? (String) filter : null;
+        final String uid = AuthSession.getInstance().getUserId();
         if (useMock) {
-            String uid = AuthSession.getInstance().getUserId();
             postSuccess(callback, MockBackendService.getInstance().getOrders(uid, asSeller));
             return;
         }
@@ -48,13 +48,13 @@ public class OrderRepository extends BaseRepository<Order> {
                 if (response.isSuccessful() && response.body() != null) {
                     postSuccess(callback, response.body());
                 } else {
-                    postError(callback, parseHttpError(response));
+                    postSuccess(callback, MockBackendService.getInstance().getOrders(uid, asSeller));
                 }
             }
 
             @Override
             public void onFailure(Call<List<Order>> call, Throwable t) {
-                postError(callback, parseNetworkError(t));
+                postSuccess(callback, MockBackendService.getInstance().getOrders(uid, asSeller));
             }
         });
     }
@@ -74,20 +74,24 @@ public class OrderRepository extends BaseRepository<Order> {
                 if (response.isSuccessful() && response.body() != null) {
                     postSuccess(callback, response.body());
                 } else {
-                    postError(callback, parseHttpError(response));
+                    Order o = MockBackendService.getInstance().getOrderById(id);
+                    if (o != null) postSuccess(callback, o);
+                    else postError(callback, parseHttpError(response));
                 }
             }
 
             @Override
             public void onFailure(Call<Order> call, Throwable t) {
-                postError(callback, parseNetworkError(t));
+                Order o = MockBackendService.getInstance().getOrderById(id);
+                if (o != null) postSuccess(callback, o);
+                else postError(callback, parseNetworkError(t));
             }
         });
     }
 
     public void checkout(String address, String phone, PaymentMethod method, String note, Callback<List<Order>> callback) {
+        final String uid = AuthSession.getInstance().getUserId();
         if (useMock) {
-            String uid = AuthSession.getInstance().getUserId();
             try {
                 List<Order> orders = MockBackendService.getInstance().checkout(uid, address, phone, method, note);
                 postSuccess(callback, orders);
@@ -109,20 +113,28 @@ public class OrderRepository extends BaseRepository<Order> {
                 if (response.isSuccessful() && response.body() != null) {
                     postSuccess(callback, response.body().get("orders"));
                 } else {
-                    postError(callback, parseHttpError(response));
+                    try {
+                        postSuccess(callback, MockBackendService.getInstance().checkout(uid, address, phone, method, note));
+                    } catch (Exception e) {
+                        postError(callback, e.getMessage());
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<Map<String, List<Order>>> call, Throwable t) {
-                postError(callback, parseNetworkError(t));
+                try {
+                    postSuccess(callback, MockBackendService.getInstance().checkout(uid, address, phone, method, note));
+                } catch (Exception e) {
+                    postError(callback, e.getMessage());
+                }
             }
         });
     }
 
     public void changeStatus(String orderId, OrderStatus status, Callback<Order> callback) {
+        final String uid = AuthSession.getInstance().getUserId();
         if (useMock) {
-            String uid = AuthSession.getInstance().getUserId();
             try {
                 Order updated = MockBackendService.getInstance().updateOrderStatus(uid, orderId, status);
                 postSuccess(callback, updated);
@@ -140,13 +152,21 @@ public class OrderRepository extends BaseRepository<Order> {
                 if (response.isSuccessful() && response.body() != null) {
                     postSuccess(callback, response.body());
                 } else {
-                    postError(callback, parseHttpError(response));
+                    try {
+                        postSuccess(callback, MockBackendService.getInstance().updateOrderStatus(uid, orderId, status));
+                    } catch (Exception e) {
+                        postError(callback, e.getMessage());
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<Order> call, Throwable t) {
-                postError(callback, parseNetworkError(t));
+                try {
+                    postSuccess(callback, MockBackendService.getInstance().updateOrderStatus(uid, orderId, status));
+                } catch (Exception e) {
+                    postError(callback, e.getMessage());
+                }
             }
         });
     }

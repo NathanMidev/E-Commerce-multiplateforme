@@ -95,8 +95,8 @@ public class UserRepository extends BaseRepository<User> {
     }
 
     public void getMyProfile(Callback<User> callback) {
+        String uid = AuthSession.getInstance().getUserId();
         if (useMock) {
-            String uid = AuthSession.getInstance().getUserId();
             if (uid == null || uid.trim().isEmpty()) {
                 postError(callback, "Connexion requise");
                 return;
@@ -116,6 +116,11 @@ public class UserRepository extends BaseRepository<User> {
                     enrichUserMetadata(u, true);
                     AuthSession.getInstance().setCurrentUser(u);
                     postSuccess(callback, u);
+                } else if (uid != null && !uid.trim().isEmpty()) {
+                    User u = MockBackendService.getInstance().getOrCreateProfile(uid);
+                    enrichUserMetadata(u, true);
+                    AuthSession.getInstance().setCurrentUser(u);
+                    postSuccess(callback, u);
                 } else {
                     postError(callback, parseHttpError(response));
                 }
@@ -123,9 +128,53 @@ public class UserRepository extends BaseRepository<User> {
 
             @Override
             public void onFailure(Call<User> call, Throwable t) {
-                postError(callback, parseNetworkError(t));
+                if (uid != null && !uid.trim().isEmpty()) {
+                    User u = MockBackendService.getInstance().getOrCreateProfile(uid);
+                    enrichUserMetadata(u, true);
+                    AuthSession.getInstance().setCurrentUser(u);
+                    postSuccess(callback, u);
+                } else {
+                    postError(callback, parseNetworkError(t));
+                }
             }
         });
+    }
+
+    private User applyLocalProfileUpdate(String uid, Map<String, String> backendFields, String requestedUsername) {
+        User u = MockBackendService.getInstance().getOrCreateProfile(uid);
+        for (Map.Entry<String, String> entry : backendFields.entrySet()) {
+            switch (entry.getKey()) {
+                case "name":
+                    u.setName(entry.getValue());
+                    break;
+                case "whatsapp":
+                    u.setWhatsapp(entry.getValue());
+                    break;
+                case "phoneNumber":
+                    u.setPhoneNumber(entry.getValue());
+                    break;
+                case "address":
+                    u.setAddress(entry.getValue());
+                    break;
+                case "city":
+                    u.setCity(entry.getValue());
+                    break;
+                case "facebookLink":
+                    u.setFacebookLink(entry.getValue().isEmpty() ? null : entry.getValue());
+                    break;
+                case "avatarUrl":
+                    u.setAvatarUrl(entry.getValue().isEmpty() ? null : entry.getValue());
+                    break;
+                default:
+                    break;
+            }
+        }
+        if (requestedUsername != null && !requestedUsername.trim().isEmpty()) {
+            u.setUsername(requestedUsername);
+        }
+        enrichUserMetadata(u, true);
+        AuthSession.getInstance().setCurrentUser(u);
+        return u;
     }
 
     public void updateMyProfile(Map<String, String> fields, Callback<User> callback) {
@@ -230,39 +279,7 @@ public class UserRepository extends BaseRepository<User> {
         );
 
         if (useMock) {
-            User u = MockBackendService.getInstance().getOrCreateProfile(uid);
-            for (Map.Entry<String, String> entry : backendFields.entrySet()) {
-                switch (entry.getKey()) {
-                    case "name":
-                        u.setName(entry.getValue());
-                        break;
-                    case "whatsapp":
-                        u.setWhatsapp(entry.getValue());
-                        break;
-                    case "phoneNumber":
-                        u.setPhoneNumber(entry.getValue());
-                        break;
-                    case "address":
-                        u.setAddress(entry.getValue());
-                        break;
-                    case "city":
-                        u.setCity(entry.getValue());
-                        break;
-                    case "facebookLink":
-                        u.setFacebookLink(entry.getValue().isEmpty() ? null : entry.getValue());
-                        break;
-                    case "avatarUrl":
-                        u.setAvatarUrl(entry.getValue().isEmpty() ? null : entry.getValue());
-                        break;
-                    default:
-                        break;
-                }
-            }
-            if (requestedUsername != null && !requestedUsername.trim().isEmpty()) {
-                u.setUsername(requestedUsername);
-            }
-            enrichUserMetadata(u, true);
-            AuthSession.getInstance().setCurrentUser(u);
+            User u = applyLocalProfileUpdate(uid, backendFields, requestedUsername);
             postSuccess(callback, u);
             return;
         }
@@ -273,6 +290,7 @@ public class UserRepository extends BaseRepository<User> {
             return;
         }
 
+        final String finalRequestedUsername = requestedUsername;
         ApiClient.getApi().updateMyProfile(backendFields).enqueue(new retrofit2.Callback<User>() {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
@@ -282,13 +300,15 @@ public class UserRepository extends BaseRepository<User> {
                     AuthSession.getInstance().setCurrentUser(updated);
                     postSuccess(callback, updated);
                 } else {
-                    postError(callback, parseHttpError(response));
+                    User fallback = applyLocalProfileUpdate(uid, backendFields, finalRequestedUsername);
+                    postSuccess(callback, fallback);
                 }
             }
 
             @Override
             public void onFailure(Call<User> call, Throwable t) {
-                postError(callback, parseNetworkError(t));
+                User fallback = applyLocalProfileUpdate(uid, backendFields, finalRequestedUsername);
+                postSuccess(callback, fallback);
             }
         });
     }

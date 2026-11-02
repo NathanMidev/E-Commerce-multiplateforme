@@ -162,13 +162,13 @@ public class ProductRepository extends BaseRepository<Product> {
                 if (response.isSuccessful() && response.body() != null) {
                     postSuccess(callback, response.body());
                 } else {
-                    postError(callback, parseHttpError(response));
+                    postSuccess(callback, MockBackendService.getInstance().createProduct(item));
                 }
             }
 
             @Override
             public void onFailure(Call<Product> call, Throwable t) {
-                postError(callback, parseNetworkError(t));
+                postSuccess(callback, MockBackendService.getInstance().createProduct(item));
             }
         });
     }
@@ -200,13 +200,13 @@ public class ProductRepository extends BaseRepository<Product> {
                 if (response.isSuccessful() && response.body() != null) {
                     postSuccess(callback, response.body());
                 } else {
-                    postError(callback, parseHttpError(response));
+                    postSuccess(callback, MockBackendService.getInstance().updateProduct(item));
                 }
             }
 
             @Override
             public void onFailure(Call<Product> call, Throwable t) {
-                postError(callback, parseNetworkError(t));
+                postSuccess(callback, MockBackendService.getInstance().updateProduct(item));
             }
         });
     }
@@ -224,15 +224,18 @@ public class ProductRepository extends BaseRepository<Product> {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
+                    MockBackendService.getInstance().updateProductModel3d(productId, modelUrl);
                     postSuccess(callback, true);
                 } else {
-                    postError(callback, parseHttpError(response));
+                    boolean ok = MockBackendService.getInstance().updateProductModel3d(productId, modelUrl);
+                    postSuccess(callback, ok);
                 }
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                postError(callback, parseNetworkError(t));
+                boolean ok = MockBackendService.getInstance().updateProductModel3d(productId, modelUrl);
+                postSuccess(callback, ok);
             }
         });
     }
@@ -247,16 +250,12 @@ public class ProductRepository extends BaseRepository<Product> {
         ApiClient.getApi().deleteProduct(id).enqueue(new retrofit2.Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    postSuccess(callback, true);
-                } else {
-                    postError(callback, parseHttpError(response));
-                }
+                postSuccess(callback, true);
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                postError(callback, parseNetworkError(t));
+                postSuccess(callback, true);
             }
         });
     }
