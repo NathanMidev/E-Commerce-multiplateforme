@@ -34,6 +34,56 @@ public class ArSceneController {
     private float cameraPitchDegrees = DEFAULT_CAMERA_PITCH_DEGREES;
     private float cameraRollDegrees = 0.0f;
 
+    // Matrices 4x4 natives ARCore (Camera.getViewMatrix & Camera.getProjectionMatrix)
+    private final float[] arCoreViewProjectionMatrix = new float[16];
+    private boolean hasNativeArCoreMatrices = false;
+
+    // Polygones 3D réels des surfaces détectées par ARCore (Session.getAllTrackables(Plane.class))
+    private volatile List<float[][]> trackedPlanePolygons = Collections.emptyList();
+
+    // Impact temps réel du réticule central issu de Frame.hitTest(cx, cy) d'ARCore
+    private volatile boolean hasNativeReticleHit = false;
+    private final float[] nativeReticleHitPos = new float[]{0.0f, 0.0f, -2.0f};
+
+    /**
+     * Injecte la matrice View-Projection 4x4 native calculée par ARCore (Camera.getProjectionMatrix * Camera.getViewMatrix)
+     * ainsi que la position 3D exacte de la caméra ARCore (Camera.getPose()).
+     */
+    public synchronized void setNativeArCoreViewProjection(float[] viewProjMatrix, float camX, float camY, float camZ) {
+        if (viewProjMatrix != null && viewProjMatrix.length >= 16) {
+            System.arraycopy(viewProjMatrix, 0, this.arCoreViewProjectionMatrix, 0, 16);
+            this.hasNativeArCoreMatrices = true;
+            this.cameraX = camX;
+            this.cameraY = camY;
+            this.cameraZ = camZ;
+        }
+    }
+
+    public boolean hasNativeArCoreMatrices() {
+        return hasNativeArCoreMatrices;
+    }
+
+    public void setTrackedPlanePolygons(List<float[][]> polygons) {
+        this.trackedPlanePolygons = polygons != null ? polygons : Collections.emptyList();
+    }
+
+    public List<float[][]> getTrackedPlanePolygons() {
+        return trackedPlanePolygons;
+    }
+
+    public void setNativeReticleHit(boolean hasHit, float wx, float wy, float wz) {
+        this.hasNativeReticleHit = hasHit;
+        if (hasHit) {
+            this.nativeReticleHitPos[0] = wx;
+            this.nativeReticleHitPos[1] = wy;
+            this.nativeReticleHitPos[2] = wz;
+        }
+    }
+
+    public boolean hasNativeReticleHit() {
+        return hasNativeReticleHit;
+    }
+
     /**
      * Met à jour l'orientation 3D de la caméra (Yaw / Pitch / Roll en degrés) à partir des capteurs ou d'ARCore.
      * Les objets déjà placés conservent leurs coordonnées (X, Y, Z) dans le monde réel et ne suivent pas l'écran.
@@ -78,9 +128,26 @@ public class ArSceneController {
      *
      * @return tableau float[]{screenX, screenY, depthMeters} où depthMeters > 0.12f indique que le point est devant la caméra.
      */
-    public float[] projectWorldToScreen(float worldX, float worldY, float worldZ, int screenWidth, int screenHeight) {
+    public synchronized float[] projectWorldToScreen(float worldX, float worldY, float worldZ, int screenWidth, int screenHeight) {
         if (screenWidth <= 0 || screenHeight <= 0) {
             return new float[]{0f, 0f, -1f};
+        }
+
+        // Si la Session native ARCore est active, utiliser directement sa matrice 4x4 (Projection * View)
+        if (hasNativeArCoreMatrices) {
+            float[] vp = arCoreViewProjectionMatrix;
+            float clipX = vp[0] * worldX + vp[4] * worldY + vp[8] * worldZ + vp[12];
+            float clipY = vp[1] * worldX + vp[5] * worldY + vp[9] * worldZ + vp[13];
+            float clipW = vp[3] * worldX + vp[7] * worldY + vp[11] * worldZ + vp[15];
+
+            if (clipW <= 0.10f) {
+                return new float[]{-10000f, -10000f, clipW};
+            }
+            float ndcX = clipX / clipW;
+            float ndcY = clipY / clipW;
+            float screenX = (ndcX + 1.0f) * 0.5f * screenWidth;
+            float screenY = (1.0f - ndcY) * 0.5f * screenHeight;
+            return new float[]{screenX, screenY, clipW};
         }
 
         // 1. Translation Monde -> Caméra
@@ -175,6 +242,9 @@ public class ArSceneController {
      * Retourne les coordonnées 3D (worldX, 0, worldZ) sur le sol physique visées par le réticule central de la caméra.
      */
     public float[] getReticleWorldHit(int screenWidth, int screenHeight) {
+        if (hasNativeReticleHit) {
+            return new float[]{nativeReticleHitPos[0], nativeReticleHitPos[1], nativeReticleHitPos[2]};
+        }
         int w = screenWidth > 0 ? screenWidth : 1080;
         int h = screenHeight > 0 ? screenHeight : 1920;
         return screenRayToFloorPlane(w * 0.5f, h * 0.54f, w, h);
@@ -275,6 +345,44 @@ public class ArSceneController {
                 source.getRotationDegrees(),
                 source.getScaleFactor()
         );
+        instances.add(copy);
+        selectedInstance = copy;
+        return copy;
+    }
+
+    /**
+     * Duplique l'instance sélectionnée vers une Pose 3D exacte et lui attache une Anchor matérielle ARCore.
+     */
+    public synchronized ArPlacedInstance duplicateSelectedInstanceTo(
+            float targetX, float targetY, float targetZ, com.google.ar.core.Anchor anchor) {
+        if (!surfaceDetected) {
+            throw new IllegalStateException("Aucune surface détectée pour placer la copie.");
+        }
+        if (sharedResource == null) {
+            throw new IllegalStateException("Modèle .glb non chargé.");
+        }
+        ArPlacedInstance source = selectedInstance != null
+                ? selectedInstance
+                : (!instances.isEmpty() ? instances.get(instances.size() - 1) : null);
+        if (source == null) {
+            throw new IllegalStateException("Veuillez d'abord placer un premier exemplaire avant de le dupliquer.");
+        }
+
+        sequence++;
+        ArPlacedInstance copy = new ArPlacedInstance(
+                "inst_" + sequence,
+                sequence,
+                source.getSharedResource(),
+                source.getPlaneType(),
+                targetX,
+                targetY,
+                targetZ,
+                source.getRotationDegrees(),
+                source.getScaleFactor()
+        );
+        if (anchor != null) {
+            copy.setArCoreAnchor(anchor);
+        }
         instances.add(copy);
         selectedInstance = copy;
         return copy;

@@ -5,9 +5,9 @@
     android:layout_height="match_parent"
     android:background="#121212">
 
-    <!-- 0. Flux caméra temps réel en arrière-plan pour la Réalité Augmentée -->
-    <TextureView
-        android:id="@+id/ar_camera_preview"
+    <!-- 0. GLSurfaceView OpenGL ES 2.0 officiel pour le flux caméra et la Session native ARCore -->
+    <android.opengl.GLSurfaceView
+        android:id="@+id/ar_gl_surface_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

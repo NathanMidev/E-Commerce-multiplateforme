@@ -31,10 +31,21 @@ public class ArInteractiveSurfaceView extends View {
         void onSceneStateChanged();
     }
 
+    /**
+     * Listener permettant de déléguer les touchers et glissements au thread OpenGL ARCore
+     * afin d'exécuter Frame.hitTest(screenX, screenY) et HitResult.createAnchor() natifs.
+     */
+    public interface OnNativeArHitTestListener {
+        void onTapSurface(float screenX, float screenY);
+        void onDragSelectedInstance(float screenX, float screenY);
+    }
+
     private ArSceneController sceneController;
     private OnSceneInteractionListener interactionListener;
+    private OnNativeArHitTestListener nativeHitTestListener;
 
     private final Paint planeGridPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint planeFillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint reticlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint selectionRingPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint shadowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -56,10 +67,13 @@ public class ArInteractiveSurfaceView extends View {
     public ArInteractiveSurfaceView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
 
-        planeGridPaint.setColor(Color.parseColor("#5500E676"));
+        planeGridPaint.setColor(Color.parseColor("#AA00E676"));
         planeGridPaint.setStyle(Paint.Style.STROKE);
-        planeGridPaint.setStrokeWidth(2f);
+        planeGridPaint.setStrokeWidth(2.5f);
         planeGridPaint.setPathEffect(new DashPathEffect(new float[]{14f, 10f}, 0f));
+
+        planeFillPaint.setColor(Color.parseColor("#2400E676"));
+        planeFillPaint.setStyle(Paint.Style.FILL);
 
         reticlePaint.setColor(Color.parseColor("#00E676"));
         reticlePaint.setStyle(Paint.Style.STROKE);
@@ -120,6 +134,10 @@ public class ArInteractiveSurfaceView extends View {
         this.interactionListener = listener;
     }
 
+    public void setOnNativeArHitTestListener(OnNativeArHitTestListener listener) {
+        this.nativeHitTestListener = listener;
+    }
+
     private void notifySceneChanged() {
         if (interactionListener != null) {
             interactionListener.onSceneStateChanged();
@@ -137,10 +155,6 @@ public class ArInteractiveSurfaceView extends View {
         int h = getHeight();
         if (w <= 0 || h <= 0) return true;
 
-        float[] floorHit = sceneController.screenRayToFloorPlane(event.getX(), event.getY(), w, h);
-        float touchWorldX = floorHit[0];
-        float touchWorldZ = floorHit[2];
-
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 ArPlacedInstance hit = findHitInstance(event.getX(), event.getY(), w, h);
@@ -150,11 +164,16 @@ public class ArInteractiveSurfaceView extends View {
                     notifySceneChanged();
                     invalidate();
                 } else if (sceneController.getInstanceCount() == 0 && sceneController.getSharedResource() != null) {
-                    // Premier toucher sur la surface détectée : ancre directement le 1er exemplaire à ce point 3D du sol
-                    sceneController.placeInstanceOnSurface(touchWorldX, 0f, touchWorldZ);
-                    draggingSelectedInstance = true;
-                    notifySceneChanged();
-                    invalidate();
+                    if (nativeHitTestListener != null && sceneController.hasNativeArCoreMatrices()) {
+                        nativeHitTestListener.onTapSurface(event.getX(), event.getY());
+                        draggingSelectedInstance = true;
+                    } else {
+                        float[] floorHit = sceneController.screenRayToFloorPlane(event.getX(), event.getY(), w, h);
+                        sceneController.placeInstanceOnSurface(floorHit[0], floorHit[1], floorHit[2]);
+                        draggingSelectedInstance = true;
+                        notifySceneChanged();
+                        invalidate();
+                    }
                 } else {
                     draggingSelectedInstance = false;
                 }
@@ -163,10 +182,14 @@ public class ArInteractiveSurfaceView extends View {
             case MotionEvent.ACTION_MOVE:
                 if (!isScaling && event.getPointerCount() == 1 && draggingSelectedInstance
                         && sceneController.getSelectedInstance() != null) {
-                    // Met uniquement à jour l'ancre 3D de l'exemplaire sélectionné sur le plan du sol (Y = 0)
-                    sceneController.moveSelectedInstanceTo(touchWorldX, 0f, touchWorldZ);
-                    notifySceneChanged();
-                    invalidate();
+                    if (nativeHitTestListener != null && sceneController.hasNativeArCoreMatrices()) {
+                        nativeHitTestListener.onDragSelectedInstance(event.getX(), event.getY());
+                    } else {
+                        float[] floorHit = sceneController.screenRayToFloorPlane(event.getX(), event.getY(), w, h);
+                        sceneController.moveSelectedInstanceTo(floorHit[0], floorHit[1], floorHit[2]);
+                        notifySceneChanged();
+                        invalidate();
+                    }
                 }
                 return true;
 
@@ -251,7 +274,33 @@ public class ArInteractiveSurfaceView extends View {
     }
 
     private void drawWorldFloorGrid(Canvas canvas, int w, int h) {
-        // Grille fixe dans le monde réel : X de -2.4m à +2.4m, Z de -0.9m à -4.5m sur le plan Y = 0
+        List<float[][]> arPolygons = sceneController.getTrackedPlanePolygons();
+        if (arPolygons != null && !arPolygons.isEmpty()) {
+            // Rendu des vrais polygones de surfaces détectées par ARCore (Plane.getPolygon())
+            for (float[][] poly : arPolygons) {
+                if (poly == null || poly.length < 3) continue;
+                ringPath.reset();
+                boolean started = false;
+                for (float[] pt : poly) {
+                    float[] proj = sceneController.projectWorldToScreen(pt[0], pt[1], pt[2], w, h);
+                    if (proj[2] <= 0.12f) continue;
+                    if (!started) {
+                        ringPath.moveTo(proj[0], proj[1]);
+                        started = true;
+                    } else {
+                        ringPath.lineTo(proj[0], proj[1]);
+                    }
+                }
+                if (started) {
+                    ringPath.close();
+                    canvas.drawPath(ringPath, planeFillPaint);
+                    canvas.drawPath(ringPath, planeGridPaint);
+                }
+            }
+            return;
+        }
+
+        // Fallback grille en l'absence de polygones ARCore natifs
         float minX = -2.4f;
         float maxX = 2.4f;
         float minZ = -4.5f;
@@ -290,14 +339,14 @@ public class ArInteractiveSurfaceView extends View {
 
     private void drawWorldFloorReticle(Canvas canvas, int w, int h) {
         float[] hit = sceneController.getReticleWorldHit(w, h);
-        drawFloorCircle3D(canvas, hit[0], hit[2], 0.22f, reticlePaint, false, w, h);
-        float[] centerProj = sceneController.projectWorldToScreen(hit[0], 0.0f, hit[2], w, h);
+        drawFloorCircle3D(canvas, hit[0], hit[1], hit[2], 0.22f, reticlePaint, false, w, h);
+        float[] centerProj = sceneController.projectWorldToScreen(hit[0], hit[1], hit[2], w, h);
         if (centerProj[2] > 0.15f) {
             canvas.drawCircle(centerProj[0], centerProj[1], 5.5f, reticlePaint);
         }
     }
 
-    private void drawFloorCircle3D(Canvas canvas, float centerX, float centerZ, float radiusMeters,
+    private void drawFloorCircle3D(Canvas canvas, float centerX, float centerY, float centerZ, float radiusMeters,
                                    Paint paint, boolean fill, int w, int h) {
         ringPath.reset();
         int segments = 20;
@@ -306,7 +355,7 @@ public class ArInteractiveSurfaceView extends View {
             double ang = (2.0 * Math.PI * i) / segments;
             float wx = centerX + (float) Math.cos(ang) * radiusMeters;
             float wz = centerZ + (float) Math.sin(ang) * radiusMeters;
-            float[] p = sceneController.projectWorldToScreen(wx, 0.0f, wz, w, h);
+            float[] p = sceneController.projectWorldToScreen(wx, centerY, wz, w, h);
             if (p[2] <= 0.15f) return;
             if (!started) {
                 ringPath.moveTo(p[0], p[1]);
@@ -352,11 +401,11 @@ public class ArInteractiveSurfaceView extends View {
         // Facteur d'échelle en mètres dans l'espace réel (0.65m de demi-largeur = canapé de ~1.3m à l'échelle 1.0x)
         float worldScale = 0.65f * inst.getScaleFactor();
 
-        // Ombre portée au sol + anneau de sélection 3D posé à plat sur le sol (Y = 0)
+        // Ombre portée au sol + anneau de sélection 3D posé à plat sur la surface ARCore détectée (anchorY)
         if (isSelected) {
-            drawFloorCircle3D(canvas, anchorX, anchorZ, worldScale * 1.08f, selectionRingPaint, true, w, h);
+            drawFloorCircle3D(canvas, anchorX, anchorY, anchorZ, worldScale * 1.08f, selectionRingPaint, true, w, h);
         } else {
-            drawFloorCircle3D(canvas, anchorX, anchorZ, worldScale * 0.92f, shadowPaint, true, w, h);
+            drawFloorCircle3D(canvas, anchorX, anchorY, anchorZ, worldScale * 0.92f, shadowPaint, true, w, h);
         }
 
         GlbModelCache.SharedGlbResource res = inst.getSharedResource();
