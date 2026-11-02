@@ -56,7 +56,7 @@ public final class ApiClient {
                             try {
                                 String token = session.getIdToken();
                                 if (token == null || token.trim().isEmpty()) {
-                                    token = FirebaseAuthSession.fetchFreshToken();
+                                    token = FirebaseAuthSession.fetchFreshToken(false);
                                 }
                                 if (token != null && !token.trim().isEmpty()) {
                                     request = request.newBuilder()
@@ -66,7 +66,24 @@ public final class ApiClient {
                             } catch (Exception ignored) {
                             }
                         }
-                        return chain.proceed(request);
+                        Response response = chain.proceed(request);
+                        // En cas d'expiration du jeton ID Firebase (401), forcer son renouvellement une seule fois
+                        if (response.code() == 401 && session != null && session.isLoggedIn()
+                                && request.header("X-Token-Retried") == null) {
+                            try {
+                                String refreshed = FirebaseAuthSession.fetchFreshToken(true);
+                                if (refreshed != null && !refreshed.trim().isEmpty()) {
+                                    response.close();
+                                    Request retryReq = request.newBuilder()
+                                            .header("Authorization", "Bearer " + refreshed)
+                                            .header("X-Token-Retried", "1")
+                                            .build();
+                                    return chain.proceed(retryReq);
+                                }
+                            } catch (Exception ignored) {
+                            }
+                        }
+                        return response;
                     }
                 })
                 .build();

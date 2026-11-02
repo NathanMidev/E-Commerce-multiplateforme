@@ -11,7 +11,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Carte Profil Utilisateur style Deal.mg -->
+        <!-- 1. En-tête & Photo de profil Utilisateur -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -24,56 +24,134 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 android:padding="16dp">
 
-                <TextView
-                    android:id="@+id/tv_profile_avatar"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:background="#FFF0E6"
-                    android:gravity="center"
-                    android:text="👤"
-                    android:textSize="30sp" />
-
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="14dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                    <TextView
-                        android:id="@+id/tv_profile_name"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Mon Compte"
-                        android:textColor="@color/text_primary"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="72dp"
+                        android:layout_height="72dp"
+                        app:cardCornerRadius="36dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/primary"
+                        app:strokeWidth="2dp">
 
-                    <TextView
-                        android:id="@+id/tv_profile_email"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="Utilisateur Connecté"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="13sp" />
+                        <ImageView
+                            android:id="@+id/iv_profile_avatar"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:contentDescription="Photo de profil"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/ic_default_avatar" />
+                    </com.google.android.material.card.MaterialCardView>
 
-                    <TextView
-                        android:id="@+id/tv_profile_role_badge"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:background="#E8F5E9"
-                        android:paddingHorizontal="8dp"
-                        android:paddingVertical="2dp"
-                        android:text="MEMBRE VÉRIFIÉ"
-                        android:textColor="#2E7D32"
-                        android:textSize="10sp"
-                        android:textStyle="bold" />
+                        android:layout_marginStart="14dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tv_profile_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Mon Compte"
+                            android:textColor="@color/text_primary"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_profile_username"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="@utilisateur"
+                            android:textColor="@color/primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_profile_email"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Utilisateur Connecté"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/tv_profile_role_badge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:background="#E8F5E9"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="2dp"
+                            android:text="MEMBRE VÉRIFIÉ"
+                            android:textColor="#2E7D32"
+                            android:textSize="10sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Indication d'aperçu photo avant validation -->
+                <TextView
+                    android:id="@+id/tv_avatar_preview_badge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="#FFF5ED"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="4dp"
+                    android:text="✨ Aperçu de la nouvelle photo (cliquez sur Enregistrer pour envoyer vers Firebase)"
+                    android:textColor="@color/primary"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+                <ProgressBar
+                    android:id="@+id/progress_avatar_upload"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="6dp"
+                    android:layout_marginTop="8dp"
+                    android:max="100"
+                    android:progress="0"
+                    android:visibility="gone" />
+
+                <!-- Actions Photo de profil (Choisir/Remplacer & Supprimer) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btn_select_avatar"
+                        style="@style/Widget.Marketplace.Button.Outlined"
+                        android:layout_width="0dp"
+                        android:layout_height="38dp"
+                        android:layout_weight="1"
+                        android:text="📷 Choisir / Remplacer la photo"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/btn_remove_avatar"
+                        style="@style/Widget.Marketplace.Button.Outlined"
+                        android:layout_width="wrap_content"
+                        android:layout_height="38dp"
+                        android:layout_marginStart="8dp"
+                        android:paddingHorizontal="12dp"
+                        android:text="🗑️ Supprimer"
+                        android:textColor="@color/status_red"
+                        android:textSize="11sp"
+                        android:visibility="gone" />
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -152,7 +230,7 @@
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
 
-        <!-- Formulaire Coordonnées et Contact Madagascar -->
+        <!-- 2. Formulaire Complet d'Identité et Coordonnées -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -171,7 +249,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Coordonnées de contact (Madagascar)"
+                    android:text="Complétion du profil &amp; coordonnées"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -180,54 +258,163 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:layout_marginBottom="12dp"
-                    android:text="Requis pour recevoir des commandes et être contacté par WhatsApp."
+                    android:layout_marginBottom="14dp"
+                    android:text="Votre nom d'utilisateur et votre numéro WhatsApp unique sont utilisés pour vos annonces, appels et discussions."
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
 
-                <!-- WhatsApp -->
+                <!-- Nom complet / Nom d'affichage (displayName) -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Numéro WhatsApp (recommandé) *"
+                    android:text="Nom complet / Nom de la boutique *"
                     android:textColor="@color/text_primary"
                     android:textSize="13sp"
                     android:textStyle="bold" />
 
                 <EditText
-                    android:id="@+id/et_whatsapp"
+                    android:id="@+id/et_display_name"
                     android:layout_width="match_parent"
                     android:layout_height="46dp"
                     android:layout_marginTop="4dp"
                     android:layout_marginBottom="12dp"
                     android:background="@drawable/bg_search_input"
-                    android:hint="Ex: +261 34 00 000 00"
-                    android:inputType="phone"
+                    android:hint="Ex: Rakoto Jean ou Atelier Nordique"
+                    android:inputType="textPersonName"
                     android:paddingHorizontal="12dp"
                     android:textSize="14sp" />
 
-                <!-- Téléphone -->
+                <!-- Nom d'utilisateur unique (Username, distinct du nom complet) -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Numéro de Téléphone d'appel"
+                    android:text="Nom d'utilisateur (Username unique) *"
                     android:textColor="@color/text_primary"
                     android:textSize="13sp"
                     android:textStyle="bold" />
 
                 <EditText
-                    android:id="@+id/et_phone"
+                    android:id="@+id/et_username"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_search_input"
+                    android:hint="Ex: jean.rakoto_mg (3 à 30 caractères)"
+                    android:inputType="textVisiblePassword|textNoSuggestions"
+                    android:paddingHorizontal="12dp"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tv_username_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="Identifiant public distinct du nom complet (lettres, chiffres, . et _)"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp" />
+
+                <!-- Unique numéro de contact : WhatsApp avec sélecteur de pays et préfixe automatique -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Numéro WhatsApp &amp; Appel (unique numéro de contact) *"
+                    android:textColor="@color/text_primary"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <Spinner
+                    android:id="@+id/spinner_whatsapp_country"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/bg_search_input"
+                    android:paddingHorizontal="8dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tv_whatsapp_dial_code"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:background="#FFF0E6"
+                        android:gravity="center"
+                        android:minWidth="64dp"
+                        android:paddingHorizontal="12dp"
+                        android:text="+261"
+                        android:textColor="@color/primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <EditText
+                        android:id="@+id/et_whatsapp"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_search_input"
+                        android:hint="34 12 345 67"
+                        android:inputType="phone"
+                        android:paddingHorizontal="12dp"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_whatsapp_e164_preview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="Utilisé automatiquement pour WhatsApp (wa.me) et les appels (tel:)."
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp" />
+
+                <!-- Lien du profil Facebook (facultatif) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Lien du profil Facebook (facultatif)"
+                        android:textColor="@color/text_primary"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/btn_clear_facebook_url"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="4dp"
+                        android:text="Effacer le lien"
+                        android:textColor="@color/status_red"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <EditText
+                    android:id="@+id/et_facebook_url"
                     android:layout_width="match_parent"
                     android:layout_height="46dp"
                     android:layout_marginTop="4dp"
                     android:layout_marginBottom="12dp"
                     android:background="@drawable/bg_search_input"
-                    android:hint="Ex: 034 00 000 00"
-                    android:inputType="phone"
+                    android:hint="Ex: https://facebook.com/votre.boutique"
+                    android:inputType="textUri"
                     android:paddingHorizontal="12dp"
                     android:textSize="14sp" />
 
-                <!-- Adresse -->
+                <!-- Ville & Adresse -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -243,7 +430,7 @@
                     android:layout_marginTop="4dp"
                     android:layout_marginBottom="18dp"
                     android:background="@drawable/bg_search_input"
-                    android:hint="Ex: Antananarivo, Ankorondrano"
+                    android:hint="Ex: Antananarivo, Lot IV Ankorondrano"
                     android:inputType="textPostalAddress"
                     android:paddingHorizontal="12dp"
                     android:textSize="14sp" />
@@ -253,7 +440,7 @@
                     style="@style/Widget.Marketplace.Button.Primary"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
-                    android:text="Enregistrer mes coordonnées"
+                    android:text="Enregistrer mon profil"
                     android:textSize="14sp" />
 
             </LinearLayout>
@@ -265,9 +452,9 @@
             style="@style/Widget.Marketplace.Button.Outlined"
             android:layout_width="match_parent"
             android:layout_height="46dp"
+            android:strokeColor="@color/status_red"
             android:text="Se déconnecter"
             android:textColor="@color/status_red"
-            android:strokeColor="@color/status_red"
             android:textSize="14sp" />
 
     </LinearLayout>

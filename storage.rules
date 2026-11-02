@@ -17,6 +17,18 @@ service firebase.storage {
       return isAuthenticated() && request.auth.uid == sellerId;
     }
 
+    // Photo de profil utilisateur : users/{uid}/avatar/{fileName}
+    // - Lecture autorisée pour afficher l'avatar du vendeur sur les fiches et boutiques
+    // - Écriture/Remplacement/Suppression réservée exclusivement à l'utilisateur propriétaire {uid}
+    match /users/{uid}/avatar/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated() && request.auth.uid == uid &&
+                   (request.resource == null || (
+                     request.resource.size <= 5 * 1024 * 1024 &&
+                     request.resource.contentType.matches('image/.*')
+                   ));
+    }
+
     // Images classiques des produits locaux : products/{sellerId}/{productId}/images/{imageFile}
     // - Lecture autorisée pour les produits publiés (ou propriétaire / admin)
     // - Écriture/Suppression réservée exclusivement au vendeur propriétaire {sellerId} (isolation inter-vendeurs) ou admin

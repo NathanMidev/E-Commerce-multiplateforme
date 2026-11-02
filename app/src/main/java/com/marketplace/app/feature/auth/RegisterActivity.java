@@ -76,26 +76,28 @@ public class RegisterActivity extends BaseActivity {
         btnRegister.setEnabled(false);
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener(authResult -> {
-                    String uid = authResult.getUser().getUid();
-                    AuthSession.getInstance().updateSession(uid, null);
+                    // Synchroniser le displayName sur le profil Firebase Authentication
+                    ProfileStorageService.syncFirebaseUserProfile(name, null);
 
-                    Map<String, String> fields = new HashMap<>();
-                    fields.put("name", name);
-                    userRepository.updateMyProfile(fields, new BaseRepository.Callback<User>() {
-                        @Override
-                        public void onSuccess(User result) {
-                            btnRegister.setEnabled(true);
-                            toast("Compte créé avec succès !");
-                            Router.openProfile(RegisterActivity.this);
-                            finish();
-                        }
+                    FirebaseAuthSession.ensureAuthenticatedSessionReady(() -> {
+                        Map<String, String> fields = new HashMap<>();
+                        fields.put("name", name);
+                        userRepository.updateMyProfile(fields, new BaseRepository.Callback<User>() {
+                            @Override
+                            public void onSuccess(User result) {
+                                btnRegister.setEnabled(true);
+                                toast("Compte créé avec succès ! Complétez maintenant votre profil.");
+                                Router.openProfile(RegisterActivity.this);
+                                finish();
+                            }
 
-                        @Override
-                        public void onError(String message) {
-                            btnRegister.setEnabled(true);
-                            Router.openProfile(RegisterActivity.this);
-                            finish();
-                        }
+                            @Override
+                            public void onError(String message) {
+                                btnRegister.setEnabled(true);
+                                Router.openProfile(RegisterActivity.this);
+                                finish();
+                            }
+                        });
                     });
                 })
                 .addOnFailureListener(e -> {

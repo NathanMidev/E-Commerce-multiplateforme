@@ -1,5 +1,8 @@
 package com.marketplace.app.feature.catalogue;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -22,6 +25,7 @@ import com.marketplace.app.feature.ar.GlbModelCache;
 import com.marketplace.app.feature.ar.GlbValidator;
 import com.marketplace.app.feature.ar.Interactive3dModelView;
 import com.marketplace.app.feature.contact.ContactBottomSheet;
+import com.marketplace.app.feature.contact.ContactLinks;
 import com.marketplace.app.feature.import1688.AdminAccessControl;
 import com.marketplace.app.model.Cart;
 import com.marketplace.app.model.Product;
@@ -55,6 +59,7 @@ public class ProductDetailActivity extends BaseActivity {
     private TextView tv3dViewerInfo;
     private ImageButton btnArTopRightIcon;
 
+    private ImageView ivSellerAvatar;
     private TextView tvTitle;
     private TextView tvPrice;
     private TextView tvStock;
@@ -64,6 +69,7 @@ public class ProductDetailActivity extends BaseActivity {
     private TextView tvDescription;
     private Button btnEditProductMedia;
     private Button btnVisitBoutique;
+    private Button btnSellerFacebook;
 
     private Button btnActionChat;
     private Button btnActionAddCart;
@@ -102,6 +108,7 @@ public class ProductDetailActivity extends BaseActivity {
         tv3dViewerInfo = findViewById(R.id.tv_3d_viewer_info);
         btnArTopRightIcon = findViewById(R.id.btn_ar_top_right_icon);
 
+        ivSellerAvatar = findViewById(R.id.iv_seller_avatar);
         tvTitle = findViewById(R.id.tv_detail_title);
         tvPrice = findViewById(R.id.tv_detail_price);
         tvStock = findViewById(R.id.tv_detail_stock);
@@ -111,6 +118,7 @@ public class ProductDetailActivity extends BaseActivity {
         tvDescription = findViewById(R.id.tv_detail_description);
         btnEditProductMedia = findViewById(R.id.btn_edit_product_media);
         btnVisitBoutique = findViewById(R.id.btn_visit_boutique);
+        btnSellerFacebook = findViewById(R.id.btn_seller_facebook);
 
         btnActionChat = findViewById(R.id.btn_action_chat);
         btnActionAddCart = findViewById(R.id.btn_action_add_cart);
@@ -157,6 +165,21 @@ public class ProductDetailActivity extends BaseActivity {
             }
         });
 
+        if (btnSellerFacebook != null) {
+            btnSellerFacebook.setOnClickListener(v -> {
+                if (currentSeller != null && currentSeller.hasFacebookProfile()) {
+                    String fbUrl = ContactLinks.buildFacebookProfileUrl(currentSeller.getFacebookLink());
+                    if (fbUrl != null) {
+                        try {
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(fbUrl)));
+                        } catch (ActivityNotFoundException e) {
+                            toast("Impossible d'ouvrir le lien Facebook");
+                        }
+                    }
+                }
+            });
+        }
+
         btnActionChat.setOnClickListener(v -> {
             if (currentProduct != null) {
                 ContactBottomSheet bottomSheet = ContactBottomSheet.newInstance(currentProduct, currentSeller);
@@ -197,8 +220,26 @@ public class ProductDetailActivity extends BaseActivity {
             @Override
             public void onSuccess(User user) {
                 currentSeller = user;
-                if (tvSellerCity != null && user.getCity() != null) {
-                    tvSellerCity.setText(user.getCity());
+                if (tvSeller != null && user != null) {
+                    tvSeller.setText("Boutique : " + user.getFormattedSellerIdentity());
+                }
+                if (tvSellerCity != null && user != null && user.getCity() != null) {
+                    tvSellerCity.setText("📍 " + user.getCity());
+                }
+                if (ivSellerAvatar != null && user != null) {
+                    if (user.hasCustomAvatar()) {
+                        Glide.with(ProductDetailActivity.this)
+                                .load(user.getAvatarUrl())
+                                .placeholder(R.drawable.ic_default_avatar)
+                                .error(R.drawable.ic_default_avatar)
+                                .circleCrop()
+                                .into(ivSellerAvatar);
+                    } else {
+                        ivSellerAvatar.setImageResource(R.drawable.ic_default_avatar);
+                    }
+                }
+                if (btnSellerFacebook != null && user != null) {
+                    btnSellerFacebook.setVisibility(user.hasFacebookProfile() ? View.VISIBLE : View.GONE);
                 }
             }
 

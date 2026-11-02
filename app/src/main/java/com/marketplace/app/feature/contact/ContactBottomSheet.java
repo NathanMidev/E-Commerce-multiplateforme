@@ -61,25 +61,24 @@ public class ContactBottomSheet extends BottomSheetDialogFragment {
         tvTitle.setPadding(0, 0, 0, 32);
         root.addView(tvTitle);
 
-        if (seller != null && seller.getWhatsapp() != null && !seller.getWhatsapp().trim().isEmpty()) {
+        String singleContactNumber = (seller != null) ? seller.getWhatsapp() : null;
+        if (singleContactNumber != null && !singleContactNumber.trim().isEmpty()) {
             Button btnWa = new Button(context);
-            btnWa.setText("WhatsApp (" + seller.getWhatsapp() + ")");
+            btnWa.setText("💬 Discussion WhatsApp (" + singleContactNumber + ")");
             btnWa.setOnClickListener(v -> openWhatsApp());
             root.addView(btnWa);
-        }
 
-        if (seller != null && seller.getFacebookLink() != null && !seller.getFacebookLink().trim().isEmpty()) {
-            Button btnFb = new Button(context);
-            btnFb.setText("Messenger");
-            btnFb.setOnClickListener(v -> openMessenger());
-            root.addView(btnFb);
-        }
-
-        if (seller != null && seller.getPhoneNumber() != null && !seller.getPhoneNumber().trim().isEmpty()) {
             Button btnCall = new Button(context);
-            btnCall.setText("Appel téléphonique (" + seller.getPhoneNumber() + ")");
+            btnCall.setText("📞 Appel téléphonique (" + singleContactNumber + ")");
             btnCall.setOnClickListener(v -> openPhoneCall());
             root.addView(btnCall);
+        }
+
+        if (seller != null && seller.hasFacebookProfile()) {
+            Button btnFbProfile = new Button(context);
+            btnFbProfile.setText("🌐 Voir le profil Facebook");
+            btnFbProfile.setOnClickListener(v -> openFacebookProfile());
+            root.addView(btnFbProfile);
         }
 
         return root;
@@ -122,21 +121,26 @@ public class ContactBottomSheet extends BottomSheetDialogFragment {
         }
     }
 
-    private void openMessenger() {
+    private void openFacebookProfile() {
         if (!checkLoginAndRecord(ContactChannel.MESSENGER)) return;
-        String url = ContactLinks.buildMessengerUrl(seller.getFacebookLink());
+        String url = ContactLinks.buildFacebookProfileUrl(seller.getFacebookLink());
+        if (url == null) {
+            url = ContactLinks.buildMessengerUrl(seller.getFacebookLink());
+        }
         try {
             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
             dismiss();
         } catch (ActivityNotFoundException e) {
-            Toast.makeText(requireContext(), "Impossible d'ouvrir Messenger ou le navigateur", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Impossible d'ouvrir le profil Facebook", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void openPhoneCall() {
         if (!checkLoginAndRecord(ContactChannel.APPEL)) return;
+        String telUri = ContactLinks.buildPhoneCallUri(seller.getWhatsapp());
+        if (telUri == null) return;
         try {
-            Intent callIntent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + seller.getPhoneNumber().trim()));
+            Intent callIntent = new Intent(Intent.ACTION_DIAL, Uri.parse(telUri));
             startActivity(callIntent);
             dismiss();
         } catch (ActivityNotFoundException e) {

@@ -25,13 +25,13 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="54dp"
-                    android:layout_height="54dp"
-                    android:background="#FFF0E6"
-                    android:gravity="center"
-                    android:text="🏪"
-                    android:textSize="28sp" />
+                <ImageView
+                    android:id="@+id/iv_boutique_avatar"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:contentDescription="Photo du vendeur"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_default_avatar" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -48,6 +48,17 @@
                         android:textColor="@color/text_primary"
                         android:textSize="18sp"
                         android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_boutique_username"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:text="@vendeur"
+                        android:textColor="@color/primary"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -93,6 +104,16 @@
                 android:textColor="#FFFFFF"
                 android:textSize="12sp"
                 android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btn_boutique_facebook"
+                style="@style/Widget.Marketplace.Button.Outlined"
+                android:layout_width="match_parent"
+                android:layout_height="38dp"
+                android:layout_marginTop="6dp"
+                android:text="🌐 Voir le profil Facebook du vendeur"
+                android:textSize="12sp"
+                android:visibility="gone" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 

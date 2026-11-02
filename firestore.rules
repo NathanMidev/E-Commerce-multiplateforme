@@ -35,6 +35,27 @@ service cloud.firestore {
                     (resource.data.sellerId == request.auth.uid || isAdmin());
     }
 
+    // Métadonnées complémentaires du profil utilisateur (username unique, sans aucun secret/token/mot de passe)
+    match /user_profiles/{uid} {
+      allow read: if true;
+      allow create, update: if isAuthenticated() &&
+                            request.auth.uid == uid &&
+                            request.resource.data.uid == uid &&
+                            !('password' in request.resource.data) &&
+                            !('idToken' in request.resource.data) &&
+                            !('token' in request.resource.data);
+      allow delete: if isAuthenticated() && request.auth.uid == uid;
+    }
+
+    // Réservation d'unicité des noms d'utilisateur (@username)
+    match /usernames/{username} {
+      allow read: if true;
+      allow create, update: if isAuthenticated() &&
+                            request.resource.data.uid == request.auth.uid &&
+                            (resource == null || resource.data.uid == request.auth.uid);
+      allow delete: if isAuthenticated() && resource.data.uid == request.auth.uid;
+    }
+
     // Ancien pont scan_jobs (désactivé dans le parcours utilisateur, conservé en lecture/écriture restreinte)
     match /scan_jobs/{jobId} {
       allow read, write: if false;

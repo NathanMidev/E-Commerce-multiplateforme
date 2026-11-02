@@ -173,13 +173,15 @@ public class MockBackendService {
     }
 
     private void seedUsers() {
-        seedUser("seller_101", "Atelier Nordique", "+261341234567", "https://facebook.com/atelier.nordique");
-        seedUser("seller_102", "Luminaires & Co", "+261331122334", "https://m.me/luminaires.co");
-        seedUser("seller_103", "SneakersHub", "+261320011223", "https://facebook.com/sneakershub");
+        com.marketplace.app.feature.auth.ProfileStorageService.resetSimulatedState();
+        seedUser("seller_101", "Atelier Nordique", "atelier.nordique", "+261341234567", "https://facebook.com/atelier.nordique");
+        seedUser("seller_102", "Luminaires & Co", "luminaires.co", "+261331122334", "https://facebook.com/luminaires.co");
+        seedUser("seller_103", "SneakersHub", "sneakershub", "+261320011223", "https://facebook.com/sneakershub");
     }
 
-    private void seedUser(String id, String name, String whatsapp, String fb) {
+    private void seedUser(String id, String name, String username, String whatsapp, String fb) {
         User user = new User(id, name, id + "@example.mg", "https://via.placeholder.com/150");
+        user.setUsername(username);
         user.setCity("Antananarivo");
         user.setAddress("Lot IV Antananarivo");
         user.setWhatsapp(whatsapp);

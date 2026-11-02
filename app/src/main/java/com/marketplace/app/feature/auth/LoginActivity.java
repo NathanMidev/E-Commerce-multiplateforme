@@ -165,29 +165,26 @@ public class LoginActivity extends BaseActivity {
     }
 
     private void onFirebaseAuthenticated() {
-        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-            AuthSession.getInstance().updateSession(uid, null);
-        }
-
-        userRepository.getMyProfile(new BaseRepository.Callback<User>() {
-            @Override
-            public void onSuccess(User user) {
-                setBusy(false);
-                if (user == null || TextUtils.isEmpty(user.getWhatsapp())) {
-                    Router.openProfile(LoginActivity.this);
-                } else {
-                    Router.openMain(LoginActivity.this);
+        FirebaseAuthSession.ensureAuthenticatedSessionReady(() -> {
+            userRepository.getMyProfile(new BaseRepository.Callback<User>() {
+                @Override
+                public void onSuccess(User user) {
+                    setBusy(false);
+                    if (user == null || TextUtils.isEmpty(user.getWhatsapp())) {
+                        Router.openProfile(LoginActivity.this);
+                    } else {
+                        Router.openMain(LoginActivity.this);
+                    }
+                    finish();
                 }
-                finish();
-            }
 
-            @Override
-            public void onError(String message) {
-                setBusy(false);
-                Router.openProfile(LoginActivity.this);
-                finish();
-            }
+                @Override
+                public void onError(String message) {
+                    setBusy(false);
+                    Router.openProfile(LoginActivity.this);
+                    finish();
+                }
+            });
         });
     }
 
