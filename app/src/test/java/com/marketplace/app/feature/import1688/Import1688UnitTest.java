@@ -58,20 +58,35 @@ public class Import1688UnitTest {
         conversionService.updateExchangeRate(650.0, "admin-test");
         assertEquals(650.0, conversionService.getExchangeRate(), 0.001);
 
-        // Produit à 25 CNY x 4 unités = 100 CNY -> 65 000 Ar
+        // Application de la formule : Prix en MGA = Prix CNY × Taux CNY/MGA × 1,15
+        // Exemple illustratif : 100 CNY × 650 × 1.15 = 74 750 Ar
+        double finalMga = conversionService.convertCnyToMgaFinal(100.0);
+        assertEquals(74750.0, finalMga, 0.01);
+
+        double finalMgaWithRate = CurrencyConversionService.convertCnyToMgaFinalWithRate(100.0, 650.0);
+        assertEquals(74750.0, finalMgaWithRate, 0.01);
+
+        // Produit à 25 CNY x 4 unités = 100 CNY -> 74 750 Ar
         double productMga = conversionService.convertProductTotalToMga(25.0, 4);
-        assertEquals(65000.0, productMga, 0.01);
+        assertEquals(74750.0, productMga, 0.01);
 
-        // Frais de prestation d'achat de l'agence (10%) = 6 500 Ar
+        // Frais de prestation d'achat de l'agence (10%) = 7 475 Ar
         double feeMga = conversionService.calculateServiceFeeMga(productMga);
-        assertEquals(6500.0, feeMga, 0.01);
+        assertEquals(7475.0, feeMga, 0.01);
 
-        // Montant total à régler à l'agence par MVola (hors transport international) = 71 500 Ar
+        // Montant total à régler à l'agence par MVola (hors transport international) = 82 225 Ar
         double totalMga = CurrencyConversionService.calculateAgencyTotalMga(productMga, feeMga);
-        assertEquals(71500.0, totalMga, 0.01);
+        assertEquals(82225.0, totalMga, 0.01);
 
-        // Vérification de la mention d'exclusion des frais de transport
-        assertTrue(CurrencyConversionService.TRANSPORT_DISCLAIMER.contains("transport"));
+        // Règle commerciale stricte : Résumé sans divulgation de la marge de 15%
+        String summary = conversionService.formatEstimateSummary(25.0, 4);
+        assertFalse(summary.contains("15"));
+        assertFalse(summary.contains("majoration"));
+        assertFalse(summary.contains("marge"));
+        assertTrue(summary.contains("Hors frais de transport international"));
+
+        // Vérification de la mention explicite d'exclusion des frais de transport international
+        assertTrue(CurrencyConversionService.TRANSPORT_DISCLAIMER.contains("transport international ne sont pas inclus"));
     }
 
     @Test

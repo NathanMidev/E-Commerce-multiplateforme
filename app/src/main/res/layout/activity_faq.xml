@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:orientation="vertical">
+
+    <!-- Toolbar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="#FFFFFF"
+        android:elevation="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="12dp">
+
+        <ImageButton
+            android:id="@+id/btn_faq_back"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Retour"
+            android:src="@android:drawable/ic_menu_revert"
+            app:tint="@color/text_primary" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="FAQ — Commandes &amp; Importation 1688"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Foire Aux Questions"
+                android:textColor="@color/text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="16dp"
+                android:text="Retrouvez toutes les réponses essentielles pour vos commandes et vos demandes d'achat 1688."
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+
+            <!-- Conteneur dynamique des accordéons de la FAQ -->
+            <LinearLayout
+                android:id="@+id/layout_faq_accordion_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <!-- Bloc Contact du Service Client -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="24dp"
+                app:cardBackgroundColor="#F8FAFC"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="2dp"
+                app:strokeColor="#CBD5E1"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Besoin d'aide supplémentaire ?"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="Notre service client est disponible pour vous accompagner dans vos achats et vos demandes d'importation."
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="Téléphone : 038 11 928 23"
+                        android:textColor="@color/primary"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_call_support"
+                            style="@style/Widget.MaterialComponents.Button"
+                            android:layout_width="0dp"
+                            android:layout_height="46dp"
+                            android:layout_marginEnd="6dp"
+                            android:layout_weight="1"
+                            android:text="📞 Appeler"
+                            android:textAllCaps="false"
+                            android:textSize="13sp"
+                            app:backgroundTint="@color/primary"
+                            app:cornerRadius="8dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_email_support"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="46dp"
+                            android:layout_marginStart="6dp"
+                            android:layout_weight="1"
+                            android:text="✉️ Envoyer un email"
+                            android:textAllCaps="false"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp"
+                            app:cornerRadius="8dp"
+                            app:strokeColor="#CBD5E1" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

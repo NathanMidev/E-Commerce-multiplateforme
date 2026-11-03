@@ -95,17 +95,23 @@
         </LinearLayout>
     </LinearLayout>
 
-    <ScrollView
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/bottom_navigation"
         android:layout_below="@id/layout_search_bar">
 
-        <LinearLayout
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scroll_view_main"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
 
             <!-- Bannière promotionnelle AR 3D & Bons Plans -->
             <com.google.android.material.card.MaterialCardView
@@ -405,6 +411,94 @@
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
+            <!-- Section Nouveautés / Découvrir les nouveaux produits style Taobao / 1688 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="vertical">
+
+                <!-- En-tête de section Nouveautés style Taobao / 1688 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="✨ Nouveautés"
+                        android:textColor="@color/text_primary"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:text="• Découvrir les nouveaux produits"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tv_main_see_more_new"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackground"
+                        android:paddingVertical="4dp"
+                        android:text="Voir tout >"
+                        android:textColor="@color/primary"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- État vide -->
+                <LinearLayout
+                    android:id="@+id/layout_main_empty_products"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="24dp"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🛍️"
+                        android:textSize="38sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="Aucun nouveau produit disponible pour le moment"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <!-- Grille 2 colonnes des nouveaux produits -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_main_new_products"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:nestedScrollingEnabled="false" />
+
+                <!-- Indicateur de chargement progressif (Pagination) -->
+                <ProgressBar
+                    android:id="@+id/progress_main_pagination"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginVertical="12dp"
+                    android:indeterminateTint="@color/primary"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+
             <!-- Boutons masqués pour compatibilité avec l'ancien code MainActivity -->
             <Button
                 android:id="@+id/btn_nav_catalog"
@@ -428,7 +522,8 @@
                 android:visibility="gone" />
 
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <!-- Barre de Navigation Basse : Accueil | Catégories | [Bouton Circulaire Import 1688] | Panier | Mon compte -->
     <LinearLayout

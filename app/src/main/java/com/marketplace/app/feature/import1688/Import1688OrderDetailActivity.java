@@ -108,6 +108,7 @@ public class Import1688OrderDetailActivity extends AppCompatActivity {
         txtImporterDetails = findViewById(R.id.txt_importer_details);
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
+        findViewById(R.id.btn_detail_faq).setOnClickListener(v -> Router.openFaq(this));
 
         findViewById(R.id.btn_open_1688_link).setOnClickListener(v -> {
             if (currentOrder != null && currentOrder.getProductUrl() != null) {

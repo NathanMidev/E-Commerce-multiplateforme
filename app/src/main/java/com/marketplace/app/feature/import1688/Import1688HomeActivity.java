@@ -77,6 +77,7 @@ public class Import1688HomeActivity extends AppCompatActivity {
         recycler.setAdapter(adapter);
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
+        findViewById(R.id.btn_home_faq).setOnClickListener(v -> Router.openFaq(this));
         findViewById(R.id.btn_browse_1688).setOnClickListener(v -> Router.openImport1688Browser(this));
         findViewById(R.id.btn_new_request).setOnClickListener(v -> Router.openImport1688Request(this, "", ""));
         findViewById(R.id.btn_admin_space).setOnClickListener(v -> Router.openImport1688Admin(this));

@@ -1,5 +1,6 @@
 package com.marketplace.app.transaction.commande;
 
+import android.view.View;
 import android.widget.Button;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -41,6 +42,11 @@ public class OrdersActivity extends BaseActivity {
         btnTabBuyer = findViewById(R.id.btn_tab_buyer);
         btnTabSeller = findViewById(R.id.btn_tab_seller);
         rvOrders = findViewById(R.id.rv_orders);
+
+        View btnFaq = findViewById(R.id.btn_orders_faq);
+        if (btnFaq != null) {
+            btnFaq.setOnClickListener(v -> com.marketplace.app.navigation.Router.openFaq(this));
+        }
 
         rvOrders.setLayoutManager(new LinearLayoutManager(this));
         setupAdapter();

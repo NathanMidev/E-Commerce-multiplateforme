@@ -147,4 +147,8 @@ public final class Router {
     public static void openImport1688Admin(Context context) {
         start(context, "com.marketplace.app.feature.import1688.Import1688AdminActivity", null);
     }
+
+    public static void openFaq(Context context) {
+        start(context, "com.marketplace.app.feature.faq.FaqActivity", null);
+    }
 }

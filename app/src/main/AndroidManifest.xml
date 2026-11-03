@@ -72,6 +72,7 @@
         <activity android:name=".feature.import1688.Import1688RequestActivity" android:exported="false" />
         <activity android:name=".feature.import1688.Import1688OrderDetailActivity" android:exported="false" />
         <activity android:name=".feature.import1688.Import1688AdminActivity" android:exported="false" />
+        <activity android:name=".feature.faq.FaqActivity" android:exported="false" />
 
     </application>
 

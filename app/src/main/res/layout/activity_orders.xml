@@ -5,17 +5,33 @@
     android:background="@color/background"
     android:orientation="vertical">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:background="#FFFFFF"
         android:elevation="1dp"
         android:gravity="center_vertical"
-        android:paddingHorizontal="16dp"
-        android:text="Mes Commandes"
-        android:textColor="@color/text_primary"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Mes Commandes"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btn_orders_faq"
+            style="@style/Widget.Marketplace.Button.Outlined"
+            android:layout_width="wrap_content"
+            android:layout_height="34dp"
+            android:paddingHorizontal="10dp"
+            android:text="❓ FAQ &amp; Aide"
+            android:textSize="11sp" />
+    </LinearLayout>
 
     <!-- Onglets de rôle & statuts -->
     <LinearLayout

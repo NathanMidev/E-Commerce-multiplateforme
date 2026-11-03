@@ -22,6 +22,9 @@ public final class CurrencyConversionService {
             + "du produit et des variantes sur 1688. "
             + "Les frais de transport international ne sont pas inclus et sont réglés directement auprès de l'importateur.";
 
+    // Majoration commerciale interne de 15 %
+    private static final double INTERNAL_COMMERCIAL_MARKUP = 1.15;
+
     private static CurrencyConversionService instance;
     private ImportAgencyConfig config;
 
@@ -73,19 +76,38 @@ public final class CurrencyConversionService {
     }
 
     /**
-     * Calcule le prix estimé du produit en ariary (MGA) pour la quantité demandée.
+     * Calcule le prix affiché en Ariary (MGA) selon la formule interne :
+     * Prix affiché en MGA = Prix en CNY × Taux de conversion CNY/MGA × 1,15.
+     * Cette méthode applique la formule pour l'affichage unitaire ou total dans la WebView et les formulaires 1688.
      */
-    public synchronized double convertProductTotalToMga(double unitPriceCny, int quantity) {
-        if (unitPriceCny <= 0 || quantity <= 0) return 0.0;
-        return Math.round(unitPriceCny * quantity * config.getExchangeRateCnyToMga());
+    public synchronized double convertCnyToMgaFinal(double unitPriceCny) {
+        if (unitPriceCny <= 0) return 0.0;
+        return Math.round(unitPriceCny * config.getExchangeRateCnyToMga() * INTERNAL_COMMERCIAL_MARKUP);
     }
 
     /**
-     * Calcule un prix avec un taux explicite fourni.
+     * Calcule le prix affiché en MGA avec un taux explicite.
+     */
+    public static double convertCnyToMgaFinalWithRate(double unitPriceCny, double rateCnyToMga) {
+        if (unitPriceCny <= 0 || rateCnyToMga <= 0) return 0.0;
+        return Math.round(unitPriceCny * rateCnyToMga * INTERNAL_COMMERCIAL_MARKUP);
+    }
+
+    /**
+     * Calcule le prix estimé du produit en ariary (MGA) pour la quantité demandée
+     * avec application de la majoration commerciale interne de 15 %.
+     */
+    public synchronized double convertProductTotalToMga(double unitPriceCny, int quantity) {
+        if (unitPriceCny <= 0 || quantity <= 0) return 0.0;
+        return Math.round(unitPriceCny * quantity * config.getExchangeRateCnyToMga() * INTERNAL_COMMERCIAL_MARKUP);
+    }
+
+    /**
+     * Calcule un prix avec un taux explicite fourni et majoration interne 15 %.
      */
     public static double convertWithRate(double unitPriceCny, int quantity, double rateCnyToMga) {
         if (unitPriceCny <= 0 || quantity <= 0 || rateCnyToMga <= 0) return 0.0;
-        return Math.round(unitPriceCny * quantity * rateCnyToMga);
+        return Math.round(unitPriceCny * quantity * rateCnyToMga * INTERNAL_COMMERCIAL_MARKUP);
     }
 
     /**
@@ -119,14 +141,14 @@ public final class CurrencyConversionService {
     }
 
     /**
-     * Formate un résumé conforme au gabarit : Prix unitaire / Quantité / Prix estimé.
+     * Formate un résumé : Prix unitaire estimé / Quantité / Prix total estimé (sans révéler la formule interne).
      */
     public synchronized String formatEstimateSummary(double unitPriceCny, int quantity) {
-        double estMga = convertProductTotalToMga(unitPriceCny, quantity);
-        return "Prix unitaire : " + formatCny(unitPriceCny)
+        double unitMga = convertCnyToMgaFinal(unitPriceCny);
+        double totalMga = convertProductTotalToMga(unitPriceCny, quantity);
+        return "Prix unitaire : " + PriceFormatter.format(unitMga)
                 + "\nQuantité : " + quantity
-                + "\nPrix estimé : " + PriceFormatter.format(estMga)
-                + " (Taux administré : 1 ¥ = " + PriceFormatter.format(config.getExchangeRateCnyToMga())
-                + ", màj " + getFormattedUpdateDate() + ")";
+                + "\nPrix estimé : " + PriceFormatter.format(totalMga)
+                + "\n(Hors frais de transport international)";
     }
 }

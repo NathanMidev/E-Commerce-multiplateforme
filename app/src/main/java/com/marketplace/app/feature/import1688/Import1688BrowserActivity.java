@@ -50,8 +50,7 @@ public class Import1688BrowserActivity extends AppCompatActivity {
         progressWebView = findViewById(R.id.progress_webview);
         TextView txtRateReminder = findViewById(R.id.txt_rate_reminder);
 
-        double rate = CurrencyConversionService.getInstance().getExchangeRate();
-        txtRateReminder.setText("1 ¥ = " + Math.round(rate) + " Ar");
+        txtRateReminder.setText("Prix affichés en Ariary (Ar) • Transport intl non inclus");
 
         configureSecureWebView();
 
@@ -73,6 +72,82 @@ public class Import1688BrowserActivity extends AppCompatActivity {
         });
 
         webView.loadUrl(DEFAULT_1688_URL);
+    }
+
+    /**
+     * Injecte un script JavaScript robuste et idempotent dans la WebView 1688.
+     * Rôle :
+     * 1. Détecte les balises de prix (¥, ￥, price, etc.).
+     * 2. Calcule le prix final en MGA = CNY * rate * 1.15 (arrondi sans double conversion grâce à un attribut data-mga-converted).
+     * 3. Remplace visuellement le montant en ¥ par son équivalent en Ariary (ex: "74 750 Ar").
+     * 4. Gère les fourchettes de prix (ex: "¥ 10.00 - 25.00" -> "7 475 Ar - 18 688 Ar") et les variantes dynamiques via MutationObserver.
+     * 5. Ne divulgue jamais le pourcentage ou la formule interne.
+     */
+    private void injectCurrencyConversionScript(WebView view) {
+        if (view == null) return;
+        double currentRate = CurrencyConversionService.getInstance().getExchangeRate();
+        // Multiplicateur total = Taux * 1.15
+        final double totalMultiplier = currentRate * 1.15;
+
+        String js = "(function() {" +
+                "   var multiplier = " + totalMultiplier + ";" +
+                "   function formatMGA(amount) {" +
+                "       return Math.round(amount).toString().replace(/\\B(?=(\\d{3})+(?!\\d))/g, ' ') + ' Ar';" +
+                "   }" +
+                "   function convertText(text) {" +
+                "       if (!text || text.indexOf('Ar') !== -1) return text;" +
+                "       // Pattern fourchette ex: ¥10.5 - 20.0 ou ￥ 10 - 20" +
+                "       var rangeRegex = /[¥￥]\\s*([0-9]+(?:\\.[0-9]+)?)\\s*[-~至]\\s*([0-9]+(?:\\.[0-9]+)?)/g;" +
+                "       if (rangeRegex.test(text)) {" +
+                "           return text.replace(rangeRegex, function(match, p1, p2) {" +
+                "               var v1 = parseFloat(p1) * multiplier;" +
+                "               var v2 = parseFloat(p2) * multiplier;" +
+                "               return formatMGA(v1) + ' - ' + formatMGA(v2);" +
+                "           });" +
+                "       }" +
+                "       // Pattern prix simple ex: ¥ 100 ou ￥100.50" +
+                "       var singleRegex = /[¥￥]\\s*([0-9]+(?:\\.[0-9]+)?)/g;" +
+                "       return text.replace(singleRegex, function(match, p1) {" +
+                "           var val = parseFloat(p1) * multiplier;" +
+                "           return formatMGA(val);" +
+                "       });" +
+                "   }" +
+                "   function processNode(node) {" +
+                "       if (node.nodeType === 3) {" + // Text node
+                "           var val = node.nodeValue;" +
+                "           if (val && (val.indexOf('¥') !== -1 || val.indexOf('￥') !== -1)) {" +
+                "               node.nodeValue = convertText(val);" +
+                "           }" +
+                "       } else if (node.nodeType === 1) {" + // Element node
+                "           if (node.getAttribute && node.getAttribute('data-mga-converted')) return;" +
+                "           if (node.tagName === 'SCRIPT' || node.tagName === 'STYLE' || node.tagName === 'INPUT') return;" +
+                "           for (var i = 0; i < node.childNodes.length; i++) {" +
+                "               processNode(node.childNodes[i]);" +
+                "           }" +
+                "           if (node.setAttribute) node.setAttribute('data-mga-converted', 'true');" +
+                "       }" +
+                "   }" +
+                "   processNode(document.body);" +
+                "   if (!window.__mgaObserverAttached) {" +
+                "       window.__mgaObserverAttached = true;" +
+                "       var observer = new MutationObserver(function(mutations) {" +
+                "           mutations.forEach(function(m) {" +
+                "               for (var i = 0; i < m.addedNodes.length; i++) {" +
+                "                   processNode(m.addedNodes[i]);" +
+                "               }" +
+                "               if (m.target && m.target.nodeType === 3) {" +
+                "                   var text = m.target.nodeValue;" +
+                "                   if (text && (text.indexOf('¥') !== -1 || text.indexOf('￥') !== -1)) {" +
+                "                       m.target.nodeValue = convertText(text);" +
+                "                   }" +
+                "               }" +
+                "           });" +
+                "       });" +
+                "       observer.observe(document.body, { childList: true, subtree: true, characterData: true });" +
+                "   }" +
+                "})();";
+
+        view.evaluateJavascript(js, null);
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -117,6 +192,7 @@ public class Import1688BrowserActivity extends AppCompatActivity {
                 txtBrowserUrl.setText(url);
                 currentTitle = view.getTitle() != null ? view.getTitle() : "";
                 progressWebView.setVisibility(View.GONE);
+                injectCurrencyConversionScript(view);
             }
         });
 
