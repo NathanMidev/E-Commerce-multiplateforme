@@ -31,12 +31,16 @@ public class UserRepository extends BaseRepository<User> {
     private final ProfileStorageService profileStorageService;
 
     public UserRepository() {
-        this(ApiClient.isUseMock());
+        this(ApiClient.isUseMock(), com.marketplace.app.BuildConfig.USE_MOCK_BACKEND);
     }
 
     public UserRepository(boolean useMock) {
+        this(useMock, useMock);
+    }
+
+    private UserRepository(boolean useMock, boolean useSimulatedFirebase) {
         this.useMock = useMock;
-        this.profileStorageService = new ProfileStorageService(useMock);
+        this.profileStorageService = new ProfileStorageService(useSimulatedFirebase);
     }
 
     @Override

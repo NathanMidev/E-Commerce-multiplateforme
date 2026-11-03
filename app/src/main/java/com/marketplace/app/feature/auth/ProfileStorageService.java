@@ -51,7 +51,7 @@ public class ProfileStorageService {
     private static final Map<String, String> UID_TO_AVATAR_URL = new ConcurrentHashMap<>();
 
     public ProfileStorageService() {
-        this(ApiClient.isUseMock());
+        this(com.marketplace.app.BuildConfig.USE_MOCK_BACKEND);
     }
 
     public ProfileStorageService(boolean useSimulatedStorage) {
@@ -225,6 +225,17 @@ public class ProfileStorageService {
                 String photoUrl = downloadUri.toString();
                 UID_TO_AVATAR_URL.put(targetUid.trim(), photoUrl);
                 syncFirebaseUserProfile(null, photoUrl);
+                try {
+                    Map<String, Object> avatarMeta = new HashMap<>();
+                    avatarMeta.put("uid", targetUid.trim());
+                    avatarMeta.put("avatarUrl", photoUrl);
+                    avatarMeta.put("updatedAt", System.currentTimeMillis());
+                    FirebaseFirestore.getInstance()
+                            .collection(COLLECTION_USER_PROFILES)
+                            .document(targetUid.trim())
+                            .set(avatarMeta, com.google.firebase.firestore.SetOptions.merge());
+                } catch (Throwable ignored) {
+                }
                 if (callback != null) {
                     callback.onProgress(100);
                     callback.onSuccess(photoUrl);

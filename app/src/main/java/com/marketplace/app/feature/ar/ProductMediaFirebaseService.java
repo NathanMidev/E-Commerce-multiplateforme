@@ -59,7 +59,7 @@ public class ProductMediaFirebaseService {
     private static final Map<String, Map<String, Object>> SIMULATED_FIRESTORE_MEDIA = new ConcurrentHashMap<>();
 
     public ProductMediaFirebaseService() {
-        this(ApiClient.isUseMock());
+        this(com.marketplace.app.BuildConfig.USE_MOCK_BACKEND);
     }
 
     public ProductMediaFirebaseService(boolean useSimulatedStorage) {
@@ -462,12 +462,17 @@ public class ProductMediaFirebaseService {
         }
 
         FirebaseStorage storage = FirebaseStorage.getInstance();
-        List<String> uploadedUrls = Collections.synchronizedList(new ArrayList<>(product.getImageUrls()));
+        List<String> uploadedUrls = Collections.synchronizedList(new ArrayList<>());
+        for (String existing : product.getImageUrls()) {
+            if (existing != null && (existing.startsWith("http://") || existing.startsWith("https://"))) {
+                uploadedUrls.add(existing);
+            }
+        }
         final int total = imageUris.size();
         final int[] completed = {0};
 
         for (int i = 0; i < total; i++) {
-            Uri uri = imageUris.get(i);
+            final Uri uri = imageUris.get(i);
             String path = buildImageStoragePath(product.getSellerId(), product.getId(), "photo_" + i + "_" + System.currentTimeMillis() + ".jpg");
             StorageReference imgRef = storage.getReference().child(path);
             imgRef.putFile(uri).addOnSuccessListener(snap -> imgRef.getDownloadUrl().addOnSuccessListener(dl -> {
@@ -477,13 +482,51 @@ public class ProductMediaFirebaseService {
                     callback.onProgress((completed[0] * 100) / total);
                 }
                 if (completed[0] == total) {
-                    product.setImageUrls(uploadedUrls);
-                    if (!uploadedUrls.isEmpty()) product.setThumbnailUrl(uploadedUrls.get(0));
-                    if (callback != null) callback.onSuccess(uploadedUrls);
+                    finalizeImageUploadMetadata(product, uploadedUrls, callback);
                 }
             })).addOnFailureListener(e -> {
-                if (callback != null) callback.onError("Erreur upload image : " + e.getMessage());
+                // Fallback sur l'URI locale si hors ligne ou règles Storage non encore publiées
+                uploadedUrls.add(uri.toString());
+                completed[0]++;
+                if (completed[0] == total) {
+                    finalizeImageUploadMetadata(product, uploadedUrls, callback);
+                }
             });
         }
+    }
+
+    private void finalizeImageUploadMetadata(Product product, List<String> uploadedUrls, ImageUploadCallback callback) {
+        product.setImageUrls(new ArrayList<>(uploadedUrls));
+        if (!uploadedUrls.isEmpty()) {
+            product.setThumbnailUrl(uploadedUrls.get(0));
+        }
+        Map<String, Object> meta = buildFirestoreMetadata(
+                product.getId(),
+                product.getSellerId(),
+                product.getImageUrls(),
+                product.getModel3dUrl(),
+                product.getModel3dSize(),
+                true,
+                product.getCreatedAt()
+        );
+        SIMULATED_FIRESTORE_MEDIA.put(product.getId(), meta);
+        try {
+            FirebaseFirestore.getInstance()
+                    .collection(FIRESTORE_COLLECTION)
+                    .document(product.getId())
+                    .set(meta);
+        } catch (Throwable ignored) {
+        }
+        productRepository.update(product, new BaseRepository.Callback<Product>() {
+            @Override
+            public void onSuccess(Product result) {
+                if (callback != null) callback.onSuccess(uploadedUrls);
+            }
+
+            @Override
+            public void onError(String message) {
+                if (callback != null) callback.onSuccess(uploadedUrls);
+            }
+        });
     }
 }

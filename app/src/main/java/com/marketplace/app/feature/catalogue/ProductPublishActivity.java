@@ -419,6 +419,44 @@ public class ProductPublishActivity extends BaseActivity {
             return;
         }
 
+        if (!selectedLocalImageUris.isEmpty()) {
+            progressGlbUpload.setVisibility(View.VISIBLE);
+            tvGlbUploadProgress.setVisibility(View.VISIBLE);
+            tvGlbUploadProgress.setText("Upload des photos vers Firebase Storage...");
+            mediaFirebaseService.uploadProductImages(
+                    savedProduct,
+                    new ArrayList<>(selectedLocalImageUris),
+                    new ProductMediaFirebaseService.ImageUploadCallback() {
+                        @Override
+                        public void onProgress(int percent) {
+                            progressGlbUpload.setProgress(percent);
+                            tvGlbUploadProgress.setText("Upload photos Firebase Storage : " + percent + "%");
+                        }
+
+                        @Override
+                        public void onSuccess(List<String> uploadedImageUrls) {
+                            selectedLocalImageUris.clear();
+                            progressGlbUpload.setVisibility(View.GONE);
+                            tvGlbUploadProgress.setVisibility(View.GONE);
+                            handleGlbUploadStep(savedProduct);
+                        }
+
+                        @Override
+                        public void onError(String message) {
+                            selectedLocalImageUris.clear();
+                            progressGlbUpload.setVisibility(View.GONE);
+                            tvGlbUploadProgress.setVisibility(View.GONE);
+                            handleGlbUploadStep(savedProduct);
+                        }
+                    }
+            );
+            return;
+        }
+
+        handleGlbUploadStep(savedProduct);
+    }
+
+    private void handleGlbUploadStep(Product savedProduct) {
         // Cas 1 : Suppression demandée d'un modèle GLB existant
         if (removeExistingGlbRequested && selectedGlbBytes == null) {
             mediaFirebaseService.deleteGlbModel(savedProduct, new ProductMediaFirebaseService.MediaDeleteCallback() {
