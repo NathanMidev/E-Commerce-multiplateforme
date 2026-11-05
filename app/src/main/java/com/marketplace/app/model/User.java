@@ -98,6 +98,22 @@ public class User extends BaseModel {
                 && contact != null && !contact.trim().isEmpty();
     }
 
+    /**
+     * Détermine si le profil est complété selon les règles métier obligatoires :
+     * - Nom complet renseigné (et différent du placeholder générique "Utilisateur")
+     * - Nom d'utilisateur unique (@username) défini
+     * - Numéro de contact WhatsApp E.164 valide
+     * - Ville & Adresse renseignées
+     * Les champs photo et Facebook restent facultatifs et ne bloquent jamais la complétion.
+     */
+    public boolean isProfileComplete() {
+        boolean hasName = name != null && !name.trim().isEmpty() && !"Utilisateur".equalsIgnoreCase(name.trim());
+        boolean hasUsername = username != null && !username.trim().isEmpty();
+        boolean hasPhone = (whatsapp != null && !whatsapp.trim().isEmpty()) || (phoneNumber != null && !phoneNumber.trim().isEmpty());
+        boolean hasAddress = address != null && !address.trim().isEmpty();
+        return hasName && hasUsername && hasPhone && hasAddress;
+    }
+
     /** Alias uid sur l'identifiant utilisateur existant (Section 7). */
     public String getUid() { return getId(); }
     public void setUid(String uid) { setId(uid); }
