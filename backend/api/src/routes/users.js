@@ -5,6 +5,7 @@ import { isFacebookUrl, normalizePhone, parse, profilePatchSchema } from '../val
 
 const COLUMNS = {
   name: 'name',
+  username: 'username',
   avatarUrl: 'avatar_url',
   city: 'city',
   address: 'address',

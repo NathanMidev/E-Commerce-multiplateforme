@@ -5,6 +5,17 @@ import pg from 'pg';
 import { createApp } from '../src/app.js';
 import { createPool } from '../src/db.js';
 
+import fs from 'node:fs';
+
+for (const envPath of ['.env', '../.env', '../../.env']) {
+  if (fs.existsSync(envPath)) {
+    if (typeof process.loadEnvFile === 'function') {
+      try { process.loadEnvFile(envPath); } catch {}
+    }
+    break;
+  }
+}
+
 const dbDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../db');
 const adminUrl = process.env.DATABASE_URL || 'postgres://marketplace:marketplace@localhost:5432/marketplace';
 

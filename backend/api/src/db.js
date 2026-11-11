@@ -5,7 +5,18 @@ pg.types.setTypeParser(1700, (v) => (v === null ? null : Number(v)));
 pg.types.setTypeParser(20, (v) => (v === null ? null : Number(v)));
 
 export function createPool(connectionString) {
-  return new pg.Pool({ connectionString, max: 10 });
+  const needsSsl = Boolean(
+    connectionString && (
+      connectionString.includes('supabase.co') ||
+      connectionString.includes('pooler.supabase.com') ||
+      connectionString.includes('render.com') ||
+      connectionString.includes('sslmode=require') ||
+      process.env.PGSSLMODE === 'require' ||
+      process.env.NODE_ENV === 'production'
+    )
+  );
+  const ssl = needsSsl ? { rejectUnauthorized: false } : undefined;
+  return new pg.Pool({ connectionString, max: 10, ssl });
 }
 
 /** Exécute fn(client) dans une transaction ; COMMIT si tout passe, ROLLBACK sinon. */

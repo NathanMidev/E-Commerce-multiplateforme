@@ -22,6 +22,7 @@ END $$;
 CREATE TABLE users (
     id             TEXT PRIMARY KEY,
     name           TEXT         NOT NULL CHECK (char_length(btrim(name)) BETWEEN 1 AND 120),
+    username       TEXT,
     email          TEXT,
     avatar_url     TEXT,
     city           TEXT,                       -- public (quartier / ville)
@@ -35,6 +36,7 @@ CREATE TABLE users (
     updated_at     TIMESTAMPTZ  NOT NULL DEFAULT now()
 );
 CREATE UNIQUE INDEX users_email_unique ON users (lower(email)) WHERE email IS NOT NULL;
+CREATE UNIQUE INDEX users_username_unique ON users (lower(username)) WHERE username IS NOT NULL;
 CREATE TRIGGER trg_users_updated BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- Niveau du compte (même règle que User.resolveRole() dans l'app Android) :

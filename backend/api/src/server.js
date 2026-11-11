@@ -1,6 +1,16 @@
+import fs from 'node:fs';
 import { loadConfig } from './config.js';
 import { createPool } from './db.js';
 import { createApp } from './app.js';
+
+for (const envPath of ['.env', '../.env', '../../.env']) {
+  if (fs.existsSync(envPath)) {
+    if (typeof process.loadEnvFile === 'function') {
+      try { process.loadEnvFile(envPath); } catch {}
+    }
+    break;
+  }
+}
 
 const config = loadConfig();
 const pool = createPool(config.databaseUrl);

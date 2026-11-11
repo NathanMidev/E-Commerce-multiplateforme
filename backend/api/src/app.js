@@ -24,6 +24,14 @@ export function createApp({ pool, config }) {
   }));
   app.use(express.json({ limit: '100kb' }));
 
+  app.use((req, res, next) => {
+    const start = Date.now();
+    res.on('finish', () => {
+      console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl} -> ${res.statusCode} (${Date.now() - start}ms)`);
+    });
+    next();
+  });
+
   const auth = createAuthenticator(config, pool);
   const deps = { pool, auth, config };
   const api = express.Router();

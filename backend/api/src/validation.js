@@ -54,6 +54,7 @@ const emptyToNull = (schema) =>
 
 export const profilePatchSchema = z.object({
   name: z.string().trim().min(1).max(120),
+  username: emptyToNull(z.string().trim().max(50)),
   avatarUrl: emptyToNull(urlField),
   city: emptyToNull(z.string().trim().max(120)),
   address: emptyToNull(z.string().trim().max(300)),

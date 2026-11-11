@@ -35,6 +35,7 @@ export function userJson(r, viewer = 'anonymous') {
   const base = {
     id: r.id,
     name: r.name,
+    username: r.username ?? null,
     avatarUrl: r.avatar_url,
     city: r.city,
     totalSales: r.total_sales,
