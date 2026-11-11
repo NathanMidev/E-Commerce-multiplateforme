@@ -37,23 +37,13 @@
                 android:layout_weight="1" />
 
             <Button
-                android:id="@+id/btn_scan_center"
-                style="@style/Widget.Marketplace.Button.Outlined"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:paddingHorizontal="10dp"
-                android:text="🧊 Import 3D .GLB"
-                android:textSize="11sp" />
-
-            <Button
                 android:id="@+id/btn_publish_main"
                 style="@style/Widget.Marketplace.Button.Primary"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
-                android:layout_marginStart="8dp"
-                android:paddingHorizontal="12dp"
+                android:paddingHorizontal="14dp"
                 android:text="+ Vendre"
-                android:textSize="11sp" />
+                android:textSize="12sp" />
         </LinearLayout>
 
         <!-- Barre de recherche cliquable redirigeant vers le catalogue -->

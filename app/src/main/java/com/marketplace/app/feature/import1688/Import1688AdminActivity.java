@@ -74,11 +74,7 @@ public class Import1688AdminActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_import1688_admin);
 
-        if (ApiClient.isUseMock() && !AuthSession.getInstance().isLoggedIn()) {
-            AuthSession.getInstance().updateSession("mock-admin-1", "mock-jwt-token");
-        }
-
-        repository = new ImportOrderRepository(ApiClient.isUseMock());
+        repository = new ImportOrderRepository();
 
         txtAdminAccessState = findViewById(R.id.txt_admin_access_state);
         btnToggleDemoAdmin = findViewById(R.id.btn_toggle_demo_admin);

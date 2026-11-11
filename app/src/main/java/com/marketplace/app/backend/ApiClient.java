@@ -27,15 +27,16 @@ public final class ApiClient {
     private ApiClient() {}
 
     public static synchronized void setUseMock(boolean mock) {
-        useMock = mock;
+        // Mode mock définitivement désactivé : l'application utilise l'API PostgreSQL
+        useMock = false;
     }
 
     public static synchronized boolean isUseMock() {
-        return useMock;
+        return false;
     }
 
     public static synchronized String getBaseUrl() {
-        return currentBaseUrl != null ? currentBaseUrl : "http://10.0.2.2:8080/api/";
+        return currentBaseUrl != null ? currentBaseUrl : "http://192.168.1.204:8080/api/";
     }
 
     public static synchronized void init(String baseUrl) {
@@ -45,8 +46,8 @@ public final class ApiClient {
         currentBaseUrl = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
 
         OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(3, TimeUnit.SECONDS)
-                .readTimeout(10, TimeUnit.SECONDS)
+                .connectTimeout(15, TimeUnit.SECONDS)
+                .readTimeout(20, TimeUnit.SECONDS)
                 .addInterceptor(new Interceptor() {
                     @Override
                     public Response intercept(Chain chain) throws IOException {
@@ -66,7 +67,15 @@ public final class ApiClient {
                             } catch (Exception ignored) {
                             }
                         }
-                        Response response = chain.proceed(request);
+                        android.util.Log.i("ApiClient", ">>> SENDING: " + request.method() + " " + request.url());
+                        Response response;
+                        try {
+                            response = chain.proceed(request);
+                            android.util.Log.i("ApiClient", "<<< RECEIVED: " + response.code() + " for " + request.url());
+                        } catch (IOException e) {
+                            android.util.Log.e("ApiClient", "!!! FAILED: " + request.url() + " -> " + e.getClass().getName() + ": " + e.getMessage(), e);
+                            throw e;
+                        }
                         // En cas d'expiration du jeton ID Firebase (401), forcer son renouvellement une seule fois
                         if (response.code() == 401 && session != null && session.isLoggedIn()
                                 && request.header("X-Token-Retried") == null) {
@@ -98,9 +107,44 @@ public final class ApiClient {
 
     public static synchronized MarketplaceApi getApi() {
         if (apiService == null) {
-            init("http://10.0.2.2:8080/api/");
+            init("http://192.168.1.204:8080/api/");
         }
         return apiService;
+    }
+
+    public static synchronized void setBaseUrl(android.content.Context context, String newBaseUrl) {
+        if (newBaseUrl == null || newBaseUrl.trim().isEmpty()) {
+            return;
+        }
+        String cleanUrl = newBaseUrl.trim();
+        if (!cleanUrl.startsWith("http://") && !cleanUrl.startsWith("https://")) {
+            cleanUrl = "http://" + cleanUrl;
+        }
+        if (!cleanUrl.endsWith("/")) {
+            cleanUrl = cleanUrl + "/";
+        }
+        if (!cleanUrl.contains("/api/")) {
+            cleanUrl = cleanUrl.endsWith("/") ? cleanUrl + "api/" : cleanUrl + "/api/";
+        }
+        if (context != null) {
+            context.getSharedPreferences("bizinevo_network_prefs", android.content.Context.MODE_PRIVATE)
+                    .edit()
+                    .putString("custom_api_base_url", cleanUrl)
+                    .apply();
+        }
+        init(cleanUrl);
+    }
+
+    public static synchronized String resolveConfiguredBaseUrl(android.content.Context context, String defaultUrl) {
+        if (context != null) {
+            String saved = context.getSharedPreferences("bizinevo_network_prefs", android.content.Context.MODE_PRIVATE)
+                    .getString("custom_api_base_url", null);
+            if (saved != null && !saved.trim().isEmpty()
+                    && !saved.contains("10.0.2.2") && !saved.contains("127.0.0.1") && !saved.contains("localhost")) {
+                return saved;
+            }
+        }
+        return defaultUrl;
     }
 
     public static synchronized void setApiForTesting(MarketplaceApi api) {

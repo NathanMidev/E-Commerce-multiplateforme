@@ -14,19 +14,13 @@ local.properties
 .env.*
 !.env.example
 node_modules/
+*google-services.json
+!google-services.json.example
 app/google-services.json
 
 # IntelliJ / Android Studio
 *.iml
-.idea/caches/
-.idea/libraries/
-.idea/modules.xml
-.idea/workspace.xml
-.idea/navEditor.xml
-.idea/assetWizardSettings.xml
-.idea/deploymentTargetSelector.xml
-.idea/studiobot.xml
-.idea/render.experimental.xml
+.idea/
 
 # Agent / tooling worktrees
 .claude/
@@ -41,4 +35,11 @@ node_modules/
 
 # Archives
 *.zip
+
+# Local utilities & memoire docx/python safety
+ouvrir_parefeu.bat
+*.docx
+*.pyc
+__pycache__/
+
 

@@ -55,7 +55,6 @@ public class MainActivity extends BaseActivity {
 
         View btnSearchTrigger = findViewById(R.id.layout_search_trigger);
         View btnPublishMain = findViewById(R.id.btn_publish_main);
-        View btnScanCenter = findViewById(R.id.btn_scan_center);
 
         View catHighTech = findViewById(R.id.btn_quick_cat_hightech);
         View catFurniture = findViewById(R.id.btn_quick_cat_furniture);
@@ -170,9 +169,8 @@ public class MainActivity extends BaseActivity {
         // Profil
         if (btnBottomProfile != null) btnBottomProfile.setOnClickListener(v -> requireLogin(() -> Router.openProfile(this)));
 
-        // Déposer annonce & import manuel d'un modèle 3D .glb
+        // Déposer annonce (inclut l'import optionnel d'un modèle 3D .glb)
         if (btnPublishMain != null) btnPublishMain.setOnClickListener(v -> requireLogin(() -> Router.openProductPublish(this)));
-        if (btnScanCenter != null) btnScanCenter.setOnClickListener(v -> requireLogin(() -> Router.openProductPublish(this)));
 
         // Boutons de compatibilité anciens tests
         Button btnNavCatalog = findViewById(R.id.btn_nav_catalog);

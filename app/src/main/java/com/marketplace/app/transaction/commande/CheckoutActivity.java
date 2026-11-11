@@ -52,8 +52,16 @@ public class CheckoutActivity extends BaseActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (com.marketplace.app.backend.AuthSession.getInstance().isLoggedIn()) {
+            loadData();
+        }
+    }
+
+    @Override
     protected void loadData() {
-        if (!requireLogin(this::loadData)) return;
+        if (!requireLogin()) return;
 
         // Pré-remplissage depuis le profil
         userRepository.getMyProfile(new BaseRepository.Callback<User>() {

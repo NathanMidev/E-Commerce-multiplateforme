@@ -45,6 +45,60 @@ public class ArSceneController {
     private volatile boolean hasNativeReticleHit = false;
     private final float[] nativeReticleHitPos = new float[]{0.0f, 0.0f, -2.0f};
 
+    // Aperçu du modèle AVANT placement : suit le réticule, orientable et redimensionnable au tactile.
+    // Une fois placé, l'exemplaire est ancré et son orientation/taille sont figées.
+    private volatile boolean previewActive = true;
+    private float previewRotationDegrees = 0.0f;
+    private float previewScaleFactor = 1.0f;
+
+    public boolean isPreviewActive() { return previewActive; }
+    public void setPreviewActive(boolean active) { this.previewActive = active; }
+    public float getPreviewRotationDegrees() { return previewRotationDegrees; }
+    public float getPreviewScaleFactor() { return previewScaleFactor; }
+
+    public void rotatePreviewBy(float deltaDegrees) {
+        float r = (previewRotationDegrees + deltaDegrees) % 360.0f;
+        previewRotationDegrees = r < 0 ? r + 360.0f : r;
+    }
+
+    public void setPreviewRotationDegrees(float degrees) {
+        float r = degrees % 360.0f;
+        this.previewRotationDegrees = r < 0 ? r + 360.0f : r;
+    }
+
+    public void scalePreviewTo(float newScale) {
+        previewScaleFactor = Math.max(ArPlacedInstance.MIN_SCALE, Math.min(ArPlacedInstance.MAX_SCALE, newScale));
+    }
+
+    /**
+     * Prépare le mode aperçu (preview) pour dupliquer l'instance sélectionnée (ou la dernière placée).
+     * L'aperçu hérite de la rotation et de l'échelle de l'instance source et devient actif (previewActive = true)
+     * sans créer d'instance ni d'ancrage jusqu'à ce que placePreviewAt() soit appelé.
+     */
+    public synchronized boolean prepareDuplicatePreviewFromSelected() {
+        ArPlacedInstance source = selectedInstance != null
+                ? selectedInstance
+                : (!instances.isEmpty() ? instances.get(instances.size() - 1) : null);
+        if (source == null) {
+            return false;
+        }
+        setPreviewRotationDegrees(source.getRotationDegrees());
+        scalePreviewTo(source.getScaleFactor());
+        this.previewActive = true;
+        return true;
+    }
+
+    /**
+     * Ancre l'aperçu à la position donnée en conservant l'orientation et la taille choisies au tactile.
+     */
+    public synchronized ArPlacedInstance placePreviewAt(float x, float y, float z) {
+        ArPlacedInstance placed = placeInstanceOnSurface(x, y, z);
+        placed.setRotationDegrees(previewRotationDegrees);
+        placed.setScaleFactor(previewScaleFactor);
+        previewActive = false;
+        return placed;
+    }
+
     /**
      * Injecte la matrice View-Projection 4x4 native calculée par ARCore (Camera.getProjectionMatrix * Camera.getViewMatrix)
      * ainsi que la position 3D exacte de la caméra ARCore (Camera.getPose()).
@@ -471,6 +525,7 @@ public class ArSceneController {
         }
         instances.clear();
         selectedInstance = null;
+        previewActive = true;
     }
 
     /**

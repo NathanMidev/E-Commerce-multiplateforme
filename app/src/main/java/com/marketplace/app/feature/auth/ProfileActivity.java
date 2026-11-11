@@ -25,6 +25,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.bumptech.glide.Glide;
 import com.marketplace.app.BuildConfig;
 import com.marketplace.app.R;
+import com.marketplace.app.backend.ApiClient;
 import com.marketplace.app.backend.AuthSession;
 import com.marketplace.app.backend.repository.UserRepository;
 import com.marketplace.app.base.BaseActivity;
@@ -219,6 +220,10 @@ public class ProfileActivity extends BaseActivity {
 
         if (btnRetry != null) {
             btnRetry.setOnClickListener(v -> loadUserProfile(false));
+            btnRetry.setOnLongClickListener(v -> {
+                showServerConfigDialog();
+                return true;
+            });
         }
 
         // Action sur "Modifier mon profil"
@@ -930,21 +935,49 @@ public class ProfileActivity extends BaseActivity {
         builder.setTitle("Paramètres de l'application");
 
         boolean isAdmin = AdminAccessControl.isCurrentUserAdmin();
+        String currentServer = ApiClient.getBaseUrl();
         String versionInfo = "BIZINEVO Android\nVersion " + BuildConfig.VERSION_NAME + " (Build " + BuildConfig.VERSION_CODE + ")\n\n"
                 + "Compte : " + (currentUser != null && currentUser.getEmail() != null ? currentUser.getEmail() : "Connecté")
-                + "\nStatut : " + (isAdmin ? "Administrateur Agence" : "Utilisateur Standard");
+                + "\nStatut : " + (isAdmin ? "Administrateur Agence" : "Utilisateur Standard")
+                + "\n\nServeur Backend actuel :\n" + currentServer;
 
         builder.setMessage(versionInfo);
         builder.setPositiveButton("Fermer", (dialog, which) -> dialog.dismiss());
+        builder.setNeutralButton("Modifier IP Serveur", (dialog, which) -> {
+            dialog.dismiss();
+            showServerConfigDialog();
+        });
 
         if (isAdmin) {
-            builder.setNeutralButton("Espace Admin 1688", (dialog, which) -> {
+            builder.setNegativeButton("Espace Admin 1688", (dialog, which) -> {
                 dialog.dismiss();
                 Router.openImport1688Admin(this);
             });
         }
 
         builder.show();
+    }
+
+    private void showServerConfigDialog() {
+        EditText input = new EditText(this);
+        input.setText(ApiClient.getBaseUrl());
+        input.setSingleLine(true);
+        input.setPadding(40, 24, 40, 24);
+
+        new AlertDialog.Builder(this)
+                .setTitle("Configuration de l'adresse du serveur")
+                .setMessage("Indiquez l'adresse IP de votre PC sur le réseau local Wi-Fi (ex: http://192.168.1.204:8080/api/) :")
+                .setView(input)
+                .setPositiveButton("Enregistrer", (dialog, which) -> {
+                    String newUrl = input.getText().toString().trim();
+                    if (!newUrl.isEmpty()) {
+                        ApiClient.setBaseUrl(this, newUrl);
+                        toast("Serveur mis à jour : " + ApiClient.getBaseUrl());
+                        loadUserProfile(false);
+                    }
+                })
+                .setNegativeButton("Annuler", null)
+                .show();
     }
 
     private void performSignOut() {

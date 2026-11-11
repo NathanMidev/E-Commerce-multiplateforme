@@ -16,7 +16,7 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField "boolean", "USE_MOCK_BACKEND", "" + (project.findProperty("useMockBackend") ?: "false")
-        buildConfigField "String", "API_BASE_URL", "\"" + (project.findProperty("apiBaseUrl") ?: "http://10.0.2.2:8080/api/") + "\""
+        buildConfigField "String", "API_BASE_URL", "\"" + (project.findProperty("apiBaseUrl") ?: "http://192.168.1.204:8080/api/") + "\""
     }
 
     buildTypes {

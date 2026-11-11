@@ -82,8 +82,13 @@ public abstract class BaseRepository<T extends BaseModel> {
      * Analyse les erreurs d'exception réseau (IOException, déconnexion).
      */
     public static String parseNetworkError(Throwable t) {
+        if (t != null) {
+            android.util.Log.e("BaseRepository", "NETWORK_ERROR_DEBUG: " + t.getClass().getName() + " -> " + t.getMessage(), t);
+        }
         if (t instanceof IOException) {
-            return "Impossible de joindre le serveur. Vérifiez votre connexion.";
+            String detail = (t.getMessage() != null && !t.getMessage().trim().isEmpty())
+                    ? " (" + t.getMessage() + ")" : "";
+            return "Impossible de joindre le serveur" + detail + ". Vérifiez votre connexion.";
         }
         return t != null && t.getMessage() != null ? t.getMessage() : "Erreur inattendue";
     }

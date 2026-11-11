@@ -83,15 +83,10 @@ public class Import1688HomeActivity extends AppCompatActivity {
         findViewById(R.id.btn_admin_space).setOnClickListener(v -> Router.openImport1688Admin(this));
         findViewById(R.id.btn_refresh_orders).setOnClickListener(v -> loadData());
 
-        switchMockMode.setChecked(ApiClient.isUseMock());
-        updateModeBanner(ApiClient.isUseMock());
-        switchMockMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            ApiClient.setUseMock(isChecked);
-            ensureSessionInMockMode();
-            repository = new ImportOrderRepository(isChecked);
-            updateModeBanner(isChecked);
-            loadData();
-        });
+        if (switchMockMode != null) {
+            switchMockMode.setVisibility(android.view.View.GONE);
+        }
+        updateModeBanner(false);
 
         edtQuickCny.addTextChangedListener(new TextWatcher() {
             @Override
@@ -112,24 +107,17 @@ public class Import1688HomeActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        ensureSessionInMockMode();
-        repository = new ImportOrderRepository(ApiClient.isUseMock());
-        switchMockMode.setChecked(ApiClient.isUseMock());
-        updateModeBanner(ApiClient.isUseMock());
+        repository = new ImportOrderRepository();
+        updateModeBanner(false);
         loadData();
     }
 
     private void ensureSessionInMockMode() {
-        if (ApiClient.isUseMock() && !AuthSession.getInstance().isLoggedIn()) {
-            AuthSession.getInstance().updateSession("mock-buyer-1", "mock-jwt-token");
-        }
     }
 
     private void updateModeBanner(boolean isMock) {
-        if (isMock) {
-            txtModeStatus.setText("Mode actif : [SIMULÉ] Données locales de démonstration");
-        } else {
-            txtModeStatus.setText("Mode actif : API REST Réelle (/api/import1688/*)");
+        if (txtModeStatus != null) {
+            txtModeStatus.setText("Mode actif : API REST PostgreSQL (/api/import1688/*)");
         }
     }
 

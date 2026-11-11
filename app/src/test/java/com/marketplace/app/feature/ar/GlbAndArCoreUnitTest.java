@@ -722,4 +722,52 @@ public class GlbAndArCoreUnitTest {
         assertTrue("Quand le téléphone tourne à droite, la copie ancrée au sol doit aussi se décaler vers la gauche de l'écran",
                 screen2After[0] < screen2Before[0] - 100.0f);
     }
+
+    // =========================================================================
+    // 20. Duplication en deux étapes : Aperçu flottant visible avant placement définitif
+    // =========================================================================
+    @Test
+    public void scenario20_twoStepDuplicationWithVisiblePreviewBeforePlacement() {
+        ArSceneController scene = new ArSceneController();
+        GlbModelCache.SharedGlbResource resource = GlbModelCache.getInstance()
+                .loadFromBytes("https://storage.firebase.local/products/test/model.glb",
+                        GlbValidator.createMinimalValidGlbBytes());
+        scene.bindSharedGlbResource(resource);
+        scene.onSurfaceDetected("HORIZONTAL");
+
+        // 1. Initialement, l'aperçu est actif (previewActive == true) avant le 1er placement
+        assertTrue("L'aperçu doit être actif au démarrage", scene.isPreviewActive());
+        scene.scalePreviewTo(1.25f);
+        scene.setPreviewRotationDegrees(45.0f);
+
+        // 2. Placement du premier exemplaire au sol
+        ArPlacedInstance inst1 = scene.placePreviewAt(0.0f, 0.0f, -1.5f);
+        assertNotNull(inst1);
+        assertEquals(1, scene.getInstanceCount());
+        assertEquals(1.25f, inst1.getScaleFactor(), 0.001f);
+        assertEquals(45.0f, inst1.getRotationDegrees(), 0.001f);
+        assertFalse("L'aperçu doit être désactivé après avoir placé le 1er exemplaire", scene.isPreviewActive());
+
+        // 3. Duplication : activation de l'aperçu flottant sans modifier les instances existantes
+        boolean prepared = scene.prepareDuplicatePreviewFromSelected();
+        assertTrue("La préparation de la duplication doit réussir", prepared);
+        assertTrue("L'aperçu flottant doit être actif après avoir appuyé sur Dupliquer", scene.isPreviewActive());
+        assertEquals("L'aperçu doit copier la taille de l'original", 1.25f, scene.getPreviewScaleFactor(), 0.001f);
+        assertEquals("L'aperçu doit copier l'orientation de l'original", 45.0f, scene.getPreviewRotationDegrees(), 0.001f);
+        assertEquals("Le nombre d'instances au sol ne doit PAS changer avant d'appuyer sur Placer", 1, scene.getInstanceCount());
+
+        // 4. L'utilisateur peut réorienter l'aperçu du duplicata avant de le poser
+        scene.rotatePreviewBy(30.0f);
+        assertEquals(75.0f, scene.getPreviewRotationDegrees(), 0.001f);
+
+        // 5. Clic sur 'Placer' : l'exemplaire est désormais ancré au sol et l'aperçu se désactive
+        ArPlacedInstance inst2 = scene.placePreviewAt(0.8f, 0.0f, -1.8f);
+        assertNotNull(inst2);
+        assertEquals(2, scene.getInstanceCount());
+        assertFalse("L'aperçu doit redevenir inactif une fois le duplicata placé", scene.isPreviewActive());
+        assertNotEquals("Les instances doivent avoir des IDs distincts", inst1.getInstanceId(), inst2.getInstanceId());
+        assertSame("Le modèle GLB en mémoire doit être partagé", inst1.getSharedResource(), inst2.getSharedResource());
+        assertEquals(1.25f, inst2.getScaleFactor(), 0.001f);
+        assertEquals(75.0f, inst2.getRotationDegrees(), 0.001f);
+    }
 }

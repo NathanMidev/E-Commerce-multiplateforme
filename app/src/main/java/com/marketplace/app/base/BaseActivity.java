@@ -63,6 +63,10 @@ public abstract class BaseActivity extends AppCompatActivity {
     /**
      * Vérifie si l'utilisateur est connecté, sinon redirige vers la connexion.
      */
+    protected boolean requireLogin() {
+        return requireLogin(null);
+    }
+
     protected boolean requireLogin(@Nullable Runnable onLoggedIn) {
         if (!AuthSession.getInstance().isLoggedIn()) {
             Router.openLogin(this);

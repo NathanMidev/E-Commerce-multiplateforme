@@ -53,19 +53,34 @@ public class OrdersActivity extends BaseActivity {
 
         btnTabBuyer.setOnClickListener(v -> {
             isSellerMode = false;
-            btnTabBuyer.setBackgroundColor(getResources().getColor(R.color.primary));
-            btnTabSeller.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+            updateTabs();
             setupAdapter();
             loadData();
         });
 
         btnTabSeller.setOnClickListener(v -> {
             isSellerMode = true;
-            btnTabSeller.setBackgroundColor(getResources().getColor(R.color.primary));
-            btnTabBuyer.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+            updateTabs();
             setupAdapter();
             loadData();
         });
+        updateTabs();
+    }
+
+    private void updateTabs() {
+        int primaryColor = androidx.core.content.ContextCompat.getColor(this, R.color.primary);
+        int surfaceColor = androidx.core.content.ContextCompat.getColor(this, R.color.surface);
+        if (!isSellerMode) {
+            btnTabBuyer.setBackgroundColor(primaryColor);
+            btnTabBuyer.setTextColor(surfaceColor);
+            btnTabSeller.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+            btnTabSeller.setTextColor(primaryColor);
+        } else {
+            btnTabSeller.setBackgroundColor(primaryColor);
+            btnTabSeller.setTextColor(surfaceColor);
+            btnTabBuyer.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+            btnTabBuyer.setTextColor(primaryColor);
+        }
     }
 
     private void setupAdapter() {
@@ -87,8 +102,16 @@ public class OrdersActivity extends BaseActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (com.marketplace.app.backend.AuthSession.getInstance().isLoggedIn()) {
+            loadData();
+        }
+    }
+
+    @Override
     protected void loadData() {
-        if (!requireLogin(this::loadData)) return;
+        if (!requireLogin()) return;
 
         orderRepository.list(isSellerMode, new BaseRepository.Callback<List<Order>>() {
             @Override

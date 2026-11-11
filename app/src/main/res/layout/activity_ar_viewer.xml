@@ -5,94 +5,58 @@
     android:layout_height="match_parent"
     android:background="#121212">
 
-    <!-- 0. GLSurfaceView OpenGL ES 2.0 officiel pour le flux caméra et la Session native ARCore -->
+    <!-- Flux caméra + Session ARCore (OpenGL ES 2.0) -->
     <android.opengl.GLSurfaceView
         android:id="@+id/ar_gl_surface_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- 1. Surface interactive ARCore (Grille de surface + Instances 3D indépendantes) -->
+    <!-- Surface interactive : surfaces détectées, aperçu du modèle et exemplaires placés -->
     <com.marketplace.app.feature.ar.ArInteractiveSurfaceView
         android:id="@+id/ar_interactive_surface"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- 2. En-tête supérieur (Nom du produit, Badge ARCore, Statut de détection de surface) -->
+    <!-- En-tête minimal : fermer + nom du produit -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
-        android:background="#D9111827"
-        android:orientation="vertical"
-        android:padding="14dp">
+        android:background="#99000000"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="6dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <ImageButton
-                android:id="@+id/btn_ar_close"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Fermer AR"
-                android:src="@android:drawable/ic_menu_close_clear_cancel"
-                app:tint="#FFFFFF" />
-
-            <TextView
-                android:id="@+id/tv_ar_product_name"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_weight="1"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="Produit Local 3D (.glb)"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tv_ar_badge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="#00897B"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="3dp"
-                android:text="ARCore GLB"
-                android:textColor="#FFFFFF"
-                android:textSize="11sp"
-                android:textStyle="bold" />
-        </LinearLayout>
+        <ImageButton
+            android:id="@+id/btn_ar_close"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Fermer"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            app:tint="#FFFFFF" />
 
         <TextView
-            android:id="@+id/tv_ar_plane_status"
-            android:layout_width="match_parent"
+            android:id="@+id/tv_ar_product_name"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Détection des surfaces planes (horizontales et verticales)..."
-            android:textColor="#69F0AE"
-            android:textSize="12sp"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Produit 3D"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
             android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tv_ar_instance_summary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:text="Aucun exemplaire placé • Touchez la surface ou appuyez sur « Placer »"
-            android:textColor="#CFD8DC"
-            android:textSize="11sp" />
     </LinearLayout>
 
-    <!-- 3. Panneau inférieur de gestion des instances AR (Placement, Duplication, Rotation, Échelle, Suppression) -->
+    <!-- Panneau inférieur : aide + 3 boutons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="#E61E293B"
+        android:background="#99000000"
         android:orientation="vertical"
         android:padding="12dp">
 
@@ -100,118 +64,56 @@
             android:id="@+id/tv_ar_interaction_hint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:text="Astuce : Touchez un exemplaire pour le sélectionner, glissez pour le déplacer indépendamment, ou appuyez sur « Dupliquer »."
-            android:textColor="#E2E8F0"
-            android:textSize="11sp" />
+            android:layout_marginBottom="10dp"
+            android:gravity="center"
+            android:text="Déplacez lentement le téléphone pour détecter le sol"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp" />
 
-        <!-- Ligne 1 : Placer + Dupliquer + Supprimer instance -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <Button
+                android:id="@+id/btn_ar_duplicate"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:backgroundTint="#FF6000"
+                android:enabled="false"
+                android:text="Dupliquer"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp" />
+
+            <Button
                 android:id="@+id/btn_place_object"
                 android:layout_width="0dp"
-                android:layout_height="44dp"
-                android:layout_marginEnd="4dp"
+                android:layout_height="48dp"
+                android:layout_marginHorizontal="4dp"
                 android:layout_weight="1"
                 android:backgroundTint="#00897B"
                 android:text="Placer"
                 android:textAllCaps="false"
                 android:textColor="#FFFFFF"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-
-            <Button
-                android:id="@+id/btn_ar_duplicate"
-                android:layout_width="0dp"
-                android:layout_height="44dp"
-                android:layout_marginHorizontal="4dp"
-                android:layout_weight="1.15"
-                android:backgroundTint="#FF6000"
-                android:enabled="false"
-                android:text="➕ Dupliquer"
-                android:textAllCaps="false"
-                android:textColor="#FFFFFF"
-                android:textSize="12sp"
+                android:textSize="13sp"
                 android:textStyle="bold" />
 
             <Button
                 android:id="@+id/btn_ar_delete_instance"
                 android:layout_width="0dp"
-                android:layout_height="44dp"
+                android:layout_height="48dp"
                 android:layout_marginStart="4dp"
-                android:layout_weight="0.95"
+                android:layout_weight="1"
                 android:backgroundTint="#D32F2F"
                 android:enabled="false"
                 android:text="Supprimer"
                 android:textAllCaps="false"
                 android:textColor="#FFFFFF"
-                android:textSize="12sp" />
+                android:textSize="13sp" />
         </LinearLayout>
-
-        <!-- Ligne 2 : Pivoter + Échelle -/+ + Réinitialiser scène -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/btn_ar_rotate"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="4dp"
-                android:layout_weight="1"
-                android:backgroundTint="#334155"
-                android:enabled="false"
-                android:text="↻ Pivoter"
-                android:textAllCaps="false"
-                android:textColor="#FFFFFF"
-                android:textSize="11sp" />
-
-            <Button
-                android:id="@+id/btn_ar_scale_down"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_marginHorizontal="2dp"
-                android:layout_weight="0.75"
-                android:backgroundTint="#334155"
-                android:enabled="false"
-                android:text="Échelle -"
-                android:textAllCaps="false"
-                android:textColor="#FFFFFF"
-                android:textSize="11sp" />
-
-            <Button
-                android:id="@+id/btn_ar_scale_up"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_marginHorizontal="2dp"
-                android:layout_weight="0.75"
-                android:backgroundTint="#334155"
-                android:enabled="false"
-                android:text="Échelle +"
-                android:textAllCaps="false"
-                android:textColor="#FFFFFF"
-                android:textSize="11sp" />
-
-            <Button
-                android:id="@+id/btn_reset_ar"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="4dp"
-                android:layout_weight="1.1"
-                android:backgroundTint="#475569"
-                android:enabled="false"
-                android:text="Réinitialiser"
-                android:textAllCaps="false"
-                android:textColor="#FFFFFF"
-                android:textSize="11sp" />
-        </LinearLayout>
-
     </LinearLayout>
 
 </FrameLayout>

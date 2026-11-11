@@ -75,11 +75,7 @@ public class Import1688OrderDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_import1688_order_detail);
 
-        if (ApiClient.isUseMock() && !AuthSession.getInstance().isLoggedIn()) {
-            AuthSession.getInstance().updateSession("mock-buyer-1", "mock-jwt-token");
-        }
-
-        repository = new ImportOrderRepository(ApiClient.isUseMock());
+        repository = new ImportOrderRepository();
         orderId = getIntent().getStringExtra(Router.EXTRA_IMPORT_ORDER_ID);
 
         txtToolbarTitle = findViewById(R.id.txt_toolbar_title);

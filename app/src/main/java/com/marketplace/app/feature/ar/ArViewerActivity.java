@@ -57,17 +57,11 @@ public class ArViewerActivity extends BaseActivity implements GLSurfaceView.Rend
     private GLSurfaceView arGlSurfaceView;
     private ArInteractiveSurfaceView arSurfaceView;
     private TextView tvProductName;
-    private TextView tvPlaneStatus;
-    private TextView tvInstanceSummary;
     private TextView tvInteractionHint;
 
     private Button btnPlaceObject;
     private Button btnDuplicate;
     private Button btnDeleteInstance;
-    private Button btnRotate;
-    private Button btnScaleDown;
-    private Button btnScaleUp;
-    private Button btnResetScene;
 
     private String productId;
     private String productName;
@@ -109,17 +103,11 @@ public class ArViewerActivity extends BaseActivity implements GLSurfaceView.Rend
         arGlSurfaceView = findViewById(R.id.ar_gl_surface_view);
         arSurfaceView = findViewById(R.id.ar_interactive_surface);
         tvProductName = findViewById(R.id.tv_ar_product_name);
-        tvPlaneStatus = findViewById(R.id.tv_ar_plane_status);
-        tvInstanceSummary = findViewById(R.id.tv_ar_instance_summary);
         tvInteractionHint = findViewById(R.id.tv_ar_interaction_hint);
 
         btnPlaceObject = findViewById(R.id.btn_place_object);
         btnDuplicate = findViewById(R.id.btn_ar_duplicate);
         btnDeleteInstance = findViewById(R.id.btn_ar_delete_instance);
-        btnRotate = findViewById(R.id.btn_ar_rotate);
-        btnScaleDown = findViewById(R.id.btn_ar_scale_down);
-        btnScaleUp = findViewById(R.id.btn_ar_scale_up);
-        btnResetScene = findViewById(R.id.btn_reset_ar);
 
         ImageButton btnClose = findViewById(R.id.btn_ar_close);
         if (btnClose != null) {
@@ -140,54 +128,10 @@ public class ArViewerActivity extends BaseActivity implements GLSurfaceView.Rend
 
         arSurfaceView.setSceneController(sceneController);
         arSurfaceView.setOnSceneInteractionListener(this::refreshUiState);
-        arSurfaceView.setOnNativeArHitTestListener(new ArInteractiveSurfaceView.OnNativeArHitTestListener() {
-            @Override
-            public void onTapSurface(float screenX, float screenY) {
-                enqueuePlaceAtScreenPoint(screenX, screenY);
-            }
-
-            @Override
-            public void onDragSelectedInstance(float screenX, float screenY) {
-                enqueueDragSelectedToScreenPoint(screenX, screenY);
-            }
-        });
 
         btnPlaceObject.setOnClickListener(v -> placeNewInstanceFromButton());
         btnDuplicate.setOnClickListener(v -> duplicateCurrentInstance());
         btnDeleteInstance.setOnClickListener(v -> deleteCurrentInstance());
-        btnRotate.setOnClickListener(v -> {
-            if (sceneController.getSelectedInstance() != null) {
-                sceneController.rotateSelectedInstanceBy(45.0f);
-                arSurfaceView.invalidate();
-                refreshUiState();
-            }
-        });
-        btnScaleDown.setOnClickListener(v -> {
-            ArPlacedInstance sel = sceneController.getSelectedInstance();
-            if (sel != null) {
-                sceneController.scaleSelectedInstance(sel.getScaleFactor() - 0.15f);
-                arSurfaceView.invalidate();
-                refreshUiState();
-            }
-        });
-        btnScaleUp.setOnClickListener(v -> {
-            ArPlacedInstance sel = sceneController.getSelectedInstance();
-            if (sel != null) {
-                sceneController.scaleSelectedInstance(sel.getScaleFactor() + 0.15f);
-                arSurfaceView.invalidate();
-                refreshUiState();
-            }
-        });
-        btnResetScene.setOnClickListener(v -> {
-            pendingFrameActions.add((frame, session) -> {
-                sceneController.resetScene();
-                runOnUiThread(() -> {
-                    arSurfaceView.invalidate();
-                    refreshUiState();
-                    toast("Scène ARCore réinitialisée (ancres détachées)");
-                });
-            });
-        });
     }
 
     @Override
@@ -354,15 +298,7 @@ public class ArViewerActivity extends BaseActivity implements GLSurfaceView.Rend
 
             if (trackedCount != lastTrackedPlaneCount) {
                 lastTrackedPlaneCount = trackedCount;
-                runOnUiThread(() -> {
-                    if (trackedCount > 0) {
-                        tvPlaneStatus.setText(String.format(Locale.FRANCE,
-                                "✔ %d surface(s) plane(s) ARCore détectée(s) • Prêt à ancrer", trackedCount));
-                    } else {
-                        tvPlaneStatus.setText("Déplacez lentement le téléphone pour scanner le sol ou une table (ARCore)...");
-                    }
-                    refreshUiState();
-                });
+                runOnUiThread(this::refreshUiState);
             }
 
             // 4. Hit-test natif ARCore au centre de l'écran pour le réticule 3D sur le plan
@@ -376,7 +312,7 @@ public class ArViewerActivity extends BaseActivity implements GLSurfaceView.Rend
                 }
             }
 
-            // 5. Exécuter les actions d'ancrage ARCore en attente (Placer, Toucher, Glisser, Dupliquer)
+            // 5. Exécuter les actions d'ancrage ARCore en attente (Placer, Toucher, Dupliquer)
             FrameAction action;
             boolean stateChanged = false;
             while ((action = pendingFrameActions.poll()) != null) {
@@ -437,7 +373,11 @@ public class ArViewerActivity extends BaseActivity implements GLSurfaceView.Rend
         GlbModelCache.getInstance().loadModelAsync(this, modelUrl, new GlbModelCache.LoadCallback() {
             @Override
             public void onProgress(int percent) {
-                tvInstanceSummary.setText("Chargement de la ressource .glb : " + percent + "%...");
+                runOnUiThread(() -> {
+                    if (tvInteractionHint != null) {
+                        tvInteractionHint.setText("Chargement du modèle 3D : " + percent + "%...");
+                    }
+                });
             }
 
             @Override
@@ -460,38 +400,33 @@ public class ArViewerActivity extends BaseActivity implements GLSurfaceView.Rend
         pendingFrameActions.add((frame, session) -> {
             HitResult hit = findBestSurfaceHit(frame, screenX, screenY);
             if (hit == null) {
-                runOnUiThread(() -> toast("Scannez d'abord une surface plane (grille verte ARCore) avant de placer"));
+                runOnUiThread(() -> toast("Scannez d'abord le sol avant de placer"));
                 return;
             }
             Anchor anchor = hit.createAnchor();
             Pose p = anchor.getPose();
             sceneController.onSurfaceDetected("HORIZONTAL");
-            ArPlacedInstance placed = sceneController.placeInstanceOnSurface(p.tx(), p.ty(), p.tz());
+            ArPlacedInstance placed = sceneController.placePreviewAt(p.tx(), p.ty(), p.tz());
             placed.setArCoreAnchor(anchor);
-        });
-    }
-
-    private void enqueueDragSelectedToScreenPoint(float screenX, float screenY) {
-        pendingFrameActions.add((frame, session) -> {
-            ArPlacedInstance sel = sceneController.getSelectedInstance();
-            if (sel == null) return;
-            HitResult hit = findBestSurfaceHit(frame, screenX, screenY);
-            if (hit != null) {
-                Anchor newAnchor = hit.createAnchor();
-                Pose p = newAnchor.getPose();
-                sel.setArCoreAnchor(newAnchor);
-                sel.moveTo(p.tx(), p.ty(), p.tz());
-            }
+            runOnUiThread(() -> {
+                arSurfaceView.invalidate();
+                refreshUiState();
+                toast("Exemplaire #" + placed.getInstanceNumber() + " placé");
+            });
         });
     }
 
     private void placeNewInstanceFromButton() {
+        if (!sceneController.isPreviewActive()) {
+            toast("Appuyez d'abord sur « Dupliquer » pour préparer un nouvel exemplaire.");
+            return;
+        }
         if (!sceneController.isSurfaceDetected()) {
-            toast("Scannez d'abord le sol ou une table jusqu'à voir la surface verte ARCore");
+            toast("Scannez d'abord le sol avec la caméra ARCore");
             return;
         }
         if (sceneController.getSharedResource() == null) {
-            toast("Le modèle .glb est encore en cours de chargement");
+            toast("Le modèle 3D est en cours de chargement...");
             return;
         }
         float cx = viewportWidth > 0 ? viewportWidth * 0.5f : 540f;
@@ -500,70 +435,21 @@ public class ArViewerActivity extends BaseActivity implements GLSurfaceView.Rend
     }
 
     private void duplicateCurrentInstance() {
-        ArPlacedInstance sel = sceneController.getSelectedInstance();
-        if (sel == null) {
-            toast("Placez d'abord un premier exemplaire sur une surface ARCore");
+        if (sceneController.getInstanceCount() == 0) {
+            toast("Placez d'abord un modèle sur le sol avant de le dupliquer");
+            return;
+        }
+        if (sceneController.isPreviewActive()) {
+            toast("Un duplicata est déjà en cours de placement. Visez l'endroit désiré puis appuyez sur « Placer ».");
             return;
         }
 
-        pendingFrameActions.add((frame, session) -> {
-            ArPlacedInstance currentSel = sceneController.getSelectedInstance();
-            if (currentSel == null) return;
-
-            float cx = viewportWidth > 0 ? viewportWidth * 0.5f : 540f;
-            float cy = viewportHeight > 0 ? viewportHeight * 0.54f : 1000f;
-            HitResult centerHit = findBestSurfaceHit(frame, cx, cy);
-
-            Anchor copyAnchor = null;
-            float targetX;
-            float targetY;
-            float targetZ;
-
-            if (centerHit != null) {
-                Pose hitPose = centerHit.getHitPose();
-                double distFromOriginal = Math.hypot(
-                        hitPose.tx() - currentSel.getX(),
-                        hitPose.tz() - currentSel.getZ()
-                );
-                if (distFromOriginal >= 0.30) {
-                    // Ancrer la copie exactement au point de la surface ARCore visé par la caméra
-                    copyAnchor = centerHit.createAnchor();
-                    Pose p = copyAnchor.getPose();
-                    targetX = p.tx();
-                    targetY = p.ty();
-                    targetZ = p.tz();
-                } else {
-                    // Visée trop proche de l'original : créer une nouvelle Anchor ARCore décalée sur le même plan
-                    int count = sceneController.getInstanceCount();
-                    float stepX = (count % 2 == 1) ? 0.85f : -0.85f;
-                    targetX = currentSel.getX() + stepX;
-                    targetY = currentSel.getY();
-                    targetZ = currentSel.getZ();
-                    Pose offsetPose = new Pose(
-                            new float[]{targetX, targetY, targetZ},
-                            hitPose.getRotationQuaternion()
-                    );
-                    copyAnchor = session.createAnchor(offsetPose);
-                }
-            } else {
-                int count = sceneController.getInstanceCount();
-                float stepX = (count % 2 == 1) ? 0.85f : -0.85f;
-                targetX = currentSel.getX() + stepX;
-                targetY = currentSel.getY();
-                targetZ = currentSel.getZ();
-                Pose offsetPose = Pose.makeTranslation(targetX, targetY, targetZ);
-                copyAnchor = session.createAnchor(offsetPose);
-            }
-
-            ArPlacedInstance copy = sceneController.duplicateSelectedInstanceTo(
-                    targetX, targetY, targetZ, copyAnchor
-            );
-            runOnUiThread(() -> {
-                arSurfaceView.invalidate();
-                refreshUiState();
-                toast("Exemplaire #" + copy.getInstanceNumber() + " ancré via ARCore Anchor");
-            });
-        });
+        boolean prepared = sceneController.prepareDuplicatePreviewFromSelected();
+        if (prepared) {
+            arSurfaceView.invalidate();
+            refreshUiState();
+            toast("Duplicata prêt : visez l'endroit désiré puis appuyez sur « Placer »");
+        }
     }
 
     private void deleteCurrentInstance() {
@@ -571,9 +457,12 @@ public class ArViewerActivity extends BaseActivity implements GLSurfaceView.Rend
         if (sel != null) {
             int num = sel.getInstanceNumber();
             sceneController.deleteSelectedInstance();
+            if (sceneController.getInstanceCount() == 0) {
+                sceneController.setPreviewActive(true);
+            }
             arSurfaceView.invalidate();
             refreshUiState();
-            toast("Exemplaire #" + num + " supprimé (Anchor détachée)");
+            toast("Exemplaire #" + num + " supprimé");
         }
     }
 
@@ -581,23 +470,28 @@ public class ArViewerActivity extends BaseActivity implements GLSurfaceView.Rend
         int count = sceneController.getInstanceCount();
         ArPlacedInstance sel = sceneController.getSelectedInstance();
         boolean hasSelection = sel != null;
+        boolean isPreview = sceneController.isPreviewActive();
 
-        btnDuplicate.setEnabled(hasSelection);
+        btnPlaceObject.setEnabled(sceneController.isSurfaceDetected()
+                && sceneController.getSharedResource() != null
+                && isPreview);
+        btnDuplicate.setEnabled(hasSelection && !isPreview);
         btnDeleteInstance.setEnabled(hasSelection);
-        btnRotate.setEnabled(hasSelection);
-        btnScaleDown.setEnabled(hasSelection);
-        btnScaleUp.setEnabled(hasSelection);
-        btnResetScene.setEnabled(count > 0);
 
         if (count == 0) {
-            tvInstanceSummary.setText("0 exemplaire placé • Visez le polygone vert ARCore et appuyez sur « Placer »");
-            tvInteractionHint.setText("Scannez le sol avec la caméra jusqu'à l'apparition du polygone vert ARCore, puis touchez-le.");
+            if (!sceneController.isSurfaceDetected()) {
+                tvInteractionHint.setText("Déplacez lentement le téléphone pour détecter le sol...");
+            } else {
+                tvInteractionHint.setText("Ajustez l'orientation (glisser) et la taille (pincer), puis appuyez sur « Placer ».");
+            }
+        } else if (isPreview) {
+            tvInteractionHint.setText("Aperçu du duplicata visible • Visez le sol à l'endroit désiré et appuyez sur « Placer ».");
         } else if (sel != null) {
-            tvInstanceSummary.setText(String.format(Locale.FRANCE,
-                    "%d exemplaire(s) ancré(s) • Sélection : #%d (Pos %.2f, %.2f • Échelle %.2fx • Rot %.0f°)",
-                    count, sel.getInstanceNumber(), sel.getX(), sel.getZ(),
-                    sel.getScaleFactor(), sel.getRotationDegrees()));
-            tvInteractionHint.setText("Visez un autre endroit du polygone ARCore et appuyez sur « ➕ Dupliquer », ou glissez l'exemplaire #" + sel.getInstanceNumber() + ".");
+            tvInteractionHint.setText(String.format(Locale.FRANCE,
+                    "Modèle sélectionné (#%d) • Touchez un autre objet ou utilisez « Dupliquer » / « Supprimer »",
+                    sel.getInstanceNumber()));
+        } else {
+            tvInteractionHint.setText("Touchez un objet 3D sur le sol pour le sélectionner.");
         }
     }
 

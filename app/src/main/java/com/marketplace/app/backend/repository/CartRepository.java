@@ -57,8 +57,6 @@ public class CartRepository extends BaseRepository<Cart> {
             public void onResponse(Call<Cart> call, Response<Cart> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     postSuccess(callback, response.body());
-                } else if (uid != null) {
-                    postSuccess(callback, MockBackendService.getInstance().getCart(uid));
                 } else {
                     postError(callback, parseHttpError(response));
                 }
@@ -66,11 +64,7 @@ public class CartRepository extends BaseRepository<Cart> {
 
             @Override
             public void onFailure(Call<Cart> call, Throwable t) {
-                if (uid != null) {
-                    postSuccess(callback, MockBackendService.getInstance().getCart(uid));
-                } else {
-                    postError(callback, parseNetworkError(t));
-                }
+                postError(callback, parseNetworkError(t));
             }
         });
     }
@@ -78,6 +72,10 @@ public class CartRepository extends BaseRepository<Cart> {
     public void addItem(String productId, int quantity, Callback<Cart> callback) {
         final String uid = AuthSession.getInstance().getUserId();
         if (useMock) {
+            if (uid == null) {
+                postError(callback, "Connexion requise");
+                return;
+            }
             try {
                 Cart cart = MockBackendService.getInstance().addToCart(uid, productId, quantity);
                 postSuccess(callback, cart);
@@ -96,21 +94,13 @@ public class CartRepository extends BaseRepository<Cart> {
                 if (response.isSuccessful() && response.body() != null) {
                     postSuccess(callback, response.body());
                 } else {
-                    try {
-                        postSuccess(callback, MockBackendService.getInstance().addToCart(uid, productId, quantity));
-                    } catch (Exception e) {
-                        postError(callback, e.getMessage());
-                    }
+                    postError(callback, parseHttpError(response));
                 }
             }
 
             @Override
             public void onFailure(Call<Cart> call, Throwable t) {
-                try {
-                    postSuccess(callback, MockBackendService.getInstance().addToCart(uid, productId, quantity));
-                } catch (Exception e) {
-                    postError(callback, e.getMessage());
-                }
+                postError(callback, parseNetworkError(t));
             }
         });
     }
@@ -118,6 +108,10 @@ public class CartRepository extends BaseRepository<Cart> {
     public void setItemQuantity(String productId, int quantity, Callback<Cart> callback) {
         final String uid = AuthSession.getInstance().getUserId();
         if (useMock) {
+            if (uid == null) {
+                postError(callback, "Connexion requise");
+                return;
+            }
             try {
                 Cart cart = MockBackendService.getInstance().setCartItemQuantity(uid, productId, quantity);
                 postSuccess(callback, cart);
@@ -135,21 +129,13 @@ public class CartRepository extends BaseRepository<Cart> {
                 if (response.isSuccessful() && response.body() != null) {
                     postSuccess(callback, response.body());
                 } else {
-                    try {
-                        postSuccess(callback, MockBackendService.getInstance().setCartItemQuantity(uid, productId, quantity));
-                    } catch (Exception e) {
-                        postError(callback, e.getMessage());
-                    }
+                    postError(callback, parseHttpError(response));
                 }
             }
 
             @Override
             public void onFailure(Call<Cart> call, Throwable t) {
-                try {
-                    postSuccess(callback, MockBackendService.getInstance().setCartItemQuantity(uid, productId, quantity));
-                } catch (Exception e) {
-                    postError(callback, e.getMessage());
-                }
+                postError(callback, parseNetworkError(t));
             }
         });
     }
@@ -157,6 +143,10 @@ public class CartRepository extends BaseRepository<Cart> {
     public void removeItem(String productId, Callback<Cart> callback) {
         final String uid = AuthSession.getInstance().getUserId();
         if (useMock) {
+            if (uid == null) {
+                postError(callback, "Connexion requise");
+                return;
+            }
             postSuccess(callback, MockBackendService.getInstance().removeFromCart(uid, productId));
             return;
         }
@@ -167,13 +157,13 @@ public class CartRepository extends BaseRepository<Cart> {
                 if (response.isSuccessful() && response.body() != null) {
                     postSuccess(callback, response.body());
                 } else {
-                    postSuccess(callback, MockBackendService.getInstance().removeFromCart(uid, productId));
+                    postError(callback, parseHttpError(response));
                 }
             }
 
             @Override
             public void onFailure(Call<Cart> call, Throwable t) {
-                postSuccess(callback, MockBackendService.getInstance().removeFromCart(uid, productId));
+                postError(callback, parseNetworkError(t));
             }
         });
     }
@@ -181,6 +171,10 @@ public class CartRepository extends BaseRepository<Cart> {
     public void clear(Callback<Cart> callback) {
         final String uid = AuthSession.getInstance().getUserId();
         if (useMock) {
+            if (uid == null) {
+                postError(callback, "Connexion requise");
+                return;
+            }
             postSuccess(callback, MockBackendService.getInstance().clearCart(uid));
             return;
         }
@@ -191,13 +185,13 @@ public class CartRepository extends BaseRepository<Cart> {
                 if (response.isSuccessful() && response.body() != null) {
                     postSuccess(callback, response.body());
                 } else {
-                    postSuccess(callback, MockBackendService.getInstance().clearCart(uid));
+                    postError(callback, parseHttpError(response));
                 }
             }
 
             @Override
             public void onFailure(Call<Cart> call, Throwable t) {
-                postSuccess(callback, MockBackendService.getInstance().clearCart(uid));
+                postError(callback, parseNetworkError(t));
             }
         });
     }

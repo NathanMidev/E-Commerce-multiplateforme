@@ -74,17 +74,13 @@ public class OrderRepository extends BaseRepository<Order> {
                 if (response.isSuccessful() && response.body() != null) {
                     postSuccess(callback, response.body());
                 } else {
-                    Order o = MockBackendService.getInstance().getOrderById(id);
-                    if (o != null) postSuccess(callback, o);
-                    else postError(callback, parseHttpError(response));
+                    postError(callback, parseHttpError(response));
                 }
             }
 
             @Override
             public void onFailure(Call<Order> call, Throwable t) {
-                Order o = MockBackendService.getInstance().getOrderById(id);
-                if (o != null) postSuccess(callback, o);
-                else postError(callback, parseNetworkError(t));
+                postError(callback, parseNetworkError(t));
             }
         });
     }
@@ -92,6 +88,10 @@ public class OrderRepository extends BaseRepository<Order> {
     public void checkout(String address, String phone, PaymentMethod method, String note, Callback<List<Order>> callback) {
         final String uid = AuthSession.getInstance().getUserId();
         if (useMock) {
+            if (uid == null) {
+                postError(callback, "Connexion requise");
+                return;
+            }
             try {
                 List<Order> orders = MockBackendService.getInstance().checkout(uid, address, phone, method, note);
                 postSuccess(callback, orders);
@@ -113,21 +113,13 @@ public class OrderRepository extends BaseRepository<Order> {
                 if (response.isSuccessful() && response.body() != null) {
                     postSuccess(callback, response.body().get("orders"));
                 } else {
-                    try {
-                        postSuccess(callback, MockBackendService.getInstance().checkout(uid, address, phone, method, note));
-                    } catch (Exception e) {
-                        postError(callback, e.getMessage());
-                    }
+                    postError(callback, parseHttpError(response));
                 }
             }
 
             @Override
             public void onFailure(Call<Map<String, List<Order>>> call, Throwable t) {
-                try {
-                    postSuccess(callback, MockBackendService.getInstance().checkout(uid, address, phone, method, note));
-                } catch (Exception e) {
-                    postError(callback, e.getMessage());
-                }
+                postError(callback, parseNetworkError(t));
             }
         });
     }
@@ -152,21 +144,13 @@ public class OrderRepository extends BaseRepository<Order> {
                 if (response.isSuccessful() && response.body() != null) {
                     postSuccess(callback, response.body());
                 } else {
-                    try {
-                        postSuccess(callback, MockBackendService.getInstance().updateOrderStatus(uid, orderId, status));
-                    } catch (Exception e) {
-                        postError(callback, e.getMessage());
-                    }
+                    postError(callback, parseHttpError(response));
                 }
             }
 
             @Override
             public void onFailure(Call<Order> call, Throwable t) {
-                try {
-                    postSuccess(callback, MockBackendService.getInstance().updateOrderStatus(uid, orderId, status));
-                } catch (Exception e) {
-                    postError(callback, e.getMessage());
-                }
+                postError(callback, parseNetworkError(t));
             }
         });
     }

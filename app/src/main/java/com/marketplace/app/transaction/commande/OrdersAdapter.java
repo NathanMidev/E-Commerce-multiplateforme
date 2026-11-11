@@ -43,17 +43,18 @@ public class OrdersAdapter extends BaseAdapter<Order, OrdersAdapter.ViewHolder> 
 
     @Override
     protected void bind(@NonNull ViewHolder holder, Order order, int position) {
-        holder.tvRef.setText(order.getReference());
-        holder.tvStatus.setText(order.getStatus().name());
+        holder.tvRef.setText(order.getReference() != null ? order.getReference() : ("CMD #" + order.getId()));
+        holder.tvStatus.setText(order.getStatus() != null ? order.getStatus().name() : "EN_ATTENTE");
 
         if (isSellerMode) {
-            holder.tvParty.setText("Acheteur : " + (order.getBuyerName() != null ? order.getBuyerName() : order.getBuyerId())
+            holder.tvParty.setText("Acheteur : " + (order.getBuyerName() != null ? order.getBuyerName() : (order.getBuyerId() != null ? order.getBuyerId() : "-"))
                     + " | Livrer à : " + (order.getDeliveryAddress() != null ? order.getDeliveryAddress() : "-"));
         } else {
-            holder.tvParty.setText("Vendeur : " + (order.getSellerName() != null ? order.getSellerName() : order.getSellerId()));
+            holder.tvParty.setText("Vendeur : " + (order.getSellerName() != null ? order.getSellerName() : (order.getSellerId() != null ? order.getSellerId() : "-")));
         }
 
-        holder.tvSummary.setText(order.getItems().size() + " article(s) • Total : " + PriceFormatter.format(order.getTotal()));
+        int count = order.getItems() != null ? order.getItems().size() : 0;
+        holder.tvSummary.setText(count + " article(s) • Total : " + PriceFormatter.format(order.getTotal()));
 
         // Actions contextuelles
         holder.btnPrimary.setVisibility(View.GONE);

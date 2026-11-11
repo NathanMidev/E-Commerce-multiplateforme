@@ -56,7 +56,7 @@ public class Import1688RequestActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_import1688_request);
 
-        repository = new ImportOrderRepository(ApiClient.isUseMock());
+        repository = new ImportOrderRepository();
 
         edtProductUrl = findViewById(R.id.edt_product_url);
         edtProductName = findViewById(R.id.edt_product_name);

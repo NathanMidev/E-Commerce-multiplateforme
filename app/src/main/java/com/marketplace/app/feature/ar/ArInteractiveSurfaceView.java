@@ -10,20 +10,19 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.view.ViewConfiguration;
 
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Rôle : Surface interactive de scène ARCore en espace réel 3D (World Space) affichant :
- * - La grille de surface physique ancrée sur le sol (Y = 0) et le réticule 3D projeté au sol
- * - Toutes les instances 3D (.glb) ancrées indépendamment sur la surface physique (qui restent fixes
- *   au sol lorsque le téléphone bouge, tourne ou s'incline)
- * - La sélection tactile 3D d'une instance, son déplacement par ray-casting sur le plan du sol et son redimensionnement.
+ * - Les surfaces planes détectées par ARCore et le réticule 3D projeté au sol
+ * - L'aperçu du modèle (.glb) avant placement, orientable (glisser) et redimensionnable (pincer)
+ * - Les exemplaires ancrés, figés sur la surface physique ; un simple toucher en sélectionne un.
  */
 public class ArInteractiveSurfaceView extends View {
 
@@ -31,34 +30,31 @@ public class ArInteractiveSurfaceView extends View {
         void onSceneStateChanged();
     }
 
-    /**
-     * Listener permettant de déléguer les touchers et glissements au thread OpenGL ARCore
-     * afin d'exécuter Frame.hitTest(screenX, screenY) et HitResult.createAnchor() natifs.
-     */
-    public interface OnNativeArHitTestListener {
-        void onTapSurface(float screenX, float screenY);
-        void onDragSelectedInstance(float screenX, float screenY);
-    }
+    /** Sensibilité de rotation de l'aperçu : degrés par pixel de glissement horizontal. */
+    private static final float ROTATION_DEGREES_PER_PIXEL = 0.45f;
 
     private ArSceneController sceneController;
     private OnSceneInteractionListener interactionListener;
-    private OnNativeArHitTestListener nativeHitTestListener;
 
     private final Paint planeGridPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint planeFillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint reticlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint selectionRingPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint previewRingPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint shadowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint facePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint edgePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Paint labelPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Paint labelBgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Path facePath = new Path();
     private final Path ringPath = new Path();
 
     private final ScaleGestureDetector scaleDetector;
+    private final int touchSlop;
     private boolean isScaling = false;
-    private boolean draggingSelectedInstance = false;
+    private boolean gestureWasScale = false;
+    private boolean movedBeyondSlop = false;
+    private float downX;
+    private float downY;
+    private float lastX;
 
     public ArInteractiveSurfaceView(Context context) {
         this(context, null);
@@ -92,27 +88,25 @@ public class ArInteractiveSurfaceView extends View {
         edgePaint.setStyle(Paint.Style.STROKE);
         edgePaint.setStrokeWidth(1.5f);
 
-        labelPaint.setColor(Color.WHITE);
-        labelPaint.setTextSize(25f);
-        labelPaint.setFakeBoldText(true);
-        labelPaint.setTextAlign(Paint.Align.CENTER);
-
-        labelBgPaint.setColor(Color.parseColor("#B30F172A"));
-        labelBgPaint.setStyle(Paint.Style.FILL);
+        previewRingPaint.setColor(Color.WHITE);
+        previewRingPaint.setStyle(Paint.Style.STROKE);
+        previewRingPaint.setStrokeWidth(4f);
+        previewRingPaint.setPathEffect(new DashPathEffect(new float[]{18f, 12f}, 0f));
 
         scaleDetector = new ScaleGestureDetector(context, new ScaleGestureDetector.SimpleOnScaleGestureListener() {
             @Override
             public boolean onScaleBegin(ScaleGestureDetector detector) {
                 isScaling = true;
+                gestureWasScale = true;
                 return true;
             }
 
             @Override
             public boolean onScale(ScaleGestureDetector detector) {
-                if (sceneController != null && sceneController.getSelectedInstance() != null) {
-                    float current = sceneController.getSelectedInstance().getScaleFactor();
-                    sceneController.scaleSelectedInstance(current * detector.getScaleFactor());
-                    notifySceneChanged();
+                // Le pincement ne redimensionne que l'aperçu (modèle pas encore placé)
+                if (sceneController != null && sceneController.isPreviewActive()) {
+                    sceneController.scalePreviewTo(
+                            sceneController.getPreviewScaleFactor() * detector.getScaleFactor());
                     invalidate();
                 }
                 return true;
@@ -123,6 +117,7 @@ public class ArInteractiveSurfaceView extends View {
                 isScaling = false;
             }
         });
+        touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
     }
 
     public void setSceneController(ArSceneController controller) {
@@ -134,68 +129,62 @@ public class ArInteractiveSurfaceView extends View {
         this.interactionListener = listener;
     }
 
-    public void setOnNativeArHitTestListener(OnNativeArHitTestListener listener) {
-        this.nativeHitTestListener = listener;
-    }
-
     private void notifySceneChanged() {
         if (interactionListener != null) {
             interactionListener.onSceneStateChanged();
         }
     }
 
+    /**
+     * Gestes tactiles :
+     * - Aperçu (non placé) : glisser horizontalement = orienter le modèle, pincer = changer la taille.
+     * - Exemplaires placés : figés ; un simple toucher les sélectionne (pour Dupliquer / Supprimer).
+     */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (sceneController == null || !sceneController.isSurfaceDetected()) {
+        if (sceneController == null) {
             return super.onTouchEvent(event);
         }
         scaleDetector.onTouchEvent(event);
 
-        int w = getWidth();
-        int h = getHeight();
-        if (w <= 0 || h <= 0) return true;
-
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
-                ArPlacedInstance hit = findHitInstance(event.getX(), event.getY(), w, h);
-                if (hit != null) {
-                    sceneController.selectInstance(hit.getInstanceId());
-                    draggingSelectedInstance = true;
-                    notifySceneChanged();
-                    invalidate();
-                } else if (sceneController.getInstanceCount() == 0 && sceneController.getSharedResource() != null) {
-                    if (nativeHitTestListener != null && sceneController.hasNativeArCoreMatrices()) {
-                        nativeHitTestListener.onTapSurface(event.getX(), event.getY());
-                        draggingSelectedInstance = true;
-                    } else {
-                        float[] floorHit = sceneController.screenRayToFloorPlane(event.getX(), event.getY(), w, h);
-                        sceneController.placeInstanceOnSurface(floorHit[0], floorHit[1], floorHit[2]);
-                        draggingSelectedInstance = true;
-                        notifySceneChanged();
-                        invalidate();
-                    }
-                } else {
-                    draggingSelectedInstance = false;
-                }
+                downX = lastX = event.getX();
+                downY = event.getY();
+                movedBeyondSlop = false;
+                gestureWasScale = false;
                 return true;
 
             case MotionEvent.ACTION_MOVE:
-                if (!isScaling && event.getPointerCount() == 1 && draggingSelectedInstance
-                        && sceneController.getSelectedInstance() != null) {
-                    if (nativeHitTestListener != null && sceneController.hasNativeArCoreMatrices()) {
-                        nativeHitTestListener.onDragSelectedInstance(event.getX(), event.getY());
-                    } else {
-                        float[] floorHit = sceneController.screenRayToFloorPlane(event.getX(), event.getY(), w, h);
-                        sceneController.moveSelectedInstanceTo(floorHit[0], floorHit[1], floorHit[2]);
+                if (Math.abs(event.getX() - downX) > touchSlop || Math.abs(event.getY() - downY) > touchSlop) {
+                    movedBeyondSlop = true;
+                }
+                if (!isScaling && event.getPointerCount() == 1 && sceneController.isPreviewActive()) {
+                    float dx = event.getX() - lastX;
+                    sceneController.rotatePreviewBy(dx * ROTATION_DEGREES_PER_PIXEL);
+                    invalidate();
+                }
+                lastX = event.getX();
+                return true;
+
+            case MotionEvent.ACTION_POINTER_UP:
+                // Évite un saut de rotation quand on relâche un doigt après un pincement
+                lastX = event.getX(event.getActionIndex() == 0 ? 1 : 0);
+                return true;
+
+            case MotionEvent.ACTION_UP:
+                if (!movedBeyondSlop && !gestureWasScale) {
+                    ArPlacedInstance hit = findHitInstance(event.getX(), event.getY(), getWidth(), getHeight());
+                    if (hit != null) {
+                        sceneController.selectInstance(hit.getInstanceId());
                         notifySceneChanged();
                         invalidate();
                     }
                 }
+                isScaling = false;
                 return true;
 
-            case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
-                draggingSelectedInstance = false;
                 isScaling = false;
                 return true;
 
@@ -252,7 +241,17 @@ public class ArInteractiveSurfaceView extends View {
             drawWorldFloorReticle(canvas, w, h);
         }
 
-        // 2. Trier les instances placées de la plus éloignée à la plus proche de la caméra 3D
+        // 2. Aperçu du modèle 3D AVANT placement (suit le réticule, orientable et redimensionnable au tactile)
+        if (sceneController.isPreviewActive() && sceneController.getSharedResource() != null && sceneController.isSurfaceDetected()) {
+            float[] reticleHit = sceneController.getReticleWorldHit(w, h);
+            drawGlbMesh(canvas, sceneController.getSharedResource(),
+                    reticleHit[0], reticleHit[1], reticleHit[2],
+                    sceneController.getPreviewRotationDegrees(),
+                    sceneController.getPreviewScaleFactor(),
+                    false, true, w, h);
+        }
+
+        // 3. Trier les instances placées de la plus éloignée à la plus proche de la caméra 3D
         List<ArPlacedInstance> instances = new ArrayList<>(sceneController.getInstances());
         final float camX = sceneController.getCameraX();
         final float camY = sceneController.getCameraY();
@@ -388,47 +387,51 @@ public class ArInteractiveSurfaceView extends View {
     }
 
     private void drawPlacedInstanceInWorldSpace(Canvas canvas, ArPlacedInstance inst, boolean isSelected, int w, int h) {
-        float anchorX = inst.getX();
-        float anchorY = inst.getY();
-        float anchorZ = inst.getZ();
+        drawGlbMesh(canvas, inst.getSharedResource(),
+                inst.getX(), inst.getY(), inst.getZ(),
+                inst.getRotationDegrees(), inst.getScaleFactor(),
+                isSelected, false, w, h);
+    }
+
+    private void drawGlbMesh(Canvas canvas, GlbModelCache.SharedGlbResource res,
+                             float anchorX, float anchorY, float anchorZ,
+                             float rotationDegrees, float scaleFactor,
+                             boolean isSelected, boolean isPreview, int w, int h) {
+        if (res == null || res.getVertices() == null || res.getFaces() == null) return;
 
         float[] anchorProj = sceneController.projectWorldToScreen(anchorX, anchorY, anchorZ, w, h);
         if (anchorProj[2] <= 0.15f) {
-            // L'objet est derrière la caméra actuelle : il reste ancré dans la pièce hors du champ de vision
             return;
         }
 
-        // Facteur d'échelle en mètres dans l'espace réel (0.65m de demi-largeur = canapé de ~1.3m à l'échelle 1.0x)
-        float worldScale = 0.65f * inst.getScaleFactor();
+        float worldScale = 0.65f * scaleFactor;
 
-        // Ombre portée au sol + anneau de sélection 3D posé à plat sur la surface ARCore détectée (anchorY)
-        if (isSelected) {
+        // Anneau 3D au sol : pointillé blanc pour l'aperçu, doré pour la sélection, ombre pour les autres
+        if (isPreview) {
+            drawFloorCircle3D(canvas, anchorX, anchorY, anchorZ, worldScale * 1.08f, previewRingPaint, false, w, h);
+        } else if (isSelected) {
             drawFloorCircle3D(canvas, anchorX, anchorY, anchorZ, worldScale * 1.08f, selectionRingPaint, true, w, h);
         } else {
             drawFloorCircle3D(canvas, anchorX, anchorY, anchorZ, worldScale * 0.92f, shadowPaint, true, w, h);
         }
 
-        GlbModelCache.SharedGlbResource res = inst.getSharedResource();
-        if (res == null || res.getVertices() == null || res.getFaces() == null) return;
-
         float[][] verts = res.getVertices();
         int[][] faces = res.getFaces();
 
-        double rotRad = Math.toRadians(inst.getRotationDegrees());
+        double rotRad = Math.toRadians(rotationDegrees);
         float cosRot = (float) Math.cos(rotRad);
         float sinRot = (float) Math.sin(rotRad);
 
         // 1. Transformer chaque sommet du maillage .glb dans le repère 3D du monde (World Space) puis le projeter à l'écran
         float[][] worldVerts = new float[verts.length][3];
         float[][] screenVerts = new float[verts.length][3];
-        float minScreenY = anchorProj[1];
 
         for (int i = 0; i < verts.length; i++) {
             float lx = verts[i][0] * worldScale;
             float ly = verts[i][1] * worldScale;
             float lz = verts[i][2] * worldScale;
 
-            // Rotation propre de l'instance autour de l'axe vertical Y du sol
+            // Rotation propre du modèle autour de l'axe vertical Y du sol
             float rx = lx * cosRot - lz * sinRot;
             float rz = lx * sinRot + lz * cosRot;
 
@@ -441,9 +444,6 @@ public class ArInteractiveSurfaceView extends View {
             worldVerts[i][2] = wz;
 
             screenVerts[i] = sceneController.projectWorldToScreen(wx, wy, wz, w, h);
-            if (screenVerts[i][2] > 0.15f && screenVerts[i][1] < minScreenY) {
-                minScreenY = screenVerts[i][1];
-            }
         }
 
         // 2. Trier les faces 3D par profondeur réelle par rapport à la caméra (Algorithme du peintre 3D)
@@ -490,9 +490,16 @@ public class ArInteractiveSurfaceView extends View {
 
         boolean isBlueBubble = res.getSourceUrl() != null
                 && res.getSourceUrl().toLowerCase().contains("base_basic_shaded");
-        int baseColorHex = isBlueBubble
-                ? (isSelected ? Color.parseColor("#2563EB") : Color.parseColor("#1D4ED8"))
-                : (isSelected ? Color.parseColor("#FF6D00") : Color.parseColor("#00897B"));
+        int baseColorHex;
+        if (isBlueBubble) {
+            baseColorHex = isSelected ? Color.parseColor("#2563EB") : Color.parseColor("#1D4ED8");
+        } else if (isPreview) {
+            baseColorHex = Color.parseColor("#00B4D8"); // Teinte cyan/bleu clair distincte pour l'aperçu
+        } else if (isSelected) {
+            baseColorHex = Color.parseColor("#FF6D00");
+        } else {
+            baseColorHex = Color.parseColor("#00897B");
+        }
 
         for (ProjectedWorldFace pf : sortedFaces) {
             facePath.reset();
@@ -508,15 +515,6 @@ public class ArInteractiveSurfaceView extends View {
             canvas.drawPath(facePath, facePaint);
             canvas.drawPath(facePath, edgePaint);
         }
-
-        // 3. Étiquette d'ancrage 3D au-dessus de l'instance
-        String tag = String.format(Locale.FRANCE, "#%d • %.1fm (%.1fx • %.0f°)",
-                inst.getInstanceNumber(), anchorProj[2], inst.getScaleFactor(), inst.getRotationDegrees());
-        float textW = labelPaint.measureText(tag) + 24f;
-        float labelY = Math.max(60f, minScreenY - 18f);
-        canvas.drawRoundRect(anchorProj[0] - textW / 2f, labelY - 26f,
-                anchorProj[0] + textW / 2f, labelY + 8f, 12f, 12f, labelBgPaint);
-        canvas.drawText(tag, anchorProj[0], labelY, labelPaint);
     }
 
     private static int applyLighting(int baseColor, float intensity, int faceIdx) {

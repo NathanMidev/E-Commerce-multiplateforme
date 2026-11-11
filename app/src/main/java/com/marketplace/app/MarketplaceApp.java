@@ -4,7 +4,6 @@ import android.app.Application;
 import android.os.Build;
 
 import com.marketplace.app.backend.ApiClient;
-import com.marketplace.app.backend.mock.MockBackendService;
 import com.marketplace.app.feature.auth.FirebaseAuthSession;
 
 /**
@@ -18,19 +17,13 @@ public class MarketplaceApp extends Application {
     public void onCreate() {
         super.onCreate();
 
-        // 1. Configuration du mode mock :
-        // Si l'URL pointe sur 10.0.2.2 (boucle locale émulateur uniquement) alors que l'app tourne
-        // sur un vrai téléphone physique, basculer directement en mode autonome sans attente réseau.
-        boolean shouldUseMock = BuildConfig.USE_MOCK_BACKEND
-                || (BuildConfig.API_BASE_URL.contains("10.0.2.2") && !isRunningOnEmulator());
-        ApiClient.setUseMock(shouldUseMock);
-        ApiClient.init(BuildConfig.API_BASE_URL);
+        // Initialisation de l'API REST vers PostgreSQL
+        String apiUrl = ApiClient.resolveConfiguredBaseUrl(this, BuildConfig.API_BASE_URL);
+        android.util.Log.i("MarketplaceApp", "Configured API URL: " + apiUrl);
+        ApiClient.init(apiUrl);
 
-        // 2. Synchronisation de la session Firebase Auth
+        // Synchronisation de la session Firebase Auth
         FirebaseAuthSession.initialize();
-
-        // 3. Initialisation des données de démonstration (vendeur exemple Canapé Bubble + base_basic_shaded.glb)
-        MockBackendService.getInstance().resetData();
     }
 
     private static boolean isRunningOnEmulator() {

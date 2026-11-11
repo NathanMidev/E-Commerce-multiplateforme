@@ -81,19 +81,14 @@ public class UserRepository extends BaseRepository<User> {
                 if (response.isSuccessful() && response.body() != null) {
                     User user = response.body();
                     enrichUserMetadata(user, false);
-                    postSuccess(callback, user);
                 } else {
-                    User fallback = MockBackendService.getInstance().getOrCreateProfile(id);
-                    enrichUserMetadata(fallback, false);
-                    postSuccess(callback, fallback);
+                    postError(callback, parseHttpError(response));
                 }
             }
 
             @Override
             public void onFailure(Call<User> call, Throwable t) {
-                User fallback = MockBackendService.getInstance().getOrCreateProfile(id);
-                enrichUserMetadata(fallback, false);
-                postSuccess(callback, fallback);
+                postError(callback, parseNetworkError(t));
             }
         });
     }
@@ -120,11 +115,6 @@ public class UserRepository extends BaseRepository<User> {
                     enrichUserMetadata(u, true);
                     AuthSession.getInstance().setCurrentUser(u);
                     postSuccess(callback, u);
-                } else if (uid != null && !uid.trim().isEmpty()) {
-                    User u = MockBackendService.getInstance().getOrCreateProfile(uid);
-                    enrichUserMetadata(u, true);
-                    AuthSession.getInstance().setCurrentUser(u);
-                    postSuccess(callback, u);
                 } else {
                     postError(callback, parseHttpError(response));
                 }
@@ -132,14 +122,7 @@ public class UserRepository extends BaseRepository<User> {
 
             @Override
             public void onFailure(Call<User> call, Throwable t) {
-                if (uid != null && !uid.trim().isEmpty()) {
-                    User u = MockBackendService.getInstance().getOrCreateProfile(uid);
-                    enrichUserMetadata(u, true);
-                    AuthSession.getInstance().setCurrentUser(u);
-                    postSuccess(callback, u);
-                } else {
-                    postError(callback, parseNetworkError(t));
-                }
+                postError(callback, parseNetworkError(t));
             }
         });
     }
@@ -282,6 +265,10 @@ public class UserRepository extends BaseRepository<User> {
                 hasAvatarField ? backendFields.get("avatarUrl") : null
         );
 
+        if (requestedUsername != null && !requestedUsername.trim().isEmpty()) {
+            backendFields.put("username", requestedUsername.trim());
+        }
+
         if (useMock) {
             User u = applyLocalProfileUpdate(uid, backendFields, requestedUsername);
             postSuccess(callback, u);
@@ -289,12 +276,11 @@ public class UserRepository extends BaseRepository<User> {
         }
 
         if (backendFields.isEmpty()) {
-            // Seul le username a été modifié
+            // Aucun champ modifié
             getMyProfile(callback);
             return;
         }
 
-        final String finalRequestedUsername = requestedUsername;
         ApiClient.getApi().updateMyProfile(backendFields).enqueue(new retrofit2.Callback<User>() {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
@@ -304,15 +290,13 @@ public class UserRepository extends BaseRepository<User> {
                     AuthSession.getInstance().setCurrentUser(updated);
                     postSuccess(callback, updated);
                 } else {
-                    User fallback = applyLocalProfileUpdate(uid, backendFields, finalRequestedUsername);
-                    postSuccess(callback, fallback);
+                    postError(callback, parseHttpError(response));
                 }
             }
 
             @Override
             public void onFailure(Call<User> call, Throwable t) {
-                User fallback = applyLocalProfileUpdate(uid, backendFields, finalRequestedUsername);
-                postSuccess(callback, fallback);
+                postError(callback, parseNetworkError(t));
             }
         });
     }

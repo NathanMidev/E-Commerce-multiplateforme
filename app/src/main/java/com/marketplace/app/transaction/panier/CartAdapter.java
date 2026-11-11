@@ -45,7 +45,10 @@ public class CartAdapter extends BaseAdapter<CartItem, CartAdapter.ViewHolder> {
     @Override
     protected void bind(@NonNull ViewHolder holder, CartItem item, int position) {
         // En-tête vendeur affiché uniquement pour le premier article du vendeur
-        boolean showSellerHeader = (position == 0) || !item.getSellerId().equals(getItem(position - 1).getSellerId());
+        String currentSeller = item.getSellerId() != null ? item.getSellerId() : "";
+        String prevSeller = (position > 0 && getItem(position - 1) != null && getItem(position - 1).getSellerId() != null)
+                ? getItem(position - 1).getSellerId() : "";
+        boolean showSellerHeader = (position == 0) || !currentSeller.equals(prevSeller);
         if (showSellerHeader) {
             holder.layoutSellerHeader.setVisibility(View.VISIBLE);
             holder.tvSellerName.setText("Boutique : " + (item.getSellerName() != null ? item.getSellerName() : item.getSellerId()));

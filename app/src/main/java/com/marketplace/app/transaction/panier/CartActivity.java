@@ -101,8 +101,16 @@ public class CartActivity extends BaseActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (com.marketplace.app.backend.AuthSession.getInstance().isLoggedIn()) {
+            loadData();
+        }
+    }
+
+    @Override
     protected void loadData() {
-        if (!requireLogin(this::loadData)) return;
+        if (!requireLogin()) return;
 
         cartRepository.getCart(new BaseRepository.Callback<Cart>() {
             @Override
